@@ -1,5 +1,5 @@
-#include "Application.h"
-#include "EntryPoint.h"
+#include "Core/Application.h"
+#include "Core/EntryPoint.h"
 
 class Sandbox : public Engine::Application {
 public:

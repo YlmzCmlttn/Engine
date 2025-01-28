@@ -7,13 +7,14 @@ cmake_minimum_required(VERSION 3.8 FATAL_ERROR)
 project(SandBox LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_FLAGS "-Wall -Wextra -O3 -g")
+
 
 add_subdirectory(../Renderer Renderer_Build)
 file(GLOB SANDBOX_SOURCES src/*.cpp)
 
 macro(add_sandbox_example name)
 add_executable(${name} ${SANDBOX_SOURCES})
+target_compile_options(${name}  PRIVATE -Wall -Wextra -O3)
 target_precompile_headers(${name} PRIVATE ../pch/pch.h)
 target_link_libraries(${name} Renderer)
 endmacro()
