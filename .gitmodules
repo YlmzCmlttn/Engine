@@ -1,0 +1,6 @@
+[submodule "Renderer/vendor/glfw"]
+	path = Renderer/vendor/glfw
+	url = https://github.com/glfw/glfw.git
+[submodule "Renderer/vendor/glad"]
+	path = Renderer/vendor/glad
+	url = https://github.com/Dav1dde/glad.git
