@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 add_subdirectory(../Renderer Renderer_Build)
 file(GLOB SANDBOX_SOURCES src/*.cpp)
-
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 macro(add_sandbox_example name)
 add_executable(${name} ${SANDBOX_SOURCES})
 target_compile_options(${name}  PRIVATE -Wall -Wextra -O3)

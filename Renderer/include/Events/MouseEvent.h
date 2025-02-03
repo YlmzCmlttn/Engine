@@ -10,10 +10,10 @@ namespace Engine
         MouseMovedEvent(float x,float y)
             :m_MouseX{x},m_MouseY{y}{}
         
-        inline float GetX()const{return m_MouseX;}
-        inline float GetY()const{return m_MouseY;}
+        inline float getX()const{return m_MouseX;}
+        inline float getY()const{return m_MouseY;}
 
-        std::string ToString()const override{
+        std::string toString()const override{
             std::stringstream ss;
             ss<<"MouseMovedEvent: "<<m_MouseX<<", "<<m_MouseY;
             return ss.str();
@@ -31,12 +31,12 @@ namespace Engine
         MouseScrolledEvent(float xOff,float yOff)
             :m_XOffset{xOff},m_YOffset{yOff}{}
         
-        inline float GetXOffset()const{return m_XOffset;}
-        inline float GetYOffset()const{return m_YOffset;}
+        inline float getXOffset()const{return m_XOffset;}
+        inline float getYOffset()const{return m_YOffset;}
 
-        std::string ToString()const override{
+        std::string toString()const override{
             std::stringstream ss;
-            ss<<"MouseScrolledEvent: "<<GetXOffset()<<", "<<GetYOffset();
+            ss<<"MouseScrolledEvent: "<<getXOffset()<<", "<<getYOffset();
             return ss.str();
         }
 
@@ -52,7 +52,7 @@ namespace Engine
             :m_Button{button}{}
     public:
         
-        inline int GetMouseButton()const{return m_Button;}
+        inline int getMouseButton()const{return m_Button;}
         
 
         EVENT_CLASS_CATEGORY(EventCategoryMouse|EventCategoryInput)
@@ -65,7 +65,7 @@ namespace Engine
             :MouseButtonEvent{button}{}
         
 
-        std::string ToString()const override{
+        std::string toString()const override{
             std::stringstream ss;
             ss<<"MouseButtonPressedEvent: "<<m_Button;
             return ss.str();
@@ -81,7 +81,7 @@ namespace Engine
             :MouseButtonEvent{button}{}
         
 
-        std::string ToString()const override{
+        std::string toString()const override{
             std::stringstream ss;
             ss<<"MouseButtonReleasedEvent: "<<m_Button;
             return ss.str();

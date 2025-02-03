@@ -15,32 +15,33 @@ namespace Engine
     enum EventCategory{
         Nono=0,
         EventCategoryApplication    = BIT(0),
-        EventCategoryInput          = BIT(1),
-        EventCategoryKeyboard       = BIT(2),
-        EventCategoryMouse          = BIT(3),
-        EventCategoryMouseButton    = BIT(4)
+        EventCategoryWindow         = BIT(1),
+        EventCategoryInput          = BIT(2),
+        EventCategoryKeyboard       = BIT(3),
+        EventCategoryMouse          = BIT(4),
+        EventCategoryMouseButton    = BIT(5)
 
     };
 
-#define EVENT_CLASS_TYPE(type) static EventType GetStaticType(){return EventType::type;}\
-                                virtual EventType GetEventType()const override{return GetStaticType();}\
-                                virtual const char* GetName()const override{return #type;}
+#define EVENT_CLASS_TYPE(type) static EventType getStaticType(){return EventType::type;}\
+                                virtual EventType getEventType()const override{return getStaticType();}\
+                                virtual const char* getName()const override{return #type;}
 
-#define EVENT_CLASS_CATEGORY(category) virtual int GetCategoryFlags()const override{return category;}
+#define EVENT_CLASS_CATEGORY(category) virtual int getCategoryFlags()const override{return category;}
 
     class Event
     {
     private:
         friend class EventDispatcher;
     public:
-        bool Handled = false;
-        virtual EventType GetEventType()const = 0;
-        virtual const char* GetName()const = 0;
-        virtual int GetCategoryFlags()const = 0;
-        virtual std::string ToString()const{return GetName();}
-        inline bool IsHandled()const{return Handled;}
-        inline bool IsInCategory(EventCategory category){
-            return GetCategoryFlags()&category;
+        bool m_Handled = false;
+        virtual EventType getEventType()const = 0;
+        virtual const char* getName()const = 0;
+        virtual int getCategoryFlags()const = 0;
+        virtual std::string toString()const{return getName();}
+        inline bool isHandled()const{return m_Handled;}
+        inline bool isInCategory(EventCategory category){
+            return getCategoryFlags()&category;
         }
     protected:
     };
@@ -56,9 +57,9 @@ namespace Engine
             :m_Event{event}{}
 
         template<typename T>
-        bool Dispatch(EventFn<T> func){
-            if(m_Event.GetEventType()==T::GetStaticType()){
-                m_Event.Handled = func(*(T*)&m_Event);
+        bool dispatch(EventFn<T> func){
+            if(m_Event.getEventType()==T::getStaticType()){
+                m_Event.m_Handled = func(*(T*)&m_Event);
                 return true;
             }
             return false;
@@ -66,10 +67,6 @@ namespace Engine
     };
 
     inline std::ostream& operator<<(std::ostream& os, const Event& e){
-        return os<<e.ToString();
+        return os<<e.toString();
     }    
 } // namespace Engineenderer
-
-
-
-#endif

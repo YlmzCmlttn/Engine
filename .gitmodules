@@ -4,3 +4,6 @@
 [submodule "Renderer/vendor/glad"]
 	path = Renderer/vendor/glad
 	url = https://github.com/Dav1dde/glad.git
+[submodule "Renderer/vendor/spdlog"]
+	path = Renderer/vendor/spdlog
+	url = https://github.com/gabime/spdlog.git

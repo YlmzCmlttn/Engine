@@ -1,16 +1,13 @@
 #include "Core/Application.h"
 #include "Core/EntryPoint.h"
-
+#include "ExampleLayer.h"
 class Sandbox : public Engine::Application {
 public:
     Sandbox() : Application("Sandbox") {
-        std::cout << "Sandbox application initialized." << std::endl;
+        pushLayer(std::make_shared<ExampleLayer>());
     }
-    ~Sandbox() override {
-        std::cout << "Sandbox application destroyed." << std::endl;
-    }
-    void run() override {
-        std::cout << "Sandbox application is running..." << std::endl;
+    ~Sandbox(){
+        
     }
 };
 
