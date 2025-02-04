@@ -1,7 +1,7 @@
 #include "Core/Application.h"
 #include "Core/Assert.h"
 #include <GLFW/glfw3.h>
-
+#include "Renderer/Renderer.h"
 namespace Engine {
     #define BIND_EVENT_FN(x) std::bind(&Application::x,this,std::placeholders::_1)
 
@@ -10,12 +10,13 @@ namespace Engine {
     Application::Application(const std::string& name) {
         ENGINE_CORE_ASSERT(!s_Instance,"Application already exists!");
         s_Instance = this;
-        m_Window = Window::Create();
+        m_Window = std::unique_ptr<Window>(Window::Create());
 
         m_Window->setEventCallback(BIND_EVENT_FN(onEvent));
 
-        //m_ImGuiLayer = new ImGuiLayer();
-        //pushOverlay(m_ImGuiLayer);
+        m_ImGuiLayer = CreateRef<ImGuiLayer>();
+        pushOverlay(m_ImGuiLayer);
+
     }
 
 
@@ -47,7 +48,17 @@ namespace Engine {
         }
     }
 
+    void Application::renderImGui()
+	{
+		m_ImGuiLayer->begin();
+		for (Ref<Layer>  layer : m_LayerStack)
+			layer->onImGuiRender();
+
+		m_ImGuiLayer->end();
+	}
+
     void Application::run() {
+        onInit();
         while(m_Running){
             float time = m_Window->getTime();
             Timestep ts = time - m_LastFrameTime;
@@ -56,14 +67,17 @@ namespace Engine {
             for(Ref<Layer> layer : m_LayerStack){
                 layer->onUpdate(ts);
             }
-            //m_ImGuiLayer->begin();
-            //for(Layer* layer : m_LayerStack){
-            //    layer->onImGuiRender();
-            //}
-            //m_ImGuiLayer->end();
+
+            Application* app = this;
+            Renderer::submit([app]() {
+                app->renderImGui();
+            });
+
+            Renderer::get().waitAndRender();
 
             m_Window->onUpdate();
         }
+        onShutdown();
     }
 
     bool Application::onWindowClose([[maybe_unused]]WindowCloseEvent& e){

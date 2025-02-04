@@ -6,7 +6,7 @@
 #include "Events/KeyEvent.h"
 #include "Events/WindowEvent.h"
 #include "GLFW/glfw3.h"
-
+#include <glad/gl.h>
 namespace Engine {
     static bool  s_GLFWInitialized =false;
 
@@ -42,6 +42,8 @@ namespace Engine {
 
         m_Window = glfwCreateWindow((int)props.width, (int)props.height, m_Data.title.c_str(), nullptr, nullptr);
         glfwMakeContextCurrent(m_Window);
+        int status = gladLoadGL((GLADloadfunc)glfwGetProcAddress);
+        ENGINE_CORE_ASSERT(status, "Failed to initialize Glad!");
         glfwSetWindowUserPointer(m_Window, &m_Data);
         setVSync(true);
 
@@ -114,8 +116,10 @@ namespace Engine {
 
     void GLFWWindow::onUpdate()
     {
+        std::cout<<"GLFWWindow::onUpdate"<<std::endl;
         glfwPollEvents();
         glfwSwapBuffers(m_Window);
+        std::cout<<"GLFWWindow::onUpdate end"<<std::endl;
     }
     
 }

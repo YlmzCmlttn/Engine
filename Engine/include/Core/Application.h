@@ -6,6 +6,7 @@
 #include "Events/WindowEvent.h"
 #include "Layer.h"
 #include "LayerStack.h"
+#include "ImGui/ImGuiLayer.h"
 
 namespace Engine
 {
@@ -15,25 +16,33 @@ namespace Engine
 
         Application(const Application&) = delete;
         Application& operator=(const Application&) = delete;
+        virtual ~Application();
 
         
         inline static Application& Get(){return *s_Instance;}
 
         virtual void run();
+
+        virtual void onInit() {}
+		virtual void onShutdown() {}
+		virtual void onUpdate() {}
+
         virtual void onEvent(Event& e);
 
         void pushLayer(Ref<Layer> layer);
         void pushOverlay(Ref<Layer> overlay);
+        void renderImGui();
+
+        inline Window& getWindow(){return *m_Window;}
 
 
-        virtual ~Application();
     private:
         Scope<Window> m_Window;
+        Ref<ImGuiLayer> m_ImGuiLayer;
         bool m_Running = true;
 		bool m_Minimized = false;
         float m_LastFrameTime = 0.0f;
-        LayerStack m_LayerStack;
-
+        LayerStack m_LayerStack;        
 
         static Application* s_Instance;
 

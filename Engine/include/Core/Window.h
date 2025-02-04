@@ -34,7 +34,7 @@ namespace Engine
 
         virtual void* getNativeWindow() const = 0;
 
-        static Scope<Window> Create(const WindowProps& props = WindowProps());
+        static Window* Create(const WindowProps& props = WindowProps());
     };
 
 

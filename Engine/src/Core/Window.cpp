@@ -3,8 +3,8 @@
 
 namespace Engine {
 
-    Scope<Window> Window::Create(const WindowProps& props)
+    Window* Window::Create(const WindowProps& props)
 	{	
-		return CreateScope<GLFWWindow>(props);
+		return new GLFWWindow(props);
 	}
 } // namespace Engine
