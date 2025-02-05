@@ -2,30 +2,15 @@
 
 //#include "Core/Base.h"
 #include "Renderer/Renderer.h"
-
-#include <string>
+#include "Renderer/Uniforms.h"
 
 namespace Engine
 {
-	struct ShaderUniform
-	{
-		
-	};
-
-	struct ShaderUniformCollection
-	{
-
-	};
-
 	class Shader
 	{
 	public:
 		virtual void bind() = 0;
-		
-
-		// Represents a complete shader program stored in a single file.
-		// Note: currently for simplicity this is simply a string filepath, however
-		//       in the future this will be an asset object + metadata
+		virtual void uploadUniformBuffer(const UniformBufferBase& uniformBuffer) = 0;
 		static Shader* Create(const std::string& filepath);
 	};
 

@@ -22,6 +22,7 @@ public:
 
 private:
     float m_ClearColor[4];
+    glm::vec4 m_TriangleColor;
     std::unique_ptr<Engine::Shader> m_Shader;
     std::unique_ptr<Engine::VertexBuffer> m_VB;
     std::unique_ptr<Engine::IndexBuffer> m_IB;

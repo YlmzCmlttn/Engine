@@ -2,6 +2,10 @@
 #include "Platform/OpenGL/OpenGLShader.h"
 #include "Core/Log.h"
 #include "Core/Assert.h"
+
+template<typename>
+struct AlwaysFalse : std::false_type {};
+
 namespace Engine {
 
 	OpenGLShader::OpenGLShader(const std::string& filepath)
@@ -126,6 +130,49 @@ namespace Engine {
 			glDetachShader(program, id);
 
 		m_RendererID = program;
+	}
+
+	void OpenGLShader::uploadUniformBuffer(const UniformBufferBase& uniformBuffer)
+	{
+		for (unsigned int i = 0; i < uniformBuffer.getUniformCount(); i++)
+		{
+			const UniformDecl& uniform = uniformBuffer.getUniforms()[i];
+			switch (uniform.type)
+			{
+				case UniformType::Float:
+				{
+					const float value = *(float*)(uniformBuffer.getBuffer() + uniform.offset);
+					const std::string name = uniform.name;
+					Renderer::Submit([this,name,value]() {						
+						this->uploadUniformFloat(name, value);
+					});
+					break;
+				}					
+				case UniformType::Float4:
+				{
+					const glm::vec4 value = *(glm::vec4*)(uniformBuffer.getBuffer() + uniform.offset);
+					const std::string name = uniform.name;
+					Renderer::Submit([this,name,value]() {
+						this->uploadUniformFloat4(name, value);
+					});
+					break;
+				}
+				default:
+					ENGINE_CORE_ASSERT(false, "Unsupported uniform type");
+			}
+		}
+	}
+
+	void OpenGLShader::uploadUniformFloat(const std::string& name, const float& value)
+	{
+		glUseProgram(m_RendererID);
+		glUniform1f(glGetUniformLocation(m_RendererID, name.c_str()), value);
+	}
+
+	void OpenGLShader::uploadUniformFloat4(const std::string& name, const glm::vec4& value)
+	{
+		glUseProgram(m_RendererID);
+		glUniform4f(glGetUniformLocation(m_RendererID, name.c_str()), value.x, value.y, value.z, value.w);
 	}
 
 }
