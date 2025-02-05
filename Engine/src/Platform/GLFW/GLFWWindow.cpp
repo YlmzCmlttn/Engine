@@ -1,3 +1,5 @@
+#include <glad/gl.h>
+
 #include "Platform/GLFW/GLFWWindow.h"
 #include "Core/Log.h"
 #include "Core/Assert.h"
@@ -5,14 +7,21 @@
 #include "Events/MouseEvent.h"
 #include "Events/KeyEvent.h"
 #include "Events/WindowEvent.h"
-#include "GLFW/glfw3.h"
-#include <glad/gl.h>
+
+
+#include <imgui.h>
 namespace Engine {
     static bool  s_GLFWInitialized =false;
 
     static void GLFWErrorCallback(int error,const char* description){
         ENGINE_CORE_ERROR("GLFW Error ({0}) : {1}",error,description);
     }
+
+    Window* Window::Create(const WindowProps& props)
+	{	
+		return new GLFWWindow(props);
+	}
+
     GLFWWindow::GLFWWindow(const WindowProps& props)
     {
         Init(props);
@@ -20,7 +29,7 @@ namespace Engine {
 
     GLFWWindow::~GLFWWindow()
     {
-        Shutdown();
+        
     }
 
     void GLFWWindow::Init(const WindowProps& props)
@@ -33,11 +42,13 @@ namespace Engine {
         if(!s_GLFWInitialized){
             int success = glfwInit();
             ENGINE_CORE_ASSERT(success, "Could not initialize GLFW!");
-            s_GLFWInitialized = true;
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-            glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
-            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+            //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+            //glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+            //glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
             glfwSetErrorCallback(GLFWErrorCallback);
+
+            s_GLFWInitialized = true;
         }
 
         m_Window = glfwCreateWindow((int)props.width, (int)props.height, m_Data.title.c_str(), nullptr, nullptr);
@@ -106,6 +117,15 @@ namespace Engine {
             MouseMovedEvent event(xPos, yPos);
             data.EventCallback(event);
         });
+
+        m_ImGuiMouseCursors[ImGuiMouseCursor_Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+		m_ImGuiMouseCursors[ImGuiMouseCursor_TextInput] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+		m_ImGuiMouseCursors[ImGuiMouseCursor_ResizeAll] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);   // FIXME: GLFW doesn't have this.
+		m_ImGuiMouseCursors[ImGuiMouseCursor_ResizeNS] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+		m_ImGuiMouseCursors[ImGuiMouseCursor_ResizeEW] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+		m_ImGuiMouseCursors[ImGuiMouseCursor_ResizeNESW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);  // FIXME: GLFW doesn't have this.
+		m_ImGuiMouseCursors[ImGuiMouseCursor_ResizeNWSE] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);  // FIXME: GLFW doesn't have this.
+		m_ImGuiMouseCursors[ImGuiMouseCursor_Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
     }
 
     void GLFWWindow::Shutdown()
@@ -116,10 +136,13 @@ namespace Engine {
 
     void GLFWWindow::onUpdate()
     {
-        std::cout<<"GLFWWindow::onUpdate"<<std::endl;
+        
         glfwPollEvents();
         glfwSwapBuffers(m_Window);
-        std::cout<<"GLFWWindow::onUpdate end"<<std::endl;
+
+        ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+        glfwSetCursor(m_Window, m_ImGuiMouseCursors[imgui_cursor] ? m_ImGuiMouseCursors[imgui_cursor] : m_ImGuiMouseCursors[ImGuiMouseCursor_Arrow]);
+		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
     
 }

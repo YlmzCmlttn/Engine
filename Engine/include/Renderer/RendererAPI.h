@@ -2,10 +2,27 @@
 
 namespace Engine
 {
+    using RendererID = unsigned int;
+
+	enum class RendererAPIType
+	{
+		None,
+		OpenGL
+	};
+
     class RendererAPI
     {
     public:
-        static void clear(float r, float g, float b, float a);
-        static void setClearColor(float r, float g, float b, float a);
+        static void Init();
+        static void Shutdown();
+        static void Clear(float r, float g, float b, float a);
+        static void SetClearColor(float r, float g, float b, float a);
+
+        static void DrawIndexed(unsigned int indexCount);
+
+        static RendererAPIType Current() { return s_CurrentRendererAPI; }
+
+    private:
+        static RendererAPIType s_CurrentRendererAPI;
     };
 } // namespace Engine

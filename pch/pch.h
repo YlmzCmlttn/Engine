@@ -7,4 +7,7 @@
 #include <functional>
 #include <sstream>
 #include <csignal>
+#include <limits>
+#include <cstring>
+
 //#include <format> //C++20

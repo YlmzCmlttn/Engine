@@ -24,6 +24,7 @@ namespace Engine {
             inline void* getNativeWindow() const override{return m_Window;}
         private:
             GLFWwindow* m_Window;
+		    GLFWcursor* m_ImGuiMouseCursors[9] = { 0 };
             struct WindowData
             {
                 std::string title;

@@ -1,6 +1,8 @@
 #include "Core/Application.h"
 #include "Core/EntryPoint.h"
 #include "ExampleLayer.h"
+
+
 class Sandbox : public Engine::Application {
 public:
     Sandbox() : Application("Sandbox") {

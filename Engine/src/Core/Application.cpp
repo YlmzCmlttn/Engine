@@ -69,7 +69,7 @@ namespace Engine {
             }
 
             Application* app = this;
-            Renderer::submit([app]() {
+            Renderer::Submit([app]() {
                 app->renderImGui();
             });
 
