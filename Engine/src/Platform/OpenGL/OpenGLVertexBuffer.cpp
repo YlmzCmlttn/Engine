@@ -24,9 +24,7 @@ namespace Engine {
 		Renderer::Submit([this, buffer, size, offset]() {
 			glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
 			glBufferData(GL_ARRAY_BUFFER, size, buffer, GL_STATIC_DRAW);
-
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+			
 		});
 
 	}
@@ -35,6 +33,13 @@ namespace Engine {
 	{
 		Renderer::Submit([this]() {
 			glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
+
 		});
 	}
 
