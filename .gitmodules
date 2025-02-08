@@ -17,3 +17,6 @@
 [submodule "Engine/vendor/assimp"]
 	path = Engine/vendor/assimp
 	url = https://github.com/assimp/assimp.git
+[submodule "Engine/vendor/stb"]
+	path = Engine/vendor/stb
+	url = https://github.com/nothings/stb.git
