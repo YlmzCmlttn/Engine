@@ -61,11 +61,26 @@ namespace Engine
             std::memcpy(buffer + uniformBufferOffset, &value, sizeof(float));
             uniformBufferOffset += sizeof(float);
         }
+		void push(const std::string& name, const glm::vec2& value){
+            uniforms[0] = {name, UniformType::Float2, uniformBufferOffset};
+            std::memcpy(buffer + uniformBufferOffset, glm::value_ptr(value), sizeof(glm::vec2));
+            uniformBufferOffset += sizeof(glm::vec2);
+        }
+		void push(const std::string& name, const glm::vec3& value){
+            uniforms[0] = {name, UniformType::Float3, uniformBufferOffset};
+            std::memcpy(buffer + uniformBufferOffset, glm::value_ptr(value), sizeof(glm::vec3));
+            uniformBufferOffset += sizeof(glm::vec3);
+        }
         void push(const std::string& name, const glm::vec4& value){
             uniforms[0] = {name, UniformType::Float4, uniformBufferOffset};
             std::memcpy(buffer + uniformBufferOffset, glm::value_ptr(value), sizeof(glm::vec4));
             uniformBufferOffset += sizeof(glm::vec4);
         }        
+		void push(const std::string& name, const glm::mat4& value){
+            uniforms[0] = {name, UniformType::Mat4, uniformBufferOffset};
+            std::memcpy(buffer + uniformBufferOffset, glm::value_ptr(value), sizeof(glm::mat4));
+            uniformBufferOffset += sizeof(glm::mat4);
+        }
 
         template<typename T>
         void push(const std::string& name, const T& value)

@@ -22,8 +22,8 @@ namespace Engine {
     void OpenGLFrameBuffer::bind() const
     {
         Renderer::Submit([this]() {
-            glBindFramebuffer(GL_FRAMEBUFFER, m_RendererID);
-            glViewport(0, 0, m_Width, m_Height);
+            glBindFramebuffer(GL_FRAMEBUFFER, this->m_RendererID);
+            glViewport(0, 0, this->m_Width, this->m_Height);
         });
     }
 

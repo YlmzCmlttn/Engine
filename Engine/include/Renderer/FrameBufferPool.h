@@ -14,6 +14,7 @@ namespace Engine {
         Ref<FrameBuffer> acquireFrameBuffer(FrameBufferFormat format, unsigned int width, unsigned int height);
 
         void releaseFrameBuffer(Ref<FrameBuffer> fb);
+        void resizeAllFrameBuffers(unsigned int width, unsigned int height);
     private:
         FrameBufferPool() = default;
         ~FrameBufferPool() = default;

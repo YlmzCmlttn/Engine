@@ -37,5 +37,4 @@ namespace Engine {
 			glDeleteTextures(1, &self->m_RendererID);
 		});
 	}
-
 }

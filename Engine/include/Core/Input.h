@@ -7,9 +7,9 @@ namespace Engine {
 	public:
 		static bool isKeyPressed(int keycode) { return s_Instance->isKeyPressedImpl(keycode); }
 
-		inline static bool isMouseButtonPressed(int button) { return s_Instance->isMouseButtonPressed(button); }
-		inline static float getMouseX() { return s_Instance->getMouseX(); }
-		inline static float getMouseY() { return s_Instance->getMouseY(); }
+		inline static bool isMouseButtonPressed(int button) { return s_Instance->isMouseButtonPressedImpl(button); }
+		inline static float getMouseX() { return s_Instance->getMouseXImpl(); }
+		inline static float getMouseY() { return s_Instance->getMouseYImpl(); }
 	protected:
 		virtual bool isKeyPressedImpl(int keycode) = 0;
 		virtual bool isMouseButtonPressedImpl(int button) = 0;

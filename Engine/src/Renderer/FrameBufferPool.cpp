@@ -29,4 +29,13 @@ namespace Engine {
         m_available.push_back(std::move(fb));
     }
 
+    void FrameBufferPool::resizeAllFrameBuffers(unsigned int width, unsigned int height)
+    {
+        std::lock_guard<std::mutex> lock(m_poolMutex);
+        for (auto& fb : m_available)
+        {
+            fb->resize(width, height);
+        }
+    }
+
 }

@@ -22,8 +22,9 @@ namespace Engine {
 
 	void OpenGLIndexBuffer::setData(void* buffer, unsigned int size, unsigned int offset)
 	{
+		m_Size = size;
 		Renderer::Submit([this, buffer, size, offset]() {
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_RendererID);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, buffer, GL_STATIC_DRAW);
 		});
 	}
@@ -31,7 +32,7 @@ namespace Engine {
 	void OpenGLIndexBuffer::bind() const
 	{
 		Renderer::Submit([this]() {
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_RendererID);
 		});
 	}
 

@@ -2,6 +2,7 @@
 #include "Core/Assert.h"
 #include <GLFW/glfw3.h>
 #include "Renderer/Renderer.h"
+#include "Renderer/FrameBufferPool.h"
 namespace Engine {
     #define BIND_EVENT_FN(x) std::bind(&Application::x,this,std::placeholders::_1)
 
@@ -86,14 +87,19 @@ namespace Engine {
     }
     bool Application::onWindowResize(WindowResizeEvent& e)
 	{
-		if (e.getWidth() == 0 || e.getHeight() == 0)
-		{
-			m_Minimized = true;
-			return false;
-		}
+		// if (e.getWidth() == 0 || e.getHeight() == 0)
+		// {
+		// 	m_Minimized = true;
+		// 	return false;
+		// }
 
-		m_Minimized = false;
+		// m_Minimized = false;
 		//Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+        int width = e.getWidth();
+        int height = e.getHeight();
+        FrameBufferPool::getInstance().resizeAllFrameBuffers(width, height);
+
+        
 		return false;
 	}
 }

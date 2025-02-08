@@ -8,18 +8,27 @@ struct AlwaysFalse : std::false_type {};
 
 namespace Engine {
 
-	OpenGLShader::OpenGLShader(const std::string& filepath)
+	OpenGLShader::OpenGLShader(const std::string& filepath):m_FilePath(filepath)
 	{
-		readShaderFromFile(filepath);
+		size_t found = filepath.find_last_of("/\\");
+		m_Name = found != std::string::npos ? filepath.substr(found + 1) : filepath;
+		reload();
+	}
+
+	void OpenGLShader::reload()
+	{
+		readShaderFromFile(m_FilePath);
 		Renderer::Submit([this]() {
-			compileAndUploadShader();
+			if (this->m_RendererID != 0)
+				glDeleteProgram(this->m_RendererID);
+			this->compileAndUploadShader();
 		});
 	}
 
 	void OpenGLShader::bind()
 	{
 		Renderer::Submit([this]() {
-			glUseProgram(m_RendererID);
+			glUseProgram(this->m_RendererID);
 		});
 	}
 
@@ -130,6 +139,22 @@ namespace Engine {
 			glDetachShader(program, id);
 
 		m_RendererID = program;
+
+
+		//Need to delete later
+		// Bind default texture unit
+		uploadUniformInt("u_Texture", 0);
+
+		// PBR shader textures
+		uploadUniformInt("u_AlbedoTexture", 1);
+		uploadUniformInt("u_NormalTexture", 2);
+		uploadUniformInt("u_MetalnessTexture", 3);
+		uploadUniformInt("u_RoughnessTexture", 4);
+
+		uploadUniformInt("u_EnvRadianceTex", 10);
+		uploadUniformInt("u_EnvIrradianceTex", 11);
+
+		uploadUniformInt("u_BRDFLUTTexture", 15);
 	}
 
 	void OpenGLShader::uploadUniformBuffer(const UniformBufferBase& uniformBuffer)
@@ -148,6 +173,24 @@ namespace Engine {
 					});
 					break;
 				}					
+				case UniformType::Float2:
+				{
+					const glm::vec2 value = *(glm::vec2*)(uniformBuffer.getBuffer() + uniform.offset);
+					const std::string name = uniform.name;
+					Renderer::Submit([this,name,value]() {
+						this->uploadUniformFloat2(name, value);
+					});
+					break;
+				}
+				case UniformType::Float3:
+				{
+					const glm::vec3 value = *(glm::vec3*)(uniformBuffer.getBuffer() + uniform.offset);
+					const std::string name = uniform.name;
+					Renderer::Submit([this,name,value]() {
+						this->uploadUniformFloat3(name, value);
+					});
+					break;
+				}
 				case UniformType::Float4:
 				{
 					const glm::vec4 value = *(glm::vec4*)(uniformBuffer.getBuffer() + uniform.offset);
@@ -157,22 +200,123 @@ namespace Engine {
 					});
 					break;
 				}
+				case UniformType::Int32:
+				{
+					const int value = *(int*)(uniformBuffer.getBuffer() + uniform.offset);
+					const std::string name = uniform.name;
+					Renderer::Submit([this,name,value]() {
+						this->uploadUniformInt(name, value);
+					});
+					break;
+				}
+				case UniformType::Mat4:
+				{
+					const glm::mat4 value = *(glm::mat4*)(uniformBuffer.getBuffer() + uniform.offset);
+					const std::string name = uniform.name;
+					Renderer::Submit([this,name,value]() {
+						this->uploadUniformMat4(name, value);
+					});
+					break;
+				}
 				default:
 					ENGINE_CORE_ASSERT(false, "Unsupported uniform type");
 			}
 		}
 	}
 
+	void OpenGLShader::setFloat(const std::string& name, const float& value)
+	{
+		Renderer::Submit([this,name,value]() {
+			this->uploadUniformFloat(name, value);
+		});
+	}
+
+	void OpenGLShader::setFloat2(const std::string& name, const glm::vec2& value)
+	{
+		Renderer::Submit([this,name,value]() {
+			this->uploadUniformFloat2(name, value);
+		});
+	}
+
+	void OpenGLShader::setFloat3(const std::string& name, const glm::vec3& value)
+	{
+		Renderer::Submit([this,name,value]() {
+			this->uploadUniformFloat3(name, value);
+		});
+	}
+
+	void OpenGLShader::setFloat4(const std::string& name, const glm::vec4& value)
+	{
+		Renderer::Submit([this,name,value]() {
+			this->uploadUniformFloat4(name, value);
+		});
+	}
+
+	void OpenGLShader::setMat4(const std::string& name, const glm::mat4& value)
+	{
+		Renderer::Submit([this,name,value]() {
+			this->uploadUniformMat4(name, value);
+		});
+	}	
+
 	void OpenGLShader::uploadUniformFloat(const std::string& name, const float& value)
 	{
 		glUseProgram(m_RendererID);
-		glUniform1f(glGetUniformLocation(m_RendererID, name.c_str()), value);
+		auto location = glGetUniformLocation(m_RendererID, name.c_str());
+		if (location != -1)
+			glUniform1f(location, value);
+		else
+			ENGINE_CORE_WARN("Uniform {0} not found", name);
+	}
+
+	void OpenGLShader::uploadUniformFloat2(const std::string& name, const glm::vec2& value)
+	{
+		glUseProgram(m_RendererID);
+		auto location = glGetUniformLocation(m_RendererID, name.c_str());
+		if (location != -1)
+			glUniform2f(location, value.x, value.y);
+		else
+			ENGINE_CORE_WARN("Uniform {0} not found", name);
+	}
+
+	void OpenGLShader::uploadUniformFloat3(const std::string& name, const glm::vec3& value)
+	{
+		glUseProgram(m_RendererID);
+		auto location = glGetUniformLocation(m_RendererID, name.c_str());
+		if (location != -1)
+			glUniform3f(location, value.x, value.y, value.z);
+		else
+			ENGINE_CORE_WARN("Uniform {0} not found", name);
 	}
 
 	void OpenGLShader::uploadUniformFloat4(const std::string& name, const glm::vec4& value)
 	{
 		glUseProgram(m_RendererID);
-		glUniform4f(glGetUniformLocation(m_RendererID, name.c_str()), value.x, value.y, value.z, value.w);
+		auto location = glGetUniformLocation(m_RendererID, name.c_str());
+		if (location != -1)
+			glUniform4f(location, value.x, value.y, value.z, value.w);
+		else
+			ENGINE_CORE_WARN("Uniform {0} not found", name);
+	}
+
+	void OpenGLShader::uploadUniformInt(const std::string& name, const int& value)
+	{
+		glUseProgram(m_RendererID);
+		auto location = glGetUniformLocation(m_RendererID, name.c_str());
+		if (location != -1)
+			glUniform1i(location, value);
+		else
+			ENGINE_CORE_WARN("Uniform {0} not found", name);
+	}
+
+	void OpenGLShader::uploadUniformMat4(const std::string& name, const glm::mat4& value)
+	{
+		glUseProgram(m_RendererID);
+		auto location = glGetUniformLocation(m_RendererID, name.c_str());
+		if (location != -1)
+			glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+		else
+			ENGINE_CORE_WARN("Uniform {0} not found", name);
 	}
 
 }
