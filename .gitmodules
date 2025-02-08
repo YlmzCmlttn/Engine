@@ -1,14 +1,14 @@
-[submodule "Renderer/vendor/glfw"]
-	path = Renderer/vendor/glfw
+[submodule "Engine/vendor/glfw"]
+	path = Engine/vendor/glfw
 	url = https://github.com/glfw/glfw.git
-[submodule "Renderer/vendor/glad"]
-	path = Renderer/vendor/glad
+[submodule "Engine/vendor/glad"]
+	path = Engine/vendor/glad
 	url = https://github.com/Dav1dde/glad.git
-[submodule "Renderer/vendor/spdlog"]
-	path = Renderer/vendor/spdlog
+[submodule "Engine/vendor/spdlog"]
+	path = Engine/vendor/spdlog
 	url = https://github.com/gabime/spdlog.git
-[submodule "Renderer/vendor/imgui"]
-	path = Renderer/vendor/imgui
+[submodule "Engine/vendor/imgui"]
+	path = Engine/vendor/imgui
 	url = https://github.com/ocornut/imgui.git
 	branch = docking
 [submodule "Engine/vendor/glm"]
