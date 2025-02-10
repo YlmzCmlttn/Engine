@@ -20,3 +20,6 @@
 [submodule "Engine/vendor/stb"]
 	path = Engine/vendor/stb
 	url = https://github.com/nothings/stb.git
+[submodule "Engine/vendor/entt"]
+	path = Engine/vendor/entt
+	url = https://github.com/skypjack/entt.git
