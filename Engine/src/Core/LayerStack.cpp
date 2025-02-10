@@ -4,7 +4,11 @@ namespace Engine {
 
     LayerStack::LayerStack() : m_LayerInsertIndex(0) {}
 
-    LayerStack::~LayerStack() = default;
+    LayerStack::~LayerStack(){
+        for(Ref<Layer> layer : m_Layers){
+            layer->onDetach();
+        }
+    }
 
     void LayerStack::pushLayer(Ref<Layer> layer) {
         m_Layers.emplace(m_Layers.begin() + m_LayerInsertIndex, layer);
@@ -29,5 +33,4 @@ namespace Engine {
             m_Layers.erase(it);
         }
     }
-
 } // namespace Engine

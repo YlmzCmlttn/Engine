@@ -15,75 +15,79 @@
 namespace Engine
 {
     namespace{
+    //     const unsigned int ImportFlags =
+    //         aiProcess_Triangulate           | // Converts all primitives (quads, polygons) into triangles.
+    //                                      // Commonly used in modern rendering pipelines as GPUs expect triangles.
+
+    //         aiProcess_CalcTangentSpace      | // Calculates tangent and bitangent vectors for each vertex.
+    //                                         // Needed for normal mapping. Might be unnecessary if your model already has tangents.
+
+    //         aiProcess_SortByPType           | // Splits meshes by primitive type (point, line, triangle).
+    //                                         // Rarely needed if you only care about triangles. It can help discard or handle lines/points.
+
+    //         aiProcess_PreTransformVertices  | // Bakes all node transformations (from the scene hierarchy) into the vertices.
+    //                                         // This flattens the model to a single coordinate space (no local transforms).
+    //                                         // Useful if you don't want to deal with a node hierarchy or bone transforms.
+
+    //         aiProcess_FlipUVs              | // Flips all UV coordinates along the Y-axis.
+    //                                         // Helpful if the model’s UVs appear upside-down. 
+    //                                         // (Often used when switching between coordinate systems like DirectX vs OpenGL.)
+
+    //         aiProcess_GenSmoothNormals      | // Generates smooth normals for each vertex if normals are missing OR forcibly recalculates them.
+    //                                         // This can overwrite existing normals, so be cautious. 
+    //                                         // Use only if you want newly computed smooth normals.
+
+    //         // aiProcess_GenNormals        | // Similar to GenSmoothNormals, but produces 'hard' (flat) normals.
+    //                                         // Typically not used if you're already generating smooth normals.
+    //                                         // (Commented out in your snippet.)
+
+    //         aiProcess_OptimizeMeshes        | // Merges small meshes to reduce the overall draw calls.
+    //                                         // Potentially useful in reducing CPU overhead during rendering,
+    //                                         // but can break certain material/texture setups if not used carefully.
+
+    //         // aiProcess_OptimizeGraph     | // Reorders and optimizes the scene graph to reduce the number of nodes.
+    //                                         // Potentially merges or removes redundant nodes.
+    //                                         // This can make the scene simpler, but it might break references to nodes for animation/bones.
+    //                                         // (You have it uncommented later in the snippet.)
+
+    //         // aiProcess_JoinIdenticalVertices | 
+    //         //   Merges identical vertices within each mesh to reduce vertex count.
+    //         //   Often used to optimize geometry. Might break if you rely on duplicate vertices (e.g., discontinuous UV seams).
+
+    //         // aiProcess_ImproveCacheLocality |
+    //         //   Reorders vertices for better GPU cache usage. Usually beneficial, but modifies vertex ordering.
+
+    //         // aiProcess_RemoveRedundantMaterials |
+    //         //   Merges materials that are visually identical. Could break specialized material setups.
+
+    //         aiProcess_Debone               | // Removes bones that have minimal or no influence on vertices.
+    //                                         // This can simplify skeletal models but may remove slight deformations.
+
+    //         aiProcess_FindInvalidData      | // Searches for invalid values (e.g., NaNs) in meshes and corrects or removes them.
+    //                                         // Useful for sanitizing data from poorly exported models.
+
+    //         aiProcess_FindDegenerates      | // Detects and (optionally) removes degenerate primitives (e.g., triangles with zero area).
+    //                                         // Use if you suspect your model has degenerate faces that cause artifacts.
+
+    //         aiProcess_FindInstances        | // Searches for duplicate mesh data and replaces it with references to a single mesh.
+    //                                         // Useful for memory savings if the same geometry is repeated.
+
+    //         aiProcess_OptimizeMeshes       | // Listed again in your snippet. The same as the earlier usage—merges small meshes.
+    //                                         // Repeated flags will have no additional effect; it’s the same operation.
+
+    //         aiProcess_OptimizeGraph        | // Reorders and optimizes the node hierarchy (the scene graph).
+    //                                         // Potentially merges or removes redundant nodes to reduce overhead.
+
+    //         aiProcess_ValidateDataStructure | // Validates the imported data structure for correctness.
+    //                                         // Helps identify import issues but can slow down import. Good for debugging.
+
+    //         aiProcess_RemoveComponent;       // Removes specific data components (normals, tangents, colors, etc.) if you don't need them.
+    //                                         // Use with caution; you might lose data you need for rendering or animation.
         const unsigned int ImportFlags =
-            aiProcess_Triangulate           | // Converts all primitives (quads, polygons) into triangles.
-                                         // Commonly used in modern rendering pipelines as GPUs expect triangles.
-
-            aiProcess_CalcTangentSpace      | // Calculates tangent and bitangent vectors for each vertex.
-                                            // Needed for normal mapping. Might be unnecessary if your model already has tangents.
-
-            aiProcess_SortByPType           | // Splits meshes by primitive type (point, line, triangle).
-                                            // Rarely needed if you only care about triangles. It can help discard or handle lines/points.
-
-            aiProcess_PreTransformVertices  | // Bakes all node transformations (from the scene hierarchy) into the vertices.
-                                            // This flattens the model to a single coordinate space (no local transforms).
-                                            // Useful if you don't want to deal with a node hierarchy or bone transforms.
-
-            aiProcess_FlipUVs              | // Flips all UV coordinates along the Y-axis.
-                                            // Helpful if the model’s UVs appear upside-down. 
-                                            // (Often used when switching between coordinate systems like DirectX vs OpenGL.)
-
-            aiProcess_GenSmoothNormals      | // Generates smooth normals for each vertex if normals are missing OR forcibly recalculates them.
-                                            // This can overwrite existing normals, so be cautious. 
-                                            // Use only if you want newly computed smooth normals.
-
-            // aiProcess_GenNormals        | // Similar to GenSmoothNormals, but produces 'hard' (flat) normals.
-                                            // Typically not used if you're already generating smooth normals.
-                                            // (Commented out in your snippet.)
-
-            aiProcess_OptimizeMeshes        | // Merges small meshes to reduce the overall draw calls.
-                                            // Potentially useful in reducing CPU overhead during rendering,
-                                            // but can break certain material/texture setups if not used carefully.
-
-            // aiProcess_OptimizeGraph     | // Reorders and optimizes the scene graph to reduce the number of nodes.
-                                            // Potentially merges or removes redundant nodes.
-                                            // This can make the scene simpler, but it might break references to nodes for animation/bones.
-                                            // (You have it uncommented later in the snippet.)
-
-            // aiProcess_JoinIdenticalVertices | 
-            //   Merges identical vertices within each mesh to reduce vertex count.
-            //   Often used to optimize geometry. Might break if you rely on duplicate vertices (e.g., discontinuous UV seams).
-
-            // aiProcess_ImproveCacheLocality |
-            //   Reorders vertices for better GPU cache usage. Usually beneficial, but modifies vertex ordering.
-
-            // aiProcess_RemoveRedundantMaterials |
-            //   Merges materials that are visually identical. Could break specialized material setups.
-
-            aiProcess_Debone               | // Removes bones that have minimal or no influence on vertices.
-                                            // This can simplify skeletal models but may remove slight deformations.
-
-            aiProcess_FindInvalidData      | // Searches for invalid values (e.g., NaNs) in meshes and corrects or removes them.
-                                            // Useful for sanitizing data from poorly exported models.
-
-            aiProcess_FindDegenerates      | // Detects and (optionally) removes degenerate primitives (e.g., triangles with zero area).
-                                            // Use if you suspect your model has degenerate faces that cause artifacts.
-
-            aiProcess_FindInstances        | // Searches for duplicate mesh data and replaces it with references to a single mesh.
-                                            // Useful for memory savings if the same geometry is repeated.
-
-            aiProcess_OptimizeMeshes       | // Listed again in your snippet. The same as the earlier usage—merges small meshes.
-                                            // Repeated flags will have no additional effect; it’s the same operation.
-
-            aiProcess_OptimizeGraph        | // Reorders and optimizes the node hierarchy (the scene graph).
-                                            // Potentially merges or removes redundant nodes to reduce overhead.
-
-            aiProcess_ValidateDataStructure | // Validates the imported data structure for correctness.
-                                            // Helps identify import issues but can slow down import. Good for debugging.
-
-            aiProcess_RemoveComponent;       // Removes specific data components (normals, tangents, colors, etc.) if you don't need them.
-                                            // Use with caution; you might lose data you need for rendering or animation.
+			aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace;
     }
+
+
 
     struct LogStream : public Assimp::LogStream
 	{
@@ -110,7 +114,9 @@ namespace Engine
 
         Assimp::Importer importer;
         const aiScene* scene = importer.ReadFile(path, ImportFlags);
-        if(!scene || scene->HasMeshes())
+        std::cout << scene->mNumMeshes << std::endl;
+        std::cout << scene->HasMeshes() << std::endl;
+        if(!scene || !scene->HasMeshes())
         {
             ENGINE_CORE_ERROR("Failed to load mesh from {0}", path);
             return;
@@ -131,7 +137,8 @@ namespace Engine
 
         //ENGINE_CORE_ASSERT(mesh->HasFaces(), "Mesh requires faces");
 
-        m_Vertices.resize(mesh->mNumVertices);
+        m_Vertices.reserve(mesh->mNumVertices);
+        std::cout<<"m_Vertices.capacity(): "<<m_Vertices.capacity()<<std::endl;
 
         for(size_t i = 0; i < m_Vertices.capacity(); i++){
             Vertex vertex;
@@ -149,8 +156,8 @@ namespace Engine
             m_Vertices.push_back(vertex);
         }
 
-        m_VertexBuffer.reset(VertexBuffer::Create());
-        m_VertexBuffer->setData(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
+        m_VertexBuffer = VertexBuffer::Create(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
+        //m_VertexBuffer->setData(m_Vertices.data(), m_Vertices.size() * sizeof(Vertex));
 
         m_Indices.reserve(mesh->mNumFaces);
         for(size_t i = 0; i < m_Indices.capacity(); i++){
@@ -158,8 +165,8 @@ namespace Engine
             m_Indices.push_back({mesh->mFaces[i].mIndices[0], mesh->mFaces[i].mIndices[1], mesh->mFaces[i].mIndices[2]});
         }
 
-        m_IndexBuffer.reset(IndexBuffer::Create());
-        m_IndexBuffer->setData(m_Indices.data(), m_Indices.size() * sizeof(uint32_t));
+        m_IndexBuffer = IndexBuffer::Create(m_Indices.data(), m_Indices.size() * sizeof(uint32_t));
+        //m_IndexBuffer->setData(m_Indices.data(), m_Indices.size() * sizeof(uint32_t));
     }
 
     Mesh::~Mesh(){}

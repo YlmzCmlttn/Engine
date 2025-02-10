@@ -71,6 +71,8 @@
         "variant": "cpp",
         "valarray": "cpp",
         "any": "cpp",
-        "forward_list": "cpp"
+        "forward_list": "cpp",
+        "*.ipp": "cpp",
+        "future": "cpp"
     }
 }

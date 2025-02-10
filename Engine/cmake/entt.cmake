@@ -1,0 +1,6 @@
+if(EXISTS "${CMAKE_CURRENT_LIST_DIR}/../vendor/entt/CMakeLists.txt")
+    message(STATUS "EnTT submodule detected; adding the EnTT subdirectory.")
+    add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/../vendor/entt")
+else()
+    message(WARNING "EnTT submodule not found. Please run 'git submodule update --init --recursive'.")
+endif()

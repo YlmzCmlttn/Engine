@@ -37,8 +37,8 @@ namespace Engine
         std::vector<Vertex> m_Vertices;
         std::vector<Index> m_Indices;
 
-        Scope<VertexBuffer> m_VertexBuffer;
-        Scope<IndexBuffer> m_IndexBuffer;
+        Ref<VertexBuffer> m_VertexBuffer;
+        Ref<IndexBuffer> m_IndexBuffer;
 
         std::string m_FilePath;        
     };

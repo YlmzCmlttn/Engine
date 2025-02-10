@@ -2,7 +2,7 @@
 
 namespace Engine
 {
-    using RendererID = unsigned int;
+    using RendererID = uint32_t;
 
 	enum class RendererAPIType
 	{
@@ -28,7 +28,7 @@ namespace Engine
         static void Clear(float r, float g, float b, float a);
         static void SetClearColor(float r, float g, float b, float a);
 
-        static void DrawIndexed(unsigned int indexCount, bool depthTesting = true);
+        static void DrawIndexed(unsigned int indexCount, bool depthTesting);
 
         static RenderAPICapabilities& GetCapabilities() { 
             static RenderAPICapabilities capabilities;

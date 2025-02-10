@@ -3,6 +3,9 @@
 #include "Core/Application.h"
 
 namespace Engine {
+
+    Input* Input::s_Instance = new GLFWInput();
+
     bool GLFWInput::isKeyPressedImpl(int keycode) {
         GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().getWindow().getNativeWindow());
         auto state = glfwGetKey(window, keycode);

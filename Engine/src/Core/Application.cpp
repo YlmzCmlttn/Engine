@@ -97,7 +97,7 @@ namespace Engine {
 		//Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
         int width = e.getWidth();
         int height = e.getHeight();
-        FrameBufferPool::getInstance().resizeAllFrameBuffers(width, height);
+        //FrameBufferPool::getInstance().resizeAllFrameBuffers(width, height);
 
         
 		return false;

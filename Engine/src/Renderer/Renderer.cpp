@@ -31,9 +31,9 @@ namespace Engine {
         });
     }
 
-    void Renderer::DrawIndexed(unsigned int indexCount) {
-        Submit([indexCount]() {
-            RendererAPI::DrawIndexed(indexCount);
+    void Renderer::DrawIndexed(unsigned int indexCount,bool depthTest) {
+        Submit([indexCount,depthTest]() {
+            RendererAPI::DrawIndexed(indexCount,depthTest);
         });
     }
 

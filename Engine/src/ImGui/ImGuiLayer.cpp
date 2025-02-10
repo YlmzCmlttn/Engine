@@ -31,7 +31,7 @@ namespace Engine
         IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.IniFilename = "../editor/.gui_default_layout.ini";
+		io.IniFilename = ".gui_default_layout.ini";
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
@@ -64,6 +64,7 @@ namespace Engine
 
     }
     void ImGuiLayer::onDetach(){
+		std::cout << "ImGuiLayer::onDetach" << std::endl;
         ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();

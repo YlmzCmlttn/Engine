@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Renderer/IndexBuffer.h"
-
+#include "Core/Buffer.h"
 namespace Engine {
 
 	class OpenGLIndexBuffer : public IndexBuffer
 	{
 	public:
-		OpenGLIndexBuffer(unsigned int size);
+		OpenGLIndexBuffer(void* data,unsigned int size);
 		virtual ~OpenGLIndexBuffer();
 
 		virtual void setData(void* buffer, unsigned int size, unsigned int offset = 0);
@@ -17,8 +17,10 @@ namespace Engine {
 		virtual unsigned int getSize() const { return m_Size; }
 		virtual RendererID getRendererID() const { return m_RendererID; }
 	private:
-		RendererID m_RendererID;
+		RendererID m_RendererID = 0;
 		unsigned int m_Size;
+
+		Buffer m_DataStorage;
 	};
 
 }

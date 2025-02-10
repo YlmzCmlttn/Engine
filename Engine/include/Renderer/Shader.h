@@ -17,7 +17,11 @@ namespace Engine
 		virtual void setFloat3(const std::string& name, const glm::vec3& value) = 0;
 		virtual void setFloat4(const std::string& name, const glm::vec4& value) = 0;
 		virtual void setMat4(const std::string& name, const glm::mat4& value) = 0;
+
+		virtual const std::string& getName() const = 0;
+
 		static Shader* Create(const std::string& filepath);
+		static std::vector<Shader*> s_Shaders;
 	};
 
 }

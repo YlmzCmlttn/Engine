@@ -1,30 +1,25 @@
 #pragma once
 
+#include "Renderer/RendererAPI.h"
 
-
-namespace Engine {
-
+namespace Engine
+{    
 	enum class TextureFormat
 	{
 		None = 0,
 		RGB = 1,
 		RGBA = 2,
 	};
-
 	class Texture
 	{
 	public:
 		virtual ~Texture() {}
+		virtual RendererID getRendererID() const = 0;
+        virtual void bind(unsigned int slot = 0) const = 0;
+
+        virtual TextureFormat getFormat() const = 0;
+        virtual unsigned int getWidth() const = 0;
+        virtual unsigned int getHeight() const = 0;
+        virtual const std::string& getPath() const = 0;
 	};
-
-	class Texture2D : public Texture
-	{
-	public:
-		static Texture2D* Create(TextureFormat format, unsigned int width, unsigned int height);
-
-		virtual TextureFormat getFormat() const = 0;
-		virtual unsigned int getWidth() const = 0;
-		virtual unsigned int getHeight() const = 0;
-	};
-
-}
+} // namespace name

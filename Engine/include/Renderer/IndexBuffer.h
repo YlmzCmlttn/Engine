@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer.h"
+#include "Core/Core.h"
 
 namespace Engine {
 
@@ -16,7 +17,7 @@ namespace Engine {
 		virtual uint32_t getSize() const = 0;
 		virtual RendererID getRendererID() const = 0;
 
-		static IndexBuffer* Create(unsigned int size = 0);
+		static Ref<IndexBuffer> Create(void* data,unsigned int size = 0);
 	};
 
 }

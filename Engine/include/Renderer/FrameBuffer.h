@@ -2,7 +2,7 @@
 
 #include "Renderer/RendererAPI.h"
 #include "Core/Core.h"
-
+#include <glm/glm.hpp>
 namespace Engine {
 
     enum class FrameBufferFormat {
@@ -15,29 +15,37 @@ namespace Engine {
         RGBA32Float = 6,
     };
 
+
+	struct FrameBufferSpecification
+	{
+		uint32_t width = 1280;
+		uint32_t height = 720;
+		glm::vec4 clearColor;
+		FrameBufferFormat format;
+		uint32_t samples = 1; // multisampling
+		
+		// SwapChainTarget = screen buffer (i.e. no framebuffer)
+		bool swapChainTarget = false;
+	};
+
+
     class FrameBuffer {
     public:
-        static Ref<FrameBuffer> Create(FrameBufferFormat format, unsigned int width, unsigned int height);
-
         virtual ~FrameBuffer() {}
+		virtual void bind() const = 0;
+		virtual void unbind() const = 0;
 
-        FrameBuffer(const FrameBuffer&) = delete;
-        FrameBuffer& operator=(const FrameBuffer&) = delete;
+		virtual void resize(uint32_t width, uint32_t height, bool forceRecreate = false) = 0;
 
-        virtual void bind() const = 0;
-        virtual void unbind() const = 0;
+		virtual void bindTexture(uint32_t slot = 0) const = 0;
 
-        virtual void resize(unsigned int width, unsigned int height) = 0;
+		virtual RendererID getRendererID() const = 0;
+		virtual RendererID getColorAttachmentRendererID() const = 0;
+		virtual RendererID getDepthAttachmentRendererID() const = 0;
 
-        virtual void bindTexture(unsigned int slot = 0) const = 0;
+		virtual const FrameBufferSpecification& getSpecification() const = 0;
 
-        virtual FrameBufferFormat getFormat() const = 0;
-        virtual unsigned int getWidth() const = 0;
-        virtual unsigned int getHeight() const = 0;
-
-        virtual RendererID getRendererID() const = 0;
-        virtual RendererID getColorAttachmentRendererID() const = 0;
-        virtual RendererID getDepthAttachmentRendererID() const = 0;
+		static Ref<FrameBuffer> Create(const FrameBufferSpecification& spec);
     
     protected:
         FrameBuffer() = default;

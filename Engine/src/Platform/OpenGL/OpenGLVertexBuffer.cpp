@@ -1,14 +1,36 @@
 #include "Platform/OpenGL/OpenGLVertexBuffer.h"
-
+#include "Renderer/Renderer.h"
 #include <glad/gl.h>
 
 namespace Engine {
 
-	OpenGLVertexBuffer::OpenGLVertexBuffer(unsigned int size)
-		: m_RendererID(0), m_Size(size)
+	static GLenum OpenGLUsage(VertexBufferUsage usage)
+	{
+		switch (usage)
+		{
+			case VertexBufferUsage::Static:    return GL_STATIC_DRAW;
+			case VertexBufferUsage::Dynamic:   return GL_DYNAMIC_DRAW;
+		}
+		ENGINE_CORE_ASSERT(false, "Unknown vertex buffer usage");
+		return 0;
+	}
+
+	OpenGLVertexBuffer::OpenGLVertexBuffer(void* data, uint32_t size, VertexBufferUsage usage)
+		: m_RendererID(0),m_Size(size), m_Usage(usage)
+	{
+		m_DataStorage = Buffer::copy(data,size);
+		Renderer::Submit([this]() {
+			glCreateBuffers(1, &m_RendererID);
+			glNamedBufferData(m_RendererID,m_Size,m_DataStorage.data,OpenGLUsage(m_Usage));
+		});
+	}
+
+	OpenGLVertexBuffer::OpenGLVertexBuffer(uint32_t size, VertexBufferUsage usage)
+		: m_RendererID(0),m_Size(size), m_Usage(usage)
 	{
 		Renderer::Submit([this]() {
-			glGenBuffers(1, &m_RendererID);
+			glCreateBuffers(1, &m_RendererID);
+			glNamedBufferData(m_RendererID, m_Size, nullptr, OpenGLUsage(m_Usage));
 		});
 	}
 
@@ -19,13 +41,12 @@ namespace Engine {
 		});
 	}
 
-	void OpenGLVertexBuffer::setData(void* buffer, unsigned int size, unsigned int offset)
+	void OpenGLVertexBuffer::setData(void* data, uint32_t size, uint32_t offset)
 	{
+		m_DataStorage = Buffer::copy(data, size);
 		m_Size = size;
-		Renderer::Submit([this, buffer, size, offset]() {
-			glBindBuffer(GL_ARRAY_BUFFER, this->m_RendererID);
-			glBufferData(GL_ARRAY_BUFFER, size, buffer, GL_STATIC_DRAW);
-			
+		Renderer::Submit([this, offset]() {
+			glNamedBufferSubData(m_RendererID, offset, m_Size, m_DataStorage.data);
 		});
 
 	}
@@ -34,12 +55,6 @@ namespace Engine {
 	{
 		Renderer::Submit([this]() {
 			glBindBuffer(GL_ARRAY_BUFFER, this->m_RendererID);
-
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
-
-			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
 
 		});
 	}

@@ -4,32 +4,27 @@
 
 namespace Engine {
 
-    class OpenGLFrameBuffer : public FrameBuffer {
-    public:
-        OpenGLFrameBuffer(FrameBufferFormat format, unsigned int width, unsigned int height);
-        ~OpenGLFrameBuffer();
+    class OpenGLFrameBuffer : public FrameBuffer
+	{
+	public:
+		OpenGLFrameBuffer(const FrameBufferSpecification& spec);
+		virtual ~OpenGLFrameBuffer();
 
-        void bind() const override;
-        void unbind() const override;
+		virtual void resize(uint32_t width, uint32_t height, bool forceRecreate = false) override;
 
-        void resize(unsigned int width, unsigned int height) override;
+		virtual void bind() const override;
+		virtual void unbind() const override;
 
-        void bindTexture(unsigned int slot = 0) const override;
+		virtual void bindTexture(uint32_t slot = 0) const override;
 
-        inline FrameBufferFormat getFormat() const override { return m_Format; }
-        inline unsigned int getWidth() const override { return m_Width; }
-        inline unsigned int getHeight() const override { return m_Height; }
+		virtual RendererID getRendererID() const { return m_RendererID; }
+		virtual RendererID getColorAttachmentRendererID() const { return m_ColorAttachment; }
+		virtual RendererID getDepthAttachmentRendererID() const { return m_DepthAttachment; }
 
-        inline RendererID getRendererID() const override { return m_RendererID; }
-        inline RendererID getColorAttachmentRendererID() const override { return m_ColorAttachmentRendererID; }
-        inline RendererID getDepthAttachmentRendererID() const override { return m_DepthAttachmentRendererID; }
-        
-    private:
-        FrameBufferFormat m_Format;
-        unsigned int m_Width;
-        unsigned int m_Height;
-        RendererID m_RendererID;
-        RendererID m_ColorAttachmentRendererID;
-        RendererID m_DepthAttachmentRendererID;
-    };
+		virtual const FrameBufferSpecification& getSpecification() const override { return m_Specification; }
+	private:
+		FrameBufferSpecification m_Specification;
+		RendererID m_RendererID = 0;
+		RendererID m_ColorAttachment = 0, m_DepthAttachment = 0;
+	};
 }

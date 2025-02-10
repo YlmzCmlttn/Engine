@@ -11,9 +11,9 @@ namespace Engine {
             static FrameBufferPool instance;
             return instance;
         }
-        Ref<FrameBuffer> acquireFrameBuffer(FrameBufferFormat format, unsigned int width, unsigned int height);
+        std::weak_ptr<FrameBuffer> acquireFrameBuffer(const FrameBufferSpecification& spec);
 
-        void releaseFrameBuffer(Ref<FrameBuffer> fb);
+        void releaseFrameBuffer(std::weak_ptr<FrameBuffer> fb);
         void resizeAllFrameBuffers(unsigned int width, unsigned int height);
     private:
         FrameBufferPool() = default;
@@ -23,7 +23,7 @@ namespace Engine {
 
     private:
         std::mutex m_poolMutex;
-        std::vector<Ref<FrameBuffer>> m_available;
+        std::vector<std::weak_ptr<FrameBuffer>> m_available;
     };
 
 }

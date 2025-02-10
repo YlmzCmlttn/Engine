@@ -5,11 +5,13 @@
 
 namespace Engine {
 
-	OpenGLIndexBuffer::OpenGLIndexBuffer(unsigned int size)
+	OpenGLIndexBuffer::OpenGLIndexBuffer(void* data,unsigned int size)
 		: m_RendererID(0), m_Size(size)
 	{
+		m_DataStorage = Buffer::copy(data,size);
 		Renderer::Submit([this]() {
-			glGenBuffers(1, &m_RendererID);
+			glCreateBuffers(1, &m_RendererID);
+			glNamedBufferData(m_RendererID,m_Size,m_DataStorage.data,GL_STATIC_DRAW);
 		});
 	}
 
@@ -22,10 +24,10 @@ namespace Engine {
 
 	void OpenGLIndexBuffer::setData(void* buffer, unsigned int size, unsigned int offset)
 	{
+		m_DataStorage = Buffer::copy(buffer,size);
 		m_Size = size;
-		Renderer::Submit([this, buffer, size, offset]() {
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_RendererID);
-			glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, buffer, GL_STATIC_DRAW);
+		Renderer::Submit([this, offset]() {
+			glNamedBufferSubData(m_RendererID, offset, m_Size, m_DataStorage.data);
 		});
 	}
 

@@ -141,20 +141,20 @@ namespace Engine {
 		m_RendererID = program;
 
 
-		//Need to delete later
-		// Bind default texture unit
-		uploadUniformInt("u_Texture", 0);
+		// //Need to delete later
+		// // Bind default texture unit
+		// uploadUniformInt("u_Texture", 0);
 
-		// PBR shader textures
-		uploadUniformInt("u_AlbedoTexture", 1);
-		uploadUniformInt("u_NormalTexture", 2);
-		uploadUniformInt("u_MetalnessTexture", 3);
-		uploadUniformInt("u_RoughnessTexture", 4);
+		// // PBR shader textures
+		// uploadUniformInt("u_AlbedoTexture", 1);
+		// uploadUniformInt("u_NormalTexture", 2);
+		// uploadUniformInt("u_MetalnessTexture", 3);
+		// uploadUniformInt("u_RoughnessTexture", 4);
 
-		uploadUniformInt("u_EnvRadianceTex", 10);
-		uploadUniformInt("u_EnvIrradianceTex", 11);
+		// uploadUniformInt("u_EnvRadianceTex", 10);
+		// uploadUniformInt("u_EnvIrradianceTex", 11);
 
-		uploadUniformInt("u_BRDFLUTTexture", 15);
+		// uploadUniformInt("u_BRDFLUTTexture", 15);
 	}
 
 	void OpenGLShader::uploadUniformBuffer(const UniformBufferBase& uniformBuffer)
@@ -257,7 +257,7 @@ namespace Engine {
 		Renderer::Submit([this,name,value]() {
 			this->uploadUniformMat4(name, value);
 		});
-	}	
+	}
 
 	void OpenGLShader::uploadUniformFloat(const std::string& name, const float& value)
 	{

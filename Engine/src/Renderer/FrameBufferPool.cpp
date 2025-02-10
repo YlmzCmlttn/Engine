@@ -2,28 +2,33 @@
 
 namespace Engine {
 
-    Ref<FrameBuffer> FrameBufferPool::acquireFrameBuffer(FrameBufferFormat format, unsigned int width, unsigned int height)
+
+    std::weak_ptr<FrameBuffer> FrameBufferPool::acquireFrameBuffer(const FrameBufferSpecification& spec)
     {
         std::lock_guard<std::mutex> lock(m_poolMutex);
 
         auto it = std::find_if(m_available.begin(), m_available.end(),
-            [width, height](const Ref<FrameBuffer>& fb)
+            [spec](const std::weak_ptr<FrameBuffer>& fbWeak)
             {
-                return (fb->getWidth() == width && fb->getHeight() == height);
+                auto fb = fbWeak.lock(); // Convert weak_ptr to shared_ptr
+                if (!fb) return false; // Skip expired weak pointers
+
+                return (fb->getSpecification().width == spec.width &&
+                        fb->getSpecification().height == spec.height);
             });
 
         if (it != m_available.end())
         {
-            auto fbPtr = *it;
+            auto fbPtr = it->lock(); // Convert weak_ptr to shared_ptr before returning
             m_available.erase(it);
             return fbPtr;
         }
 
-        auto newFB = FrameBuffer::Create(format, width, height);
+        auto newFB = FrameBuffer::Create(spec);
         return newFB;
     }
 
-    void FrameBufferPool::releaseFrameBuffer(Ref<FrameBuffer> fb)
+    void FrameBufferPool::releaseFrameBuffer(std::weak_ptr<FrameBuffer> fb)
     {
         std::lock_guard<std::mutex> lock(m_poolMutex);
         m_available.push_back(std::move(fb));
@@ -32,9 +37,13 @@ namespace Engine {
     void FrameBufferPool::resizeAllFrameBuffers(unsigned int width, unsigned int height)
     {
         std::lock_guard<std::mutex> lock(m_poolMutex);
-        for (auto& fb : m_available)
+        for (auto& fbWeak : m_available)
         {
-            fb->resize(width, height);
+            auto fb = fbWeak.lock(); // Convert to shared_ptr
+            if (fb)
+            {
+                fb->resize(width, height);
+            }
         }
     }
 
