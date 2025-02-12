@@ -19,8 +19,10 @@ namespace Engine {
 
         Entity createEntity(const std::string& name = std::string());
         void destroyEntity(Entity entity);
-    private:
+
+        Entity getPrimaryCameraEntity();
         entt::registry m_Registry;
+    private:
         std::string m_Name;
         uint32_t m_ViewportWidth = 0, m_ViewportHeight = 0;
         friend class Entity;

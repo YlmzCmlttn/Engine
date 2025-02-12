@@ -1,14 +1,15 @@
 #pragma once
 
 #include "Scene/Scene.h"
+#include "Core/Assert.h"
 #include "entt/entity/registry.hpp"
 
 namespace Engine {
 
     class Entity {
     public:
-        Entity(entt::entity handle, Scene* scene)
-            : m_EntityHandle(handle), m_Scene(scene) {}
+        Entity() = default;
+        Entity(entt::entity handle, Scene* scene);
         ~Entity()=default;
 
         template<typename T, typename... Args>
@@ -32,12 +33,13 @@ namespace Engine {
             m_Scene->m_Registry.remove<T>(m_EntityHandle);
         }
 
-        operator bool() const { return m_EntityHandle != entt::null; }
-        operator entt::entity() const { return m_EntityHandle; }
-        operator uint32_t() const { return (uint32_t)m_EntityHandle; }
 
-        bool operator==(const Entity& other) const { return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene; }
-        bool operator!=(const Entity& other) const { return !(*this == other); }        
+        inline operator bool() const { return m_EntityHandle != entt::null; }
+        inline operator entt::entity() const { return m_EntityHandle; }
+        inline operator uint32_t() const { return (uint32_t)m_EntityHandle; }
+
+        inline bool operator==(const Entity& other) const { return m_EntityHandle == other.m_EntityHandle && m_Scene == other.m_Scene; }
+        inline bool operator!=(const Entity& other) const { return !(*this == other); }        
     private:
         entt::entity m_EntityHandle{entt::null};
         Scene* m_Scene = nullptr;
