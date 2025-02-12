@@ -33,6 +33,8 @@ namespace Engine
         void pushOverlay(Ref<Layer> overlay);
         void renderImGui();
 
+        void close();
+
         inline Window& getWindow(){return *m_Window;}
 
 

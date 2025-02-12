@@ -15,9 +15,14 @@ namespace Engine {
 		reload();
 	}
 
+	OpenGLShader::OpenGLShader(const std::string& name, const std::string& shaderSource):m_Name(name),m_ShaderSource(shaderSource)
+	{
+		compileAndUploadShader();
+	}
+
 	void OpenGLShader::reload()
 	{
-		readShaderFromFile(m_FilePath);
+		
 		Renderer::Submit([this]() {
 			if (this->m_RendererID != 0)
 				glDeleteProgram(this->m_RendererID);
@@ -30,18 +35,6 @@ namespace Engine {
 		Renderer::Submit([this]() {
 			glUseProgram(this->m_RendererID);
 		});
-	}
-
-	void OpenGLShader::readShaderFromFile(const std::string& filepath)
-	{
-		std::ifstream in(filepath, std::ios::in | std::ios::binary);
-		if (!in) {
-			ENGINE_CORE_WARN("Could not read shader file {0}", filepath);
-			return;
-		}
-		std::stringstream buffer;
-		buffer << in.rdbuf();
-		m_ShaderSource = buffer.str();
 	}
 
 	GLenum OpenGLShader::shaderTypeFromString(const std::string& type)

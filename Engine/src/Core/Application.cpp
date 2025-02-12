@@ -27,6 +27,10 @@ namespace Engine {
         m_Running = false;
     }
 
+    void Application::close(){
+        m_Running = false;
+    }
+
     void Application::pushLayer(Ref<Layer> layer){
         m_LayerStack.pushLayer(layer);
         layer->onAttach();

@@ -12,7 +12,8 @@ namespace Engine {
 	{
 	public:
 		OpenGLShader(const std::string& filepath);
-
+		OpenGLShader(const std::string& name, const std::string& shaderSource);
+		
 		virtual void bind() override;
 		virtual void reload() override;
 		virtual void uploadUniformBuffer(const UniformBufferBase& uniformBuffer) override;
@@ -25,7 +26,6 @@ namespace Engine {
 
 		inline const std::string& getName() const override { return m_Name; }
 	private:
-		void readShaderFromFile(const std::string& filepath);
 		void compileAndUploadShader();
 		static GLenum shaderTypeFromString(const std::string& type);
 

@@ -1,6 +1,6 @@
 #pragma once
 
-//#include "Core/Base.h"
+#include "Core/Core.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/Uniforms.h"
 
@@ -11,6 +11,7 @@ namespace Engine
 	public:
 		virtual void bind() = 0;
 		virtual void reload() = 0;
+
 		virtual void uploadUniformBuffer(const UniformBufferBase& uniformBuffer) = 0;
 		virtual void setFloat(const std::string& name, const float& value) = 0;
 		virtual void setFloat2(const std::string& name, const glm::vec2& value) = 0;
@@ -20,8 +21,7 @@ namespace Engine
 
 		virtual const std::string& getName() const = 0;
 
-		static Shader* Create(const std::string& filepath);
-		static std::vector<Shader*> s_Shaders;
+		static Ref<Shader> CreateFromFile(const std::string& name, const std::string& filepath);
+		static Ref<Shader> Create(const std::string& name, const std::string& shaderSource);
 	};
-
 }

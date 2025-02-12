@@ -6,17 +6,29 @@ namespace Engine {
 
     Input* Input::s_Instance = new GLFWInput();
 
-    bool GLFWInput::isKeyPressedImpl(int keycode) {
+    bool GLFWInput::isKeyPressedImpl(KeyCode keycode) {
         GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().getWindow().getNativeWindow());
         auto state = glfwGetKey(window, keycode);
         return state == GLFW_PRESS || state == GLFW_REPEAT;
     }
 
-    bool GLFWInput::isMouseButtonPressedImpl(int button) {
+    bool GLFWInput::isKeyReleasedImpl(KeyCode keycode) {
+        GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().getWindow().getNativeWindow());
+        auto state = glfwGetKey(window, keycode);
+        return state == GLFW_RELEASE;
+    }
+
+    bool GLFWInput::isMouseButtonPressedImpl(MouseCode button) {
         GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().getWindow().getNativeWindow());
         auto state = glfwGetMouseButton(window, button);
         return state == GLFW_PRESS;
     }
+
+    bool GLFWInput::isMouseButtonReleasedImpl(MouseCode button) {
+        GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().getWindow().getNativeWindow());
+        auto state = glfwGetMouseButton(window, button);
+        return state == GLFW_RELEASE;
+    }   
 
     float GLFWInput::getMouseXImpl() {
         GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().getWindow().getNativeWindow());

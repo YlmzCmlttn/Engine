@@ -24,13 +24,20 @@ namespace Engine {
     void Scene::onEvent(Event& e) {
 
     }
+
+    Entity Scene::getPrimaryCameraEntity() {
+        auto view = m_Registry.view<CameraComponent>();
+        for (auto entity : view) {
+            const auto& cameraComponent = view.get<CameraComponent>(entity);
+            if (cameraComponent.primary) return Entity(entity, this);
+        }
+    }
     
     Entity Scene::createEntity(const std::string& name) {
         Entity entity =  Entity(m_Registry.create(), this);
         auto& tag = entity.addComponent<TagComponent>();
 		tag.tag = name.empty() ? "Entity" : name;
-        auto& transform = entity.addComponent<TransformComponent>();
-        transform.Transform = glm::mat4(1.0f);
+        auto& transform = entity.addComponent<TransformComponent>();        
         return entity;
     }
 

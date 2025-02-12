@@ -9,5 +9,5 @@
 #include <csignal>
 #include <limits>
 #include <cstring>
-
+#include <algorithm>
 //#include <format> //C++20
