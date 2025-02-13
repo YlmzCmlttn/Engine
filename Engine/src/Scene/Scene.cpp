@@ -1,6 +1,7 @@
 #include "Scene/Scene.h"
 #include "Scene/Components.h"
 #include "Scene/Entity.h"
+#include "Scene/Systems.h"
 
 namespace Engine {
 
@@ -29,19 +30,23 @@ namespace Engine {
         auto view = m_Registry.view<CameraComponent>();
         for (auto entity : view) {
             const auto& cameraComponent = view.get<CameraComponent>(entity);
-            if (cameraComponent.primary) return Entity(entity, this);
+            if (cameraComponent.primary) return Entity(entity, shared_from_this());
         }
+    }
+
+    Entity Scene::findEntityByTransformComponent(const TransformComponent& transform) {
+        return Systems::FindEntityByTransformComponent(shared_from_this(), transform);
     }
     
     Entity Scene::createEntity(const std::string& name) {
-        Entity entity =  Entity(m_Registry.create(), this);
-        auto& tag = entity.addComponent<TagComponent>();
-		tag.tag = name.empty() ? "Entity" : name;
-        auto& transform = entity.addComponent<TransformComponent>();        
-        return entity;
+        return Systems::CreateEntity(shared_from_this(), name);
     }
 
-    void Scene::destroyEntity(Entity entity) {
-        m_Registry.destroy(entity);
+    Entity Scene::duplicateEntity(Entity entity) {
+        return Systems::DuplicateEntity(entity, Systems::GetParentEntity(entity));
+    }
+
+    void Scene::destroyEntity(Entity entity, bool keepChildren) {
+        Systems::DestroyEntity(entity, keepChildren);
     }    
 }

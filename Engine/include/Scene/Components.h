@@ -9,6 +9,11 @@
 
 namespace Engine {
 
+    struct ICloneableComponent {
+        virtual std::unique_ptr<ICloneableComponent> clone() const = 0;
+        virtual ~ICloneableComponent() = default;
+    };
+
     // struct IdComponent {
     //     UUID id;
 
@@ -17,7 +22,7 @@ namespace Engine {
     //     IdComponent(UUID id) : id(id) {}
     // };
 
-    struct TagComponent {
+    struct TagComponent : public ICloneableComponent {
         std::string tag;
         TagComponent() = default;
 		TagComponent(const TagComponent& other) = default;
@@ -26,8 +31,14 @@ namespace Engine {
 
 		operator std::string& () { return tag; }
 		operator const std::string& () const { return   tag; }
+
+        std::unique_ptr<ICloneableComponent> clone() const override {
+            TagComponent* clone = new TagComponent();
+            clone->tag = tag;
+            return std::unique_ptr<ICloneableComponent>(clone);            
+        }
     };
-    struct TransformComponent : public std::enable_shared_from_this<TransformComponent> {
+    struct TransformComponent : public std::enable_shared_from_this<TransformComponent>, public ICloneableComponent {
         // --- Proxy for glm::vec3 ---
         struct Vec3Proxy : public glm::vec3 {
             // A pointer back to the owner (not part of the arithmetic data).
@@ -45,9 +56,9 @@ namespace Engine {
                 }
                 return *this;
             }
-            operator glm::vec3() const { return *this; }
-            operator glm::vec3&() { return *this; }
-            operator const glm::vec3&() const { return *this; }
+            // operator glm::vec3() const { return *this; }
+            // operator glm::vec3&() { return *this; }
+            // operator const glm::vec3&() const { return *this; }
 
             // We already inherit all needed arithmetic operators from glm::vec3.
         };
@@ -65,9 +76,9 @@ namespace Engine {
                 return *this;
             }
 
-            operator glm::quat() const { return *this; }
-            operator glm::quat&() { return *this; }
-            operator const glm::quat&() const { return *this; }
+            // operator glm::quat() const { return *this; }
+            // operator glm::quat&() { return *this; }
+            // operator const glm::quat&() const { return *this; }
         };
     public:        // Cached world transform.
         // Dirty flag – true if this transform or its parent changed.
@@ -168,11 +179,21 @@ namespace Engine {
                 child->updateTransform(worldTransform);
             }
         }
+
+        std::unique_ptr<ICloneableComponent> clone() const override {
+            TransformComponent copy = *this;
+            // Reset the hierarchy pointers in the duplicate.
+            copy.parent = nullptr;
+            copy.children.clear();
+            // Optionally: mark as dirty.
+            copy.isDirty = true;
+            return std::make_unique<TransformComponent>(copy);
+        }
         
     };
     
 
-    struct CameraComponent {
+    struct CameraComponent : public ICloneableComponent {
         SceneCamera Camera;
         bool primary = true;
 
@@ -181,5 +202,14 @@ namespace Engine {
 
         operator SceneCamera& () { return Camera; }
         operator const SceneCamera& () const { return Camera; }
+
+        std::unique_ptr<ICloneableComponent> clone() const override {
+            CameraComponent copy = *this;
+            copy.Camera = Camera;
+            copy.primary = false;
+            return std::make_unique<CameraComponent>(copy);
+        }
     };
+
+    
 } // namespace Engine

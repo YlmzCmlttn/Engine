@@ -25,4 +25,5 @@ public:
 private:
     std::shared_ptr<SceneHierarchyPanel> m_SceneHierarchyPanel;
     std::shared_ptr<InspectorPanel> m_InspectorPanel;
+    std::shared_ptr<Engine::Scene> m_Scene;
 };

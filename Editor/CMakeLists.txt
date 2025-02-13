@@ -16,7 +16,7 @@ macro(add_editor_example name)
 add_executable(${name} ${EDITOR_SOURCES})
 target_compile_options(${name}  PRIVATE -Wall -Wextra -O3)
 target_precompile_headers(${name} PRIVATE ../pch/pch.h)
-target_link_libraries(${name} Engine ImGui glm::glm stb glad)
+target_link_libraries(${name} Engine ImGui glm::glm stb glad EnTT::EnTT)
 endmacro()
 
 add_editor_example(EditorApp)

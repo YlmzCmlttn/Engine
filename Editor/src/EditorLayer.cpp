@@ -63,14 +63,32 @@ void DockSpaceEnd(){
     ImGui::End();
 }
 
-EditorLayer::EditorLayer() : Layer("Editor"),
-    m_SceneHierarchyPanel(std::make_shared<SceneHierarchyPanel>())
+EditorLayer::EditorLayer() : Layer("Editor")
 {
 
 }
 
 void EditorLayer::onAttach() {
     
+    m_Scene = Engine::CreateRef<Engine::Scene>();
+    m_SceneHierarchyPanel = Engine::CreateRef<SceneHierarchyPanel>(m_Scene);
+    m_InspectorPanel = Engine::CreateRef<InspectorPanel>();
+    auto cameraEntity = m_Scene->createEntity("Camera");    
+    cameraEntity.addComponent<Engine::CameraComponent>();
+
+    auto parentEntity = m_Scene->createEntity("Parent");
+    cameraEntity.getComponent<Engine::TransformComponent>().setParent(parentEntity.getComponent<Engine::TransformComponent>(),false);
+
+
+    auto duplicatedEntity = m_Scene->duplicateEntity(parentEntity);
+    //m_ParentEntity.addComponent<Engine::TransformComponent>();
+    
+    //auto childEntity = m_Scene->createEntity("Child");
+    //m_ChildEntity.addComponent<Engine::TransformComponent>();
+    //m_ChildEntity.setParent(m_ParentEntity);
+
+    //auto child2Entity = m_Scene->createEntity("Child2");
+    //child2Entity.getComponent<Engine::TransformComponent>().setParent(parentEntity.getComponent<Engine::TransformComponent>(),false);
 }
 
 void EditorLayer::onDetach() {
@@ -91,6 +109,7 @@ void EditorLayer::onImGuiRender() {
 
 
     m_SceneHierarchyPanel->onImGuiRender();
+    m_InspectorPanel->setEntity(m_SceneHierarchyPanel->getSelectedEntity());
     m_InspectorPanel->onImGuiRender();
 
     DockSpaceEnd();
