@@ -73,14 +73,23 @@ void EditorLayer::onAttach() {
     m_Scene = Engine::CreateRef<Engine::Scene>();
     m_SceneHierarchyPanel = Engine::CreateRef<SceneHierarchyPanel>(m_Scene);
     m_InspectorPanel = Engine::CreateRef<InspectorPanel>();
-    auto cameraEntity = m_Scene->createEntity("Camera");    
-    cameraEntity.addComponent<Engine::CameraComponent>();
+    Engine::Entity parentEntities[10];
+    for(uint i=0;i<2;i++){
+        auto cameraEntity = m_Scene->createEntity("Child"+std::to_string(i));    
+        auto parentEntity = m_Scene->createEntity("Parent"+std::to_string(i));
+        cameraEntity.getComponent<Engine::TransformComponent>().setParent(parentEntity.getComponent<Engine::TransformComponent>(),false);
+        parentEntities[i] = parentEntity;
+    }
 
-    auto parentEntity = m_Scene->createEntity("Parent");
-    cameraEntity.getComponent<Engine::TransformComponent>().setParent(parentEntity.getComponent<Engine::TransformComponent>(),false);
+    // m_Scene->destroyEntity(parentEntities[2]);
+    // m_Scene->destroyEntity(parentEntities[3]);
+    
 
 
-    auto duplicatedEntity = m_Scene->duplicateEntity(parentEntity);
+    //auto duplicatedEntity = m_Scene->duplicateEntity(parentEntity);
+    //auto duplicatedEntity2 = m_Scene->duplicateEntity(parentEntity);
+
+    //m_Scene->destroyEntity(duplicatedEntity2);
     //m_ParentEntity.addComponent<Engine::TransformComponent>();
     
     //auto childEntity = m_Scene->createEntity("Child");

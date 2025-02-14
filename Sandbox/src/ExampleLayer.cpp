@@ -63,7 +63,7 @@ void ExampleLayer::onDetach() {
 
 void ExampleLayer::onUpdate([[maybe_unused]] Engine::Timestep ts) {
     using namespace Engine;
-    UpdateTransforms(m_Scene->m_Registry);
+    UpdateTransforms(m_Scene->getRegistry());
     Renderer::Clear(m_ClearColor[0], m_ClearColor[1], m_ClearColor[2], m_ClearColor[3]);
     // Engine::UniformBufferDeclaration<sizeof(glm::vec4), 1> ubo;
     // ubo.push("u_Color", m_TriangleColor);
