@@ -65,6 +65,7 @@ void SceneHierarchyPanel::onImGuiRender() {
     ImGui::End();
 }
 void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
+    ImGui::PushID((int)(uint32_t)entity);
     // Get the tag (display name) and transform.
     auto& tag = entity.getComponent<Engine::TagComponent>();
     auto& transform = entity.getComponent<Engine::TransformComponent>();
@@ -123,6 +124,10 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
             m_Scene->destroyEntity(entity, true);
             ImGui::CloseCurrentPopup();
         }
+        ImGui::SameLine();
+        if (ImGui::Button("Cancel", ImVec2(120, 0))) {
+            ImGui::CloseCurrentPopup();
+        }
         ImGui::EndPopup();
     }
     // --- Drag & Drop Source: allow this node to be dragged.
@@ -155,9 +160,8 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
     if (nodeOpen) {
         // For each child pointer, we need to find its corresponding entity.
         for (auto childTransform : transform.children) {
-
             Engine::Entity childEntity = m_Scene->findEntityByTransformComponent(*childTransform);
-            // If found, draw its node.
+            
             if (childEntity){
                 drawEntityNode(childEntity);
 
@@ -165,4 +169,5 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
         }
         ImGui::TreePop();
     }
+    ImGui::PopID();
 }
