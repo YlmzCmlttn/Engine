@@ -18,18 +18,18 @@ void SceneHierarchyPanel::onImGuiRender() {
     ImGui::Begin("Scene Hierarchy");
 
 
-    // // --- Undo/Redo Buttons ---
-    // if (ImGui::Button("Undo")) {
-    //     Engine::Application::Submit([this]() {
-    //         Engine::UndoManager::get().undo();
-    //     });
-    // }
-    // ImGui::SameLine();
-    // if (ImGui::Button("Redo")) {
-    //     Engine::Application::Submit([this]() {
-    //         Engine::UndoManager::get().redo();
-    //     });
-    // }
+    // --- Undo/Redo Buttons ---
+    if (ImGui::Button("Undo")) {
+        Engine::Application::Submit([this]() {
+            Engine::UndoManager::get().undo();
+        });
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Redo")) {
+        Engine::Application::Submit([this]() {
+            Engine::UndoManager::get().redo();
+        });
+    }
 
     if(m_Scene) {
 
