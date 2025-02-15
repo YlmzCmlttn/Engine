@@ -8,18 +8,131 @@ namespace Engine {
         Entity entity =  Entity(scene->getRegistry().create(), scene);
         auto& tag = entity.addComponent<TagComponent>();
 		tag.tag = name.empty() ? "Entity" : name;
-        auto& transform = entity.addComponent<TransformComponent>();
         auto& relationship = entity.addComponent<RelationshipComponent>();
+        auto& transform = entity.addComponent<TransformComponent>();
         entity.setParent(scene->getSceneEntity());
         return entity;
+    }
+
+
+    void Systems::onTransformComponentConstruct(entt::registry& registry, entt::entity entity) {
+        registry.emplace<DirtyFlagComponent>(entity);
+    }
+
+    void Systems::onTransformComponentReplace(entt::registry& registry, entt::entity entity) {
+        registry.emplace<DirtyFlagComponent>(entity);
+    }
+
+    void Systems::onDirtyFlagComponentConstruct(entt::registry& registry, entt::entity entity) {
+        MarkChildrenDirty(registry, entity);
+    }
+
+    void Systems::onDirtyFlagComponentReplace(entt::registry& registry, entt::entity entity) {
+        MarkChildrenDirty(registry, entity);
+    }
+
+    void Systems::MarkEntityAsDirty(entt::registry& registry, entt::entity entity) {
+        registry.emplace<DirtyFlagComponent>(entity);
+    }
+
+    void Systems::MarkEntityAsDirty(Ref<Scene> scene, Entity entity) {
+        MarkEntityAsDirty(scene->getRegistry(), entity.getHandle());
+    }
+
+    void Systems::MarkChildrenDirty(entt::registry& registry, entt::entity entity) {
+        auto currChild = registry.get<RelationshipComponent>(entity).first.getHandle();
+        auto numberOfChildren = registry.get<RelationshipComponent>(entity).children;
+        for(int i = 0; i < numberOfChildren; i++) {
+            MarkEntityAsDirty(registry, currChild);
+            currChild = registry.get<RelationshipComponent>(currChild).next.getHandle();
+        }
+    }
+
+    void Systems::MarkChildrenDirty(Ref<Scene> scene, Entity entity) {
+        MarkChildrenDirty(scene->getRegistry(), entity.getHandle());
     }
 
     Entity Systems::CreateEmptyEntity(Ref<Scene> scene) {
         return Entity(scene->getRegistry().create(), scene);
     }
+
+    void Systems::UpdateEntityLocalTransform(Entity entity) {
+        entity.getComponent<TransformComponent>().updateLocalTransform();
+    }
+
+    void Systems::UpdateEntityGlobalTransform(Entity entity) {
+        entity.getComponent<TransformComponent>().updateGlobalTransform();
+    }
+
+    void Systems::CalculateEntityGlobalTransformBasedOnParent(Entity entity) {
+        auto parentTransform = TransformComponent();
+        if(entity.getComponent<RelationshipComponent>().parent) {
+            parentTransform = entity.getComponent<RelationshipComponent>().parent.getComponent<TransformComponent>();
+        }
+        auto& transform = entity.getComponent<TransformComponent>();
+        UpdateEntityLocalTransform(entity);
+        
+        auto localTransform = transform.getLocalTransform();
+        auto globalTransform = parentTransform.getGlobalTransform() * localTransform;
+        transform.globalTransform = globalTransform;
+
+        glm::vec3 Scale;
+        glm::quat Orientation;
+        glm::vec3 Translation;
+        glm::vec3 Skew(1);
+        glm::vec4 Perspective(1);
+        glm::decompose(globalTransform, Scale, Orientation, Translation, Skew, Perspective);
+        transform.position = Translation;
+        transform.rotation = Orientation;
+        transform.scale = Scale;
+    }
+
+    void Systems::PatchTransform(Ref<Scene> scene, Entity entity, glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale){
+        //use patch to set the transform
+        scene->getRegistry().patch<TransformComponent>(entity.getHandle(), [&](auto& transform) {
+            transform.localPosition = translation;
+            transform.localRotation = glm::quat(rotation);
+            transform.localScale = scale;
+        });
+    }
+
+    void Systems::CalculateEntityLocalTransformBasedOnParent(Entity entity) {
+        auto parentTransform = TransformComponent();
+        if(entity.getComponent<RelationshipComponent>().parent) {
+            parentTransform = entity.getComponent<RelationshipComponent>().parent.getComponent<TransformComponent>();
+        }
+
+        auto& transform = entity.getComponent<TransformComponent>();
+        UpdateEntityGlobalTransform(entity);
+        auto globalTransform = transform.getGlobalTransform();
+        auto localTransform = glm::inverse(parentTransform.getGlobalTransform()) * globalTransform;
+        transform.localTransform = localTransform;
+
+        glm::vec3 Scale;
+        glm::quat Orientation;
+        glm::vec3 Translation;
+        glm::vec3 Skew(1);
+        glm::vec4 Perspective(1);
+        glm::decompose(localTransform, Scale, Orientation, Translation, Skew, Perspective);
+        transform.localPosition = Translation;
+        transform.localRotation = Orientation;
+        transform.localScale = Scale;
+    }
+
     
     void Systems::UpdateTransforms(Ref<Scene> scene) {
-        
+        scene->getRegistry().sort<DirtyFlagComponent>([&](entt::entity lhs, entt::entity rhs) {
+            const auto &clhs = scene->getRegistry().get<RelationshipComponent>(lhs);
+            const auto &crhs = scene->getRegistry().get<RelationshipComponent>(rhs);
+            return crhs.parent.getHandle() == lhs || clhs.next.getHandle() == rhs
+                || (!(clhs.parent.getHandle() == rhs || crhs.next.getHandle() == lhs) && (clhs.parent.getHandle() < crhs.parent.getHandle() || (clhs.parent.getHandle() == crhs.parent.getHandle() && &clhs < &crhs)));
+            });
+
+        scene->getRegistry().view<DirtyFlagComponent>().each([&](auto entity) {
+            CalculateEntityGlobalTransformBasedOnParent(Entity(entity, scene));
+        });
+
+        scene->getRegistry().clear<DirtyFlagComponent>();        
     }
 
     void Systems::DestroyEntity(Entity entity, bool keepChildren) {
@@ -72,7 +185,9 @@ namespace Engine {
 
         if(parent) {
             AddChild(parent,child);
-        }        
+        }
+
+        CalculateEntityLocalTransformBasedOnParent(child);
     }
 
     void Systems::ReorderEntity(Entity entity,Entity next) {
@@ -150,6 +265,8 @@ namespace Engine {
         childRel.parent = Entity();
         childRel.prev = Entity();
         childRel.next = Entity();
+
+        CalculateEntityLocalTransformBasedOnParent(child);
     }
 
     uint32_t Systems::GetChildCount(Entity parent) {

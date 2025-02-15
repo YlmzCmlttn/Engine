@@ -9,6 +9,8 @@
 
 namespace Engine {
 
+    struct DirtyFlagComponent {};
+
     struct ICloneableComponent {
         virtual std::unique_ptr<ICloneableComponent> clone() const = 0;
         virtual ~ICloneableComponent() = default;
@@ -39,15 +41,6 @@ namespace Engine {
         }
     };
 
-    struct GlobalTransformComponent : public ICloneableComponent {
-        glm::mat4 globalTransform;
-
-        std::unique_ptr<ICloneableComponent> clone() const override {
-            GlobalTransformComponent clone = *this;
-            return std::make_unique<GlobalTransformComponent>(clone);
-        }
-    };
-
     struct RelationshipComponent{
         std::size_t children{0};
         Entity first = Entity();
@@ -58,14 +51,43 @@ namespace Engine {
 
     struct TransformComponent : public ICloneableComponent {            
         TransformComponent()
-            : localPosition(glm::vec3(0.0f)),
+            : position(glm::vec3(0.0f)),
+              rotation(glm::quat()),
+              scale(glm::vec3(1.0f)),
+              localPosition(glm::vec3(0.0f)),
               localRotation(glm::quat()),
-              localScale(glm::vec3(1.0f)) {}
+              localScale(glm::vec3(1.0f))
+        {
+            globalTransform = glm::mat4(1.0f);
+        }
 
+        glm::vec3 position;
+        glm::quat rotation;
+        glm::vec3 scale;
         glm::vec3 localPosition;
         glm::quat localRotation;
         glm::vec3 localScale;
-        
+
+        glm::mat4 globalTransform;
+        glm::mat4 localTransform;
+
+
+        void updateLocalTransform() {
+            localTransform = glm::translate(glm::mat4(1.0f), localPosition) * glm::toMat4(localRotation) * glm::scale(glm::mat4(1.0f), localScale);
+        }
+
+        void updateGlobalTransform() {
+            globalTransform = glm::translate(glm::mat4(1.0f), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(1.0f), scale);
+        }
+
+        glm::mat4 getLocalTransform() const {
+            return localTransform;
+        }
+
+        glm::mat4 getGlobalTransform() const {
+            return globalTransform;
+        }
+
         std::unique_ptr<ICloneableComponent> clone() const override {
             TransformComponent copy = *this;
             return std::make_unique<TransformComponent>(copy);

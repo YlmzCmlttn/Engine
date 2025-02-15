@@ -3,7 +3,7 @@
 #include "Scene/Scene.h"
 #include "Core/Assert.h"
 #include "entt/entity/registry.hpp"
-
+#include "glm/glm.hpp"
 namespace Engine {
 
     class Entity {
@@ -45,6 +45,9 @@ namespace Engine {
         void setParent(Entity parent);
         void removeParent();
         Entity getChild(uint32_t index);
+        entt::entity getHandle() const { return m_EntityHandle; }
+
+        void setTransform(glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale);
         
     private:
         Entity getSceneEntity();

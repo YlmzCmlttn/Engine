@@ -170,9 +170,7 @@ static void DrawEntity(Engine::Entity entity){
 
         if(translation != component.localPosition || rotation != glm::eulerAngles(component.localRotation) || scale != component.localScale){
             Application::Submit([entity, translation, rotation, scale]() {
-                Entity(entity).getComponent<TransformComponent>().localPosition = translation;
-                Entity(entity).getComponent<TransformComponent>().localRotation = glm::quat(rotation);
-                Entity(entity).getComponent<TransformComponent>().localScale = scale;
+                Entity(entity).setTransform(translation, rotation, scale);
             });
         }
         if(ImGui::IsItemDeactivatedAfterEdit() || resetted){
@@ -184,6 +182,14 @@ static void DrawEntity(Engine::Entity entity){
                 std::unique_ptr<Command> command = std::make_unique<EntityTransformChangeCommand>(Entity(entity), translation, rotation, scale);
                 UndoManager::get().executeCommand(command);
             });            
+        }
+
+
+        glm::vec3 global_translation = component.position;
+        glm::vec3 global_rotation = glm::eulerAngles(component.rotation);
+        glm::vec3 global_scale = component.scale;
+        if(DrawVec3Control("Global Translation", global_translation) || DrawVec3Control("Global Rotation", global_rotation) || DrawVec3Control("Global Scale", global_scale)){
+            resetted = true;
         }
     });
 

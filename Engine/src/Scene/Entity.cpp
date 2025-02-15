@@ -13,6 +13,10 @@ namespace Engine {
         Systems::SetParent(*this, parent);
     }
 
+    void Entity::setTransform(glm::vec3 translation, glm::vec3 rotation, glm::vec3 scale){
+        Systems::PatchTransform(m_Scene, *this, translation, rotation, scale);
+    }
+
     void Entity::removeParent(){
         Systems::RemoveFromParent(*this);
     }

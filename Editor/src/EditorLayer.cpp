@@ -1,5 +1,5 @@
 #include "EditorLayer.h"
-
+#include "Scene/Systems.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RendererAPI.h"
 
@@ -111,6 +111,7 @@ void EditorLayer::onDetach() {
 
 void EditorLayer::onUpdate([[maybe_unused]] Engine::Timestep ts) {
     
+    Engine::Systems::UpdateTransforms(m_Scene);
     Engine::Renderer::Clear(0.1,0.1,0.1,1.0);
 }
 

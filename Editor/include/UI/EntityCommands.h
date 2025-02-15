@@ -46,14 +46,10 @@ namespace Engine{
             m_OldScale = m_Entity.getComponent<TransformComponent>().localScale;
         }
         void execute() override{
-            m_Entity.getComponent<TransformComponent>().localPosition = m_Translation;
-            m_Entity.getComponent<TransformComponent>().localRotation = glm::quat(m_Rotation);
-            m_Entity.getComponent<TransformComponent>().localScale = m_Scale;
+            Entity(m_Entity).setTransform(m_Translation, m_Rotation, m_Scale);
         }
         void undo() override{
-            m_Entity.getComponent<TransformComponent>().localPosition = m_OldTranslation; 
-            m_Entity.getComponent<TransformComponent>().localRotation = glm::quat(m_OldRotation);
-            m_Entity.getComponent<TransformComponent>().localScale = m_OldScale;
+            Entity(m_Entity).setTransform(m_OldTranslation, m_OldRotation, m_OldScale);
         }
     private:
         glm::vec3 m_Translation;

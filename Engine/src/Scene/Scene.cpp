@@ -10,6 +10,11 @@ namespace Engine {
     {
         m_SceneEntity = m_Registry.create();
         m_Registry.emplace<RelationshipComponent>(m_SceneEntity);
+        m_Registry.emplace<TransformComponent>(m_SceneEntity);
+        m_Registry.on_construct<TransformComponent>().connect<&Systems::onTransformComponentConstruct>();
+        m_Registry.on_update<TransformComponent>().connect<&Systems::onTransformComponentReplace>();
+        m_Registry.on_construct<DirtyFlagComponent>().connect<&Systems::onDirtyFlagComponentConstruct>();
+        m_Registry.on_update<DirtyFlagComponent>().connect<&Systems::onDirtyFlagComponentReplace>();
     }
 
     Scene::~Scene() {}
