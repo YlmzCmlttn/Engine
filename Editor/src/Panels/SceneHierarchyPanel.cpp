@@ -2,6 +2,9 @@
 #include "Core/Application.h"
 #include <imgui.h>
 #include <imgui_internal.h>
+#include "UI/UndoManager.h"
+#include "UI/DeleteEntityCommand.h"
+
 SceneHierarchyPanel::SceneHierarchyPanel(const std::shared_ptr<Engine::Scene>& scene) 
     : m_Scene(scene) {
 
@@ -13,6 +16,20 @@ SceneHierarchyPanel::~SceneHierarchyPanel() {
 
 void SceneHierarchyPanel::onImGuiRender() {
     ImGui::Begin("Scene Hierarchy");
+
+
+    // // --- Undo/Redo Buttons ---
+    // if (ImGui::Button("Undo")) {
+    //     Engine::Application::Submit([this]() {
+    //         Engine::UndoManager::get().undo();
+    //     });
+    // }
+    // ImGui::SameLine();
+    // if (ImGui::Button("Redo")) {
+    //     Engine::Application::Submit([this]() {
+    //         Engine::UndoManager::get().redo();
+    //     });
+    // }
 
     if(m_Scene) {
 
@@ -102,8 +119,10 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
     
     if (ImGui::BeginPopupContextItem()) {
         if (ImGui::MenuItem("Delete Entity")) {
-            if (relationship.children == 0) {
+            if (relationship.children == 0) {                
                 Engine::Application::Submit([entity, this]() {
+                    std::unique_ptr<Engine::Command> command = std::make_unique<Engine::DeleteEntityCommand>(Engine::Entity(entity).getComponent<Engine::TagComponent>().tag);
+                    Engine::UndoManager::get().executeCommand(command);
                     m_Scene->destroyEntity(entity);
                 });
             } else {
@@ -225,8 +244,6 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
             uint32_t payloadEntityID = *(const uint32_t*)payload->Data;
             Engine::Entity droppedEntity{ (entt::entity)payloadEntityID, m_Scene };
             // Only allow reordering if the dropped entity is not the same as the target.
-            std::cout << "Dropped entity: " << droppedEntity.getComponent<Engine::TagComponent>().tag << std::endl;
-            std::cout << "Entity: " << entity.getComponent<Engine::TagComponent>().tag << std::endl;
             if (droppedEntity != entity) {
                 // Submit a reorder task. You should implement reorderEntity() to adjust your internal ordering.
                 Engine::Application::Submit([this, droppedEntity, entity]() {
