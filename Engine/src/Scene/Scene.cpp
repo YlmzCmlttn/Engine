@@ -1,12 +1,16 @@
+#include "Scene/Entity.h"
 #include "Scene/Scene.h"
 #include "Scene/Components.h"
-#include "Scene/Entity.h"
 #include "Scene/Systems.h"
 
 namespace Engine {
 
     Scene::Scene(const std::string& name)
-        : m_Name(name) {}
+        : m_Name(name)
+    {
+        m_SceneEntity = m_Registry.create();
+        m_Registry.emplace<RelationshipComponent>(m_SceneEntity);
+    }
 
     Scene::~Scene() {}
 
@@ -26,6 +30,10 @@ namespace Engine {
 
     }
 
+    Entity Scene::getSceneEntity() {
+        return Entity(m_SceneEntity, shared_from_this());
+    }
+
     Entity Scene::getPrimaryCameraEntity() {
         auto view = m_Registry.view<CameraComponent>();
         for (auto entity : view) {
@@ -34,8 +42,12 @@ namespace Engine {
         }
     }
 
-    Entity Scene::findEntityByTransformComponent(const TransformComponent& transform) {
-        return Systems::FindEntityByTransformComponent(shared_from_this(), transform);
+    // Entity Scene::findEntityByTransformComponent(const TransformComponent& transform) {
+    //     return Systems::FindEntityByTransformComponent(shared_from_this(), transform);
+    // }
+
+    void Scene::reorderEntity(Entity entity,Entity next) {
+        Systems::ReorderEntity(entity,next);
     }
     
     Entity Scene::createEntity(const std::string& name) {
@@ -43,7 +55,7 @@ namespace Engine {
     }
 
     Entity Scene::duplicateEntity(Entity entity) {
-        return Systems::DuplicateEntity(entity, Systems::GetParentEntity(entity));
+        return Systems::DuplicateEntity(entity);
     }
 
     void Scene::destroyEntity(Entity entity, bool keepChildren) {

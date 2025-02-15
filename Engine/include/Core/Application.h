@@ -7,7 +7,7 @@
 #include "Layer.h"
 #include "LayerStack.h"
 #include "ImGui/ImGuiLayer.h"
-
+#include "Core/CommandQueue.h"
 namespace Engine
 {
     class Application {
@@ -36,7 +36,10 @@ namespace Engine
         void close();
 
         inline Window& getWindow(){return *m_Window;}
-
+        template <typename Func>
+        static void Submit(Func&& command) {
+            Get().m_CommandQueue.submit(std::forward<Func>(command));
+        }
 
     private:
         Scope<Window> m_Window;
@@ -47,7 +50,7 @@ namespace Engine
         LayerStack m_LayerStack;        
 
         static Application* s_Instance;
-
+        CommandQueue m_CommandQueue;
         bool onWindowClose(WindowCloseEvent& e);
         bool onWindowResize(WindowResizeEvent& e);
     };

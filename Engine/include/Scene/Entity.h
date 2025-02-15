@@ -42,7 +42,12 @@ namespace Engine {
         inline bool operator!=(const Entity& other) const { return !(*this == other); }        
 
         Ref<Scene> getScene() const { return m_Scene; }
+        void setParent(Entity parent);
+        void removeParent();
+        Entity getChild(uint32_t index);
+        
     private:
+        Entity getSceneEntity();
         entt::entity m_EntityHandle{entt::null};
         Ref<Scene> m_Scene;
     };

@@ -1,3 +1,4 @@
+#include "Scene/Entity.h"
 #include "Scene/Systems.h"
 #include "Scene/Components.h"
 
@@ -8,6 +9,8 @@ namespace Engine {
         auto& tag = entity.addComponent<TagComponent>();
 		tag.tag = name.empty() ? "Entity" : name;
         auto& transform = entity.addComponent<TransformComponent>();
+        auto& relationship = entity.addComponent<RelationshipComponent>();
+        entity.setParent(scene->getSceneEntity());
         return entity;
     }
 
@@ -16,104 +19,153 @@ namespace Engine {
     }
     
     void Systems::UpdateTransforms(Ref<Scene> scene) {
-        auto view = scene->getRegistry().view<TransformComponent>();
-        for(auto entity : view) {
-            auto &transform = view.get<TransformComponent>(entity);            
-            if(transform.parent == nullptr){
-                transform.updateTransform();
-            }
-        }
-    }
-
-    Entity Systems::FindEntityByTransformComponent(Ref<Scene> scene, const TransformComponent& transform) {
-        auto view = scene->getRegistry().view<TransformComponent>();
-        for (auto entity : view) {
-            if (&view.get<TransformComponent>(entity) == &transform) return Entity(entity, scene);
-        }
-        return Entity();
+        
     }
 
     void Systems::DestroyEntity(Entity entity, bool keepChildren) {
-        Ref<Scene> scene = entity.getScene();
-        if (entity.hasComponent<TransformComponent>()) {
-            auto& transform = entity.getComponent<TransformComponent>();
-
-            // Make a copy of children since the vector might be modified as we delete or reparent.
-            auto childrenCopy = transform.children;
-
-            if (!keepChildren) {
-                transform.removeParent();
-                // Recursively delete all children.
-                for (auto childTransform : childrenCopy) {
-                    Entity childEntity = FindEntityByTransformComponent(scene, *childTransform);
-                    if (childEntity) {
-                        DestroyEntity(childEntity, false);
-                    }
-                }
-            } else {
-                TransformComponent* newParent = transform.parent; // Could be nullptr.
-                transform.removeParent();
-                for (auto childTransform : childrenCopy) {
-                    Entity childEntity = FindEntityByTransformComponent(scene, *childTransform);
-                    if (childEntity) {
-                        auto& childTC = childEntity.getComponent<TransformComponent>();
-                        if (newParent) {
-                            // Reparent child to the deleted entity's parent.
-                            childTC.setParent(*newParent, true);
-                        } else {
-                            // No parent exists, so simply remove the parent.
-                            childTC.removeParent();
-                        }
-                    }
-                }
+        auto parent = GetParentEntity(entity);
+        entity.removeParent();
+        
+        for(uint32_t i = 0; i < entity.getComponent<RelationshipComponent>().children; i++) {
+            auto child = entity.getChild(i);
+            if(keepChildren) {
+                child.setParent(parent);
+            }else{
+                child.removeParent();
+                child.getScene()->getRegistry().destroy(child);
             }
         }
-
-        // Optionally: remove the entity from any other systems/components before deletion.
-        // Finally, remove the entity from the registry.
-        scene->getRegistry().destroy((entt::entity)entity);
+        entity.getScene()->getRegistry().destroy(entity);
     }
 
     void Systems::DuplicateTransformComponent(Entity src, Entity dst, Entity parent) {
-        DuplicateComponent<TransformComponent>(src, dst);
-        if(parent){
-            auto& dstTransform = dst.getComponent<TransformComponent>();
-            auto& parentTransform = parent.getComponent<TransformComponent>();
-            dstTransform.setParent(parentTransform, false);
-        }
-        for(auto child : src.getComponent<TransformComponent>().children){
-            Entity childEntity = FindEntityByTransformComponent(src.getScene(), *child);
-            if(childEntity){
-                DuplicateTransformComponent(childEntity, dst, dst);
-            }
-        }
+        
     }
 
     Entity Systems::GetParentEntity(Entity entity) {
-        auto& transform = entity.getComponent<TransformComponent>();
-        if(transform.parent){
-            return FindEntityByTransformComponent(entity.getScene(), *transform.parent);
+        return entity.getComponent<RelationshipComponent>().parent;
+    }
+    void Systems::DuplicateEntity(Entity src, Entity dst) {
+        DuplicateComponent<TransformComponent>(src, dst);        
+        DuplicateComponent<TagComponent>(src, dst);
+        DuplicateComponent<CameraComponent>(src, dst);
+        for(int i = 0; i <GetChildCount(src); i++) {
+            auto child = src.getChild(i);
+            auto dstChild = CreateEntity(child.getScene());
+            dstChild.setParent(dst);
+            DuplicateEntity(child, dstChild);            
         }
-        return Entity();
+    }
+
+    Entity Systems::DuplicateEntity(Entity entity) {
+        auto parent = GetParentEntity(entity);
+        auto dst = CreateEntity(entity.getScene());
+        dst.setParent(parent);
+        DuplicateEntity(entity, dst);
+        dst.getComponent<TagComponent>().tag = dst.getComponent<TagComponent>().tag+"_copy";
+        return dst;
+    }
+    
+    
+    void Systems::SetParent(Entity child, Entity parent) {
+        RemoveFromParent(child);
+
+        if(parent) {
+            AddChild(parent,child);
+        }        
+    }
+
+    void Systems::ReorderEntity(Entity entity,Entity next) {
+        auto &entityRel = entity.getComponent<RelationshipComponent>();
+        auto &nextRel = next.getComponent<RelationshipComponent>();
+
+        auto newParent = GetParentEntity(next);
+        RemoveFromParent(entity);
+        
+        auto& newParentRel = newParent.getComponent<RelationshipComponent>();
+        if(newParentRel.first == next) {
+            entityRel.next = next;
+            nextRel.prev = entity;            
+            newParentRel.first = entity;
+        }else{
+            auto sibling = newParentRel.first;
+            while(sibling){
+                auto& siblingRel = sibling.getComponent<RelationshipComponent>();
+                if(siblingRel.next == next) {
+                    entityRel.prev = sibling;
+                    entityRel.next = next;
+                    siblingRel.next = entity;
+                    nextRel.prev = entity;
+                    break;
+                }
+                sibling = siblingRel.next;
+            }
+        }
+
+        entityRel.parent = newParent;        
+        newParentRel.children++;
+    }
+
+    void Systems::AddChild(Entity parent, Entity child) {
+        auto &parentRel = parent.getComponent<RelationshipComponent>();
+        auto &childRel = child.getComponent<RelationshipComponent>();
+
+        childRel.parent = parent;
+
+        childRel.prev = Entity();
+        childRel.next = parentRel.first;
+        
+        // If there was already a first child, update its prev pointer.
+        if (parentRel.first) {
+            parentRel.first.getComponent<RelationshipComponent>().prev = child;
+        }
+        
+        // Now make the child the first child.
+        parentRel.first = child;
+        ++parentRel.children;
     }
 
 
-    Entity Systems::DuplicateEntity(Entity entity, Entity parent) {
-        Entity newEntity = CreateEmptyEntity(entity.getScene());        
-        DuplicateComponent<TagComponent>(entity, newEntity);
-        DuplicateComponent<CameraComponent>(entity, newEntity);
-        DuplicateComponent<TransformComponent>(entity, newEntity);
-        if(parent){
-            auto& dstTransform = newEntity.getComponent<TransformComponent>();
-            auto& parentTransform = parent.getComponent<TransformComponent>();
-            dstTransform.setParent(parentTransform, false);
-        }
-        for(auto child : entity.getComponent<TransformComponent>().children){
-            Entity childEntity = FindEntityByTransformComponent(entity.getScene(), *child);
-            if(childEntity){
-                DuplicateEntity(childEntity, newEntity);
+    void Systems::RemoveFromParent(Entity child) {
+        auto &childRel = child.getComponent<RelationshipComponent>();
+        auto &oldParent = childRel.parent;
+        if(oldParent) {
+            auto &parentRel = oldParent.getComponent<RelationshipComponent>();
+
+            if(parentRel.first == child) {
+                parentRel.first = childRel.next;
             }
+
+            if(childRel.prev) {
+                childRel.prev.getComponent<RelationshipComponent>().next = childRel.next;
+            }
+
+            if(childRel.next) {
+                childRel.next.getComponent<RelationshipComponent>().prev = childRel.prev;
+            }
+
+            --parentRel.children;
         }
-        return newEntity;
-    }        
+
+        childRel.parent = Entity();
+        childRel.prev = Entity();
+        childRel.next = Entity();
+    }
+
+    uint32_t Systems::GetChildCount(Entity parent) {
+        return parent.getComponent<RelationshipComponent>().children;
+    }
+
+    Entity Systems::GetChild(Entity parent, uint32_t index) {
+        if(index >= GetChildCount(parent)) {
+            std::cout << "Get Child: Index out of bounds" << std::endl;
+            return Entity();
+        }
+        auto& relationship = parent.getComponent<RelationshipComponent>();
+        auto curr = relationship.first;
+        for(uint32_t i = 0; i < index; i++) {
+            curr = curr.getComponent<RelationshipComponent>().next;
+        }
+        return curr;
+    }
 }

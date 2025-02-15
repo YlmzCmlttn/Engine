@@ -72,14 +72,14 @@ namespace Engine {
             for(Ref<Layer> layer : m_LayerStack){
                 layer->onUpdate(ts);
             }
+            m_CommandQueue.execute();
 
             Application* app = this;
             Renderer::Submit([app]() {
                 app->renderImGui();
             });
 
-            Renderer::get().waitAndRender();
-
+            Renderer::get().waitAndRender();            
             m_Window->onUpdate();
         }
         onShutdown();
@@ -98,7 +98,7 @@ namespace Engine {
 		// }
 
 		// m_Minimized = false;
-		//Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+    //Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
         int width = e.getWidth();
         int height = e.getHeight();
         //FrameBufferPool::getInstance().resizeAllFrameBuffers(width, height);

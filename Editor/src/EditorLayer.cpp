@@ -74,12 +74,18 @@ void EditorLayer::onAttach() {
     m_SceneHierarchyPanel = Engine::CreateRef<SceneHierarchyPanel>(m_Scene);
     m_InspectorPanel = Engine::CreateRef<InspectorPanel>();
     Engine::Entity parentEntities[10];
+    //auto parentEntity = m_Scene->createEntity("Parent");
     for(uint i=0;i<2;i++){
         auto cameraEntity = m_Scene->createEntity("Child"+std::to_string(i));    
         auto parentEntity = m_Scene->createEntity("Parent"+std::to_string(i));
-        cameraEntity.getComponent<Engine::TransformComponent>().setParent(parentEntity.getComponent<Engine::TransformComponent>(),false);
+        cameraEntity.setParent(parentEntity);
+        //cameraEntity.getComponent<Engine::TransformComponent>().setParent(parentEntity.getComponent<Engine::TransformComponent>(),false);
         parentEntities[i] = parentEntity;
     }
+
+    //parentEntities[0].setParent(parentEntities[1]);
+    //auto child0Entity = parentEntities[0].getChild(0);
+    //parentEntities[1].setParent(child0Entity);
 
     // m_Scene->destroyEntity(parentEntities[2]);
     // m_Scene->destroyEntity(parentEntities[3]);

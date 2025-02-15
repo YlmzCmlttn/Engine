@@ -1,7 +1,7 @@
 #include "Panels/SceneHierarchyPanel.h"
-
+#include "Core/Application.h"
 #include <imgui.h>
-
+#include <imgui_internal.h>
 SceneHierarchyPanel::SceneHierarchyPanel(const std::shared_ptr<Engine::Scene>& scene) 
     : m_Scene(scene) {
 
@@ -15,13 +15,16 @@ void SceneHierarchyPanel::onImGuiRender() {
     ImGui::Begin("Scene Hierarchy");
 
     if(m_Scene) {
-        auto view = m_Scene->getRegistry().view<Engine::TransformComponent, Engine::TagComponent>();
-        for (auto entity : view) {
-            auto& transform = view.get<Engine::TransformComponent>(entity);
-            // Only draw root entities (those without a parent).
-            if (transform.parent == nullptr)
-                drawEntityNode(Engine::Entity(entity, m_Scene));
-        }       
+
+        auto sceneEntity = m_Scene->getSceneEntity();
+        auto relationship = sceneEntity.getComponent<Engine::RelationshipComponent>();
+        auto curr = relationship.first;
+        for(uint32_t i = 0; i < relationship.children; i++) {
+            if(curr) {
+                drawEntityNode(curr);
+            }
+            curr = curr.getComponent<Engine::RelationshipComponent>().next;
+        }
     }
 
     // Create a drop target on empty background.
@@ -35,8 +38,15 @@ void SceneHierarchyPanel::onImGuiRender() {
             Engine::Entity droppedEntity{ (entt::entity)payloadEntityID, m_Scene };
 
             // Remove the parent for this entity.
-            auto& droppedTransform = droppedEntity.getComponent<Engine::TransformComponent>();
+            //auto& droppedTransform = droppedEntity.getComponent<Engine::TransformComponent>();
+            //droppedEntity.removeParent();
+
+            Engine::Application::Submit([droppedEntity, this]() {
+                Engine::Entity(droppedEntity).setParent(this->m_Scene->getSceneEntity());
+            });
+            /*
             droppedTransform.removeParent();
+            */
         }
         ImGui::EndDragDropTarget();
     }
@@ -68,7 +78,7 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
     ImGui::PushID((int)(uint32_t)entity);
     // Get the tag (display name) and transform.
     auto& tag = entity.getComponent<Engine::TagComponent>();
-    auto& transform = entity.getComponent<Engine::TransformComponent>();
+    auto& relationship = entity.getComponent<Engine::RelationshipComponent>();
 
     // Setup tree node flags.
     ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanAvailWidth;
@@ -77,9 +87,10 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
         flags |= ImGuiTreeNodeFlags_Selected;
     
     // If the entity has no children, mark it as a leaf.
-    if (transform.children.empty())
-        flags |= ImGuiTreeNodeFlags_Leaf;
 
+    if(relationship.children == 0)
+        flags |= ImGuiTreeNodeFlags_Leaf;
+    
     // Use the entity handle as a unique ID.
     bool nodeOpen = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.tag.c_str());
     
@@ -88,21 +99,26 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
         m_SelectedEntity = entity;
     
     static bool s_DeleteEntityDialogRequested = false;
-
+    
     if (ImGui::BeginPopupContextItem()) {
         if (ImGui::MenuItem("Delete Entity")) {
-            if (transform.children.empty()) {
-                m_Scene->destroyEntity(entity);
+            if (relationship.children == 0) {
+                Engine::Application::Submit([entity, this]() {
+                    m_Scene->destroyEntity(entity);
+                });
             } else {
                 // Set the flag to open the delete confirmation dialog.
                 s_DeleteEntityDialogRequested = true;
             }
         }
         if (ImGui::MenuItem("Duplicate Entity")) {
-            m_Scene->duplicateEntity(entity);
+            Engine::Application::Submit([entity, this]() {
+                m_Scene->duplicateEntity(entity);
+            });
         }
         ImGui::EndPopup();
     }
+    
 
     // After the context menu closes, if deletion is requested, open the popup.
     if (s_DeleteEntityDialogRequested) {
@@ -116,12 +132,16 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
         ImGui::Separator();
 
         if (ImGui::Button("Yes", ImVec2(120, 0))) {
-            m_Scene->destroyEntity(entity, false);  // Delete entity and its children.
+            Engine::Application::Submit([entity, this]() {
+                m_Scene->destroyEntity(entity, false);  // Delete entity and its children.
+            });
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("No", ImVec2(120, 0))) {
-            m_Scene->destroyEntity(entity, true);
+            Engine::Application::Submit([entity, this]() {
+                m_Scene->destroyEntity(entity, true);
+            });
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
@@ -139,6 +159,7 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
     }
 
     // --- Drag & Drop Target: allow other entities to be dropped onto this node.
+    
     if (ImGui::BeginDragDropTarget()) {
         if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HIERARCHY_ENTITY")) {
             // Retrieve the dropped entity's handle.
@@ -149,25 +170,86 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
             if (droppedEntity != entity) {
                 // Set the parent of the dropped entity to this entity.
                 // Here, passing 'false' means the child's local transform remains unchanged.
-                auto& droppedTransform = droppedEntity.getComponent<Engine::TransformComponent>();
-                droppedTransform.setParent(entity.getComponent<Engine::TransformComponent>(), false);
+                Engine::Application::Submit([this,droppedEntity, entity]() {
+                    Engine::Entity(droppedEntity).setParent(entity);
+                });
             }
         }
         ImGui::EndDragDropTarget();
     }
 
+
+    // --- Additional Drop Target for Reordering:
+    // We add a small invisible drop target below this node to allow reordering.
+    // When an entity is dropped here, we update its ordering relative to 'entity'.
+    //ImGui::Dummy(ImVec2(0.0f, 0.0f)); // A little spacing.
+    ImGui::PushID("ReorderTarget");
+    // ImGui::InvisibleButton("##ReorderDropTarget", ImVec2(ImGui::GetContentRegionAvail().x, 1.0f));
+    // if (ImGui::BeginDragDropTarget()) {
+    //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HIERARCHY_ENTITY")) {
+    //         uint32_t payloadEntityID = *(const uint32_t*)payload->Data;
+    //         Engine::Entity droppedEntity{ (entt::entity)payloadEntityID, m_Scene };
+    //         // Only allow reordering if the dropped entity is not the same as the target.
+    //         if (droppedEntity != entity) {
+    //             // Submit a reorder task.
+    //             Engine::Application::Submit([this, droppedEntity, entity]() {
+    //                 Engine::Entity(entity).getComponent<Engine::TagComponent>().tag = "Reordered";
+    //                 Engine::Entity(droppedEntity).getComponent<Engine::TagComponent>().tag = "Reordered_Dropped";
+    //                 // Implement 'reorderEntity' to update the parent's child list order.
+    //                 //m_Scene->reorderEntity(droppedEntity, entity);
+    //             });
+    //         }
+    //     }
+    //     ImGui::EndDragDropTarget();
+    // }
+    // After drawing your tree node for 'entity':
+    ImVec2 itemMin = ImGui::GetItemRectMin();
+    ImVec2 itemMax = ImGui::GetItemRectMax();
+
+    // Define an overlapping drop target area.
+    // 'overlap' controls how much larger the active area is compared to the visible item.
+    float overlap = 1.0f; 
+    ImRect dropTargetRect(
+        itemMin.x,
+        itemMin.y - overlap,  // extend upward
+        itemMax.x,
+        itemMin.y + overlap   // extend downward
+    );
+
+    // Optional: Draw the drop target rect for debugging (semi-transparent red)
+    // ImDrawList* draw_list = ImGui::GetWindowDrawList();
+    // draw_list->AddRectFilled(dropTargetRect.Min, dropTargetRect.Max, IM_COL32(255, 0, 0, 50));
+
+    if (ImGui::BeginDragDropTargetCustom(dropTargetRect,ImGui::GetID(entity))) {
+        if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HIERARCHY_ENTITY")) {
+            uint32_t payloadEntityID = *(const uint32_t*)payload->Data;
+            Engine::Entity droppedEntity{ (entt::entity)payloadEntityID, m_Scene };
+            // Only allow reordering if the dropped entity is not the same as the target.
+            std::cout << "Dropped entity: " << droppedEntity.getComponent<Engine::TagComponent>().tag << std::endl;
+            std::cout << "Entity: " << entity.getComponent<Engine::TagComponent>().tag << std::endl;
+            if (droppedEntity != entity) {
+                // Submit a reorder task. You should implement reorderEntity() to adjust your internal ordering.
+                Engine::Application::Submit([this, droppedEntity, entity]() {
+                    m_Scene->reorderEntity(droppedEntity, entity);
+                });
+            }
+        }
+        ImGui::EndDragDropTarget();
+    }
+    ImGui::PopID();
+
     // If the node is open, recursively draw its children.
     if (nodeOpen) {
-        // For each child pointer, we need to find its corresponding entity.
-        for (auto childTransform : transform.children) {
-            Engine::Entity childEntity = m_Scene->findEntityByTransformComponent(*childTransform);
-            
-            if (childEntity){
-                drawEntityNode(childEntity);
-
+        // For each child pointer, we need to find its corresponding entity.        
+        auto curr = relationship.first;
+        for(uint32_t i = 0; i < relationship.children; i++) {
+            if(curr) {
+                drawEntityNode(curr);
             }
+            curr = curr.getComponent<Engine::RelationshipComponent>().next;
         }
         ImGui::TreePop();
     }
+
     ImGui::PopID();
 }
