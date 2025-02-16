@@ -9,7 +9,7 @@
 
 #include "Panels/SceneHierarchyPanel.h"
 #include "Panels/InspectorPanel.h"
-
+#include "Panels/ViewportPanel.h"
 class EditorLayer : public Engine::Layer {
 public:
     EditorLayer();
@@ -25,6 +25,7 @@ public:
 private:
     std::shared_ptr<SceneHierarchyPanel> m_SceneHierarchyPanel;
     std::shared_ptr<InspectorPanel> m_InspectorPanel;
+    std::shared_ptr<ViewportPanel> m_ViewportPanel;
     std::shared_ptr<Engine::Scene> m_Scene;
     std::shared_ptr<Engine::Mesh> m_Mesh;
     std::shared_ptr<Engine::Shader> m_Shader;

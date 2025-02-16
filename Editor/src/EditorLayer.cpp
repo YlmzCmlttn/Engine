@@ -110,9 +110,20 @@ void EditorLayer::onAttach() {
     m_Mesh->setIndices(indices);
     m_Mesh->uploadToGPU();
 
+
+    Engine::FrameBufferSpecification spec;
+    spec.width = 1024;
+    spec.height = 768;
+    spec.format = Engine::FrameBufferFormat::RGBA8;
+    //spec.samples = 1;
+    //spec.swapChainTarget = false;
+    //spec.clearColor = glm::vec4(0.0,0.0,1.0,1.0);
+    m_Framebuffer = Engine::FrameBuffer::Create(spec);
+
     m_Scene = Engine::CreateRef<Engine::Scene>();
     m_SceneHierarchyPanel = Engine::CreateRef<SceneHierarchyPanel>(m_Scene);
     m_InspectorPanel = Engine::CreateRef<InspectorPanel>();
+    m_ViewportPanel = Engine::CreateRef<ViewportPanel>(m_Framebuffer);
     Engine::Entity parentEntities[10];
     //auto parentEntity = m_Scene->createEntity("Parent");
     // for(uint i=0;i<2;i++){
@@ -130,14 +141,6 @@ void EditorLayer::onAttach() {
     
     m_Shader = Engine::Shader::CreateFromFile("Basic", "../assets/shaders/shader.glsl");
 
-    Engine::FrameBufferSpecification spec;
-    spec.width = 1024;
-    spec.height = 768;
-    spec.format = Engine::FrameBufferFormat::RGBA8;
-    //spec.samples = 1;
-    //spec.swapChainTarget = false;
-    //spec.clearColor = glm::vec4(0.0,0.0,1.0,1.0);
-    m_Framebuffer = Engine::FrameBuffer::Create(spec);
 
     //parentEntities[0].setParent(parentEntities[1]);
     //auto child0Entity = parentEntities[0].getChild(0);
@@ -187,11 +190,7 @@ void EditorLayer::onImGuiRender() {
 
     DockSpaceBegin();
 
-    //ViewPort
-    ImGui::Begin("ViewPort");
-    ImGui::Image((ImTextureID)m_Framebuffer->getColorAttachmentRendererID(), ImVec2(1024,768));
-    ImGui::End();
-
+    m_ViewportPanel->onImGuiRender();
     m_SceneHierarchyPanel->onImGuiRender();
     m_InspectorPanel->setEntity(m_SceneHierarchyPanel->getSelectedEntity());
     m_InspectorPanel->onImGuiRender();
