@@ -16,11 +16,19 @@ namespace Engine {
 
 
     void Systems::onTransformComponentConstruct(entt::registry& registry, entt::entity entity) {
-        registry.emplace<DirtyFlagComponent>(entity);
+        if(!registry.any_of<DirtyFlagComponent>(entity)) {
+            registry.emplace<DirtyFlagComponent>(entity);
+        }else{
+            std::cout << "DirtyFlagComponent already exists" << std::endl;
+        }
     }
 
     void Systems::onTransformComponentReplace(entt::registry& registry, entt::entity entity) {
-        registry.emplace<DirtyFlagComponent>(entity);
+        if(!registry.any_of<DirtyFlagComponent>(entity)) {
+            registry.emplace<DirtyFlagComponent>(entity);
+        }else{
+            std::cout << "DirtyFlagComponent already exists" << std::endl;
+        }
     }
 
     void Systems::onDirtyFlagComponentConstruct(entt::registry& registry, entt::entity entity) {
@@ -32,7 +40,11 @@ namespace Engine {
     }
 
     void Systems::MarkEntityAsDirty(entt::registry& registry, entt::entity entity) {
-        registry.emplace<DirtyFlagComponent>(entity);
+        if(!registry.any_of<DirtyFlagComponent>(entity)) {
+            registry.emplace<DirtyFlagComponent>(entity);
+        }else{
+            std::cout << "DirtyFlagComponent already exists" << std::endl;
+        }
     }
 
     void Systems::MarkEntityAsDirty(Ref<Scene> scene, Entity entity) {
