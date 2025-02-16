@@ -14,7 +14,16 @@ namespace Engine {
 
         template<typename T, typename... Args>
         T& addComponent(Args&&... args){
+            if(hasComponent<T>()) {
+                std::cout << "Entity already has component returning existing component" << std::endl;
+                return getComponent<T>();
+            }
             return m_Scene->getRegistry().emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
+        }
+
+        template<typename T, typename... Args>
+        T& addOrReplaceComponent(Args&&... args){
+            return m_Scene->getRegistry().emplace_or_replace<T>(m_EntityHandle, std::forward<Args>(args)...);
         }
 
         template<typename T>
