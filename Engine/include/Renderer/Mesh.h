@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Core/Core.h"
-#include "Renderer/VertexBuffer.h"
-#include "Renderer/IndexBuffer.h"
+#include "Renderer/VertexArray.h"
 #include <glm/glm.hpp>
 
 namespace Engine
@@ -10,36 +9,39 @@ namespace Engine
     class Mesh  
     {
     public:
-        struct Vertex
-        {
+        struct Vertex {
             glm::vec3 position;
-            glm::vec3 normal;
-            glm::vec3 tangent;
-            glm::vec3 bitangent;
-            glm::vec2 uv;
+            //glm::vec3 normal;     // Optional: default to glm::vec3(0.0f)
+            //glm::vec2 uv;         // Optional: default to glm::vec2(0.0f)
+            //glm::vec3 tangent;    // Optional: default to glm::vec3(0.0f)
+            //glm::vec3 bitangent;  // Optional: default to glm::vec3(0.0f)
+
+            Vertex(const glm::vec3& pos
+                //const glm::vec3& norm = glm::vec3(0.0f),
+                //const glm::vec2& tex = glm::vec2(0.0f),
+                //const glm::vec3& tang = glm::vec3(0.0f),
+                //const glm::vec3& bitang = glm::vec3(0.0f))
+                //: position(pos), normal(norm), uv(tex), tangent(tang), bitangent(bitang)
+                ): position(pos)
+            {}
         };
 
-        struct Index
-        {
-            uint32_t i1;
-            uint32_t i2;
-            uint32_t i3;
-        };
-
-        Mesh(const std::string& path);
+        Mesh();
         ~Mesh();
 
         void render();
+        void uploadToGPU();
 
-        inline const std::string& getFilePath() const { return m_FilePath; }
+        void setVertices(const std::vector<Vertex>& vertices);
+        void setIndices(const std::vector<uint32_t>& indices);
 
-    private:
+    private:    
         std::vector<Vertex> m_Vertices;
-        std::vector<Index> m_Indices;
+        std::vector<uint32_t> m_Indices;
+        
+        Ref<VertexArray> m_VertexArray;
 
-        Ref<VertexBuffer> m_VertexBuffer;
-        Ref<IndexBuffer> m_IndexBuffer;
+        BufferLayout m_BufferLayout;
 
-        std::string m_FilePath;        
     };
 } // namespace Engine

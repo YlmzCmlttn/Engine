@@ -1,5 +1,6 @@
 #pragma once
 #include "Scene/SceneCamera.h"
+#include "Renderer/Mesh.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
@@ -111,6 +112,18 @@ namespace Engine {
             copy.Camera = Camera;
             copy.primary = false;
             return std::make_unique<CameraComponent>(copy);
+        }
+    };
+
+    struct MeshComponent : public ICloneableComponent {
+        MeshComponent() = default;
+        MeshComponent(const MeshComponent&) = default;
+        MeshComponent(std::shared_ptr<Mesh> mesh) : mesh(mesh) {}
+        std::shared_ptr<Mesh> mesh;
+
+
+        std::unique_ptr<ICloneableComponent> clone() const override {
+            return std::make_unique<MeshComponent>(mesh);  // Keeps the same mesh
         }
     };
 
