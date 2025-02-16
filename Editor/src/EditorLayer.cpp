@@ -69,19 +69,75 @@ EditorLayer::EditorLayer() : Layer("Editor")
 }
 
 void EditorLayer::onAttach() {
-    
+
+    //Triangle
+    float vertices_[] = {
+        -0.5f, -0.5f, -0.5f,
+        0.5f, -0.5f, -0.5f,
+        0.5f,  0.5f, -0.5f,
+        -0.5f,  0.5f, -0.5f,
+        -0.5f, -0.5f,  0.5f,
+        0.5f, -0.5f,  0.5f,
+        0.5f,  0.5f,  0.5f,
+        -0.5f,  0.5f,  0.5f
+    };
+
+    unsigned int indices_[] = {
+        0, 1, 2,
+        2, 3, 0,
+        4, 5, 6,
+        6, 7, 4,
+        0, 3, 7,
+        7, 4, 0,
+        1, 5, 6,
+        6, 2, 1,
+        0, 1, 5,
+        5, 4, 0,
+        3, 2, 6,
+        6, 7, 3
+    };
+    std::vector<Engine::Mesh::Vertex> vertices;
+    for(uint i=0;i<24;i=i+3){
+        vertices.push_back(Engine::Mesh::Vertex(glm::vec3(vertices_[i],vertices_[i+1],vertices_[i+2])));
+    }
+    std::vector<uint32_t> indices;
+    for(uint i=0;i<36;i++){
+        indices.push_back(indices_[i]);
+    }
+
+    m_Mesh = Engine::CreateRef<Engine::Mesh>();
+    m_Mesh->setVertices(vertices);
+    m_Mesh->setIndices(indices);
+    m_Mesh->uploadToGPU();
+
     m_Scene = Engine::CreateRef<Engine::Scene>();
     m_SceneHierarchyPanel = Engine::CreateRef<SceneHierarchyPanel>(m_Scene);
     m_InspectorPanel = Engine::CreateRef<InspectorPanel>();
     Engine::Entity parentEntities[10];
     //auto parentEntity = m_Scene->createEntity("Parent");
-    for(int i=0;i<2;i++){
-        auto cameraEntity = m_Scene->createEntity("Child"+std::to_string(i));    
-        auto parentEntity = m_Scene->createEntity("Parent"+std::to_string(i));
-        cameraEntity.setParent(parentEntity);
-        //cameraEntity.getComponent<Engine::TransformComponent>().setParent(parentEntity.getComponent<Engine::TransformComponent>(),false);
-        parentEntities[i] = parentEntity;
-    }
+    // for(uint i=0;i<2;i++){
+    //     auto cameraEntity = m_Scene->createEntity("Child"+std::to_string(i));
+    //     auto parentEntity = m_Scene->createEntity("Parent"+std::to_string(i));
+    //     cameraEntity.setParent(parentEntity);
+    //     //cameraEntity.getComponent<Engine::TransformComponent>().setParent(parentEntity.getComponent<Engine::TransformComponent>(),false);
+    //     parentEntities[i] = parentEntity;
+    // }
+
+    auto meshEntity = m_Scene->createEntity("Mesh");
+    auto meshComponent = meshEntity.addComponent<Engine::MeshComponent>(m_Mesh);
+    meshComponent.mesh = m_Mesh;
+
+    
+    m_Shader = Engine::Shader::CreateFromFile("Basic", "../assets/shaders/shader.glsl");
+
+    Engine::FrameBufferSpecification spec;
+    spec.width = 1024;
+    spec.height = 768;
+    spec.format = Engine::FrameBufferFormat::RGBA8;
+    //spec.samples = 1;
+    //spec.swapChainTarget = false;
+    //spec.clearColor = glm::vec4(0.0,0.0,1.0,1.0);
+    m_Framebuffer = Engine::FrameBuffer::Create(spec);
 
     //parentEntities[0].setParent(parentEntities[1]);
     //auto child0Entity = parentEntities[0].getChild(0);
@@ -110,9 +166,17 @@ void EditorLayer::onDetach() {
 }
 
 void EditorLayer::onUpdate([[maybe_unused]] Engine::Timestep ts) {
-    
+    m_Framebuffer->bind();
+
     Engine::Systems::UpdateTransforms(m_Scene);
-    Engine::Renderer::Clear(0.1,0.1,0.1,1.0);
+    //Engine::Renderer::Clear(0.1,0.1,0.1,1.0);
+    Engine::UniformBufferDeclaration<sizeof(glm::vec4), 1> ubo;
+    ubo.push("u_Color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    m_Shader->uploadUniformBuffer(ubo);
+    m_Shader->bind();
+    m_Mesh->render();
+
+    m_Framebuffer->unbind();
 }
 
 void EditorLayer::onEvent([[maybe_unused]] Engine::Event& event) {
@@ -123,6 +187,10 @@ void EditorLayer::onImGuiRender() {
 
     DockSpaceBegin();
 
+    //ViewPort
+    ImGui::Begin("ViewPort");
+    ImGui::Image((ImTextureID)m_Framebuffer->getColorAttachmentRendererID(), ImVec2(1024,768));
+    ImGui::End();
 
     m_SceneHierarchyPanel->onImGuiRender();
     m_InspectorPanel->setEntity(m_SceneHierarchyPanel->getSelectedEntity());
