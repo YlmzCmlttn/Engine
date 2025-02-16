@@ -75,7 +75,7 @@ void EditorLayer::onAttach() {
     m_InspectorPanel = Engine::CreateRef<InspectorPanel>();
     Engine::Entity parentEntities[10];
     //auto parentEntity = m_Scene->createEntity("Parent");
-    for(uint i=0;i<2;i++){
+    for(int i=0;i<2;i++){
         auto cameraEntity = m_Scene->createEntity("Child"+std::to_string(i));    
         auto parentEntity = m_Scene->createEntity("Parent"+std::to_string(i));
         cameraEntity.setParent(parentEntity);

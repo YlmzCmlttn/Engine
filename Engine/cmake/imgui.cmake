@@ -10,7 +10,7 @@ file(GLOB IMGUI_SOURCES
 )
 
 # Create a shared library for ImGui
-add_library(ImGui SHARED ${IMGUI_SOURCES})
+add_library(ImGui STATIC ${IMGUI_SOURCES})
 
 # Include the current directory for header files
 target_include_directories(ImGui PUBLIC "${CMAKE_CURRENT_LIST_DIR}/../vendor/imgui")
