@@ -98,18 +98,18 @@ namespace Engine {
     
 
     struct CameraComponent : public ICloneableComponent {
-        SceneCamera Camera;
+        SceneCamera camera;
         bool primary = true;
 
         CameraComponent() = default;
         CameraComponent(const CameraComponent&) = default;
 
-        operator SceneCamera& () { return Camera; }
-        operator const SceneCamera& () const { return Camera; }
+        operator SceneCamera& () { return camera; }
+        operator const SceneCamera& () const { return camera; }
 
         std::unique_ptr<ICloneableComponent> clone() const override {
             CameraComponent copy = *this;
-            copy.Camera = Camera;
+            copy.camera = camera;
             copy.primary = false;
             return std::make_unique<CameraComponent>(copy);
         }

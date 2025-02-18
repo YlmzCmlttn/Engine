@@ -32,6 +32,7 @@ namespace Engine
         void pushLayer(Ref<Layer> layer);
         void pushOverlay(Ref<Layer> overlay);
         void renderImGui();
+        inline void blockImGuiEvents(bool block){m_ImGuiLayer->blockEvents(block);}
 
         void close();
 

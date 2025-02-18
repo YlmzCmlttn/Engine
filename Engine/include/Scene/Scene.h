@@ -3,7 +3,7 @@
 #include "Core/Timestep.h"
 #include "Events/Event.h"
 #include "entt/entity/registry.hpp"
-
+#include "glm/glm.hpp"
 namespace Engine {
 
     class Entity;
@@ -11,12 +11,11 @@ namespace Engine {
     class Scene : public std::enable_shared_from_this<Scene> {
     public:
         Scene(const std::string& name = "Untitled");
-        ~Scene();        
+        virtual ~Scene();        
 
-        void onUpdate(Timestep ts);
-        void onRenderRuntime(Timestep ts);
-        void onRenderEditor(Timestep ts);
-        void onEvent(Event& e);
+        virtual void onUpdate(Timestep ts);
+        virtual void onRender(Timestep ts);
+        virtual void onEvent(Event& e);
 
         Entity createEntity(const std::string& name = std::string());
         void destroyEntity(Entity entity, bool keepChildren = false);
@@ -28,6 +27,8 @@ namespace Engine {
 
         Entity getSceneEntity();
         void reorderEntity(Entity entity,Entity next);
+    protected:
+        virtual void onRender(Timestep ts, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
     private:
         std::string m_Name;        
         entt::registry m_Registry;

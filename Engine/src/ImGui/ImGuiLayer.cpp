@@ -71,6 +71,7 @@ namespace Engine
     }
 	void ImGuiLayer::onEvent(Event& e)
 	{		
+		std::cout << "ImGuiLayer::onEvent: " << e.toString() << std::endl;
 		if (m_BlockEvents)
 		{
 			ImGuiIO& io = ImGui::GetIO();

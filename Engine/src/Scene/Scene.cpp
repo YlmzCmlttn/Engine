@@ -22,15 +22,18 @@ namespace Engine {
     void Scene::onUpdate(Timestep ts) {
         
     }
-
-    void Scene::onRenderRuntime(Timestep ts) {
+    void Scene::onRender(Timestep ts) {
+        auto mainCamera = getPrimaryCameraEntity();
+        if(mainCamera){
+            auto& cameraComponent = mainCamera.getComponent<CameraComponent>();
+            auto& transformComponent = mainCamera.getComponent<TransformComponent>();
+            auto& sceneCamera = cameraComponent.camera;
+            onRender(ts,glm::inverse(transformComponent.globalTransform),sceneCamera.getProjectionMatrix());
+        }
+    }
+    void Scene::onRender(Timestep ts, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
 
     }
-
-    void Scene::onRenderEditor(Timestep ts) {
-
-    }
-
     void Scene::onEvent(Event& e) {
 
     }

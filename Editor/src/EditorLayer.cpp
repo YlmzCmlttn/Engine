@@ -120,19 +120,16 @@ void EditorLayer::onAttach() {
     //spec.clearColor = glm::vec4(0.0,0.0,1.0,1.0);
     m_Framebuffer = Engine::FrameBuffer::Create(spec);
 
-    m_Scene = Engine::CreateRef<Engine::Scene>();
+    m_Scene = Engine::CreateRef<EditorScene>();
     m_SceneHierarchyPanel = Engine::CreateRef<SceneHierarchyPanel>(m_Scene);
     m_InspectorPanel = Engine::CreateRef<InspectorPanel>();
     m_ViewportPanel = Engine::CreateRef<ViewportPanel>(m_Framebuffer);
-    Engine::Entity parentEntities[10];
     //auto parentEntity = m_Scene->createEntity("Parent");
-    // for(uint i=0;i<2;i++){
-    //     auto cameraEntity = m_Scene->createEntity("Child"+std::to_string(i));
-    //     auto parentEntity = m_Scene->createEntity("Parent"+std::to_string(i));
-    //     cameraEntity.setParent(parentEntity);
-    //     //cameraEntity.getComponent<Engine::TransformComponent>().setParent(parentEntity.getComponent<Engine::TransformComponent>(),false);
-    //     parentEntities[i] = parentEntity;
-    // }
+    for(uint i=0;i<2;i++){
+        auto cameraEntity = m_Scene->createEntity("Child"+std::to_string(i));
+        auto parentEntity = m_Scene->createEntity("Parent"+std::to_string(i));
+        cameraEntity.setParent(parentEntity);
+    }
 
     auto meshEntity = m_Scene->createEntity("Mesh");
     auto meshComponent = meshEntity.addComponent<Engine::MeshComponent>(m_Mesh);
@@ -184,6 +181,7 @@ void EditorLayer::onUpdate([[maybe_unused]] Engine::Timestep ts) {
 
 void EditorLayer::onEvent([[maybe_unused]] Engine::Event& event) {
     // Handle events if needed
+    m_Scene->onEvent(event);
 }
 
 void EditorLayer::onImGuiRender() {
