@@ -19,8 +19,11 @@ void ViewportPanel::onImGuiRender() {
     Engine::Application::Get().blockImGuiEvents(!m_ViewportFocused && !m_ViewportHovered);
 
     ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-    m_ViewportSize = {viewportPanelSize.x,viewportPanelSize.y};
-    
+    if(m_ViewportSize != glm::vec2{viewportPanelSize.x,viewportPanelSize.y}){
+        m_ViewportSize = {viewportPanelSize.x,viewportPanelSize.y};
+        m_ActiveScene->onViewportResize(viewportPanelSize.x,viewportPanelSize.y);
+        m_Framebuffer->resize(viewportPanelSize.x,viewportPanelSize.y);
+    }
 
     ImGui::Image((ImTextureID)m_Framebuffer->getColorAttachmentRendererID(), viewportPanelSize);
     ImGui::End();

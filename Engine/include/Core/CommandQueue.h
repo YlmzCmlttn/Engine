@@ -14,6 +14,6 @@ namespace Engine {
         virtual void execute();
 
     private:
-        std::vector<Command> m_CommandBuffer;  // Stores the queued commands
+        std::queue<Command> m_CommandBuffer;  // Stores the queued commands
     };
 }

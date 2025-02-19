@@ -4,14 +4,14 @@
 namespace Engine {
 
     void CommandQueue::submit(Command command) {
-        m_CommandBuffer.emplace_back(std::move(command));  // Store lambda
+        m_CommandBuffer.push(std::move(command));  // Store lambda
     }
 
     void CommandQueue::execute() {
-        for (auto& command : m_CommandBuffer) {
-            command();  // Execute each stored command
+        while(!m_CommandBuffer.empty()) {
+            m_CommandBuffer.front()();  // Execute each stored command
+            m_CommandBuffer.pop();
         }
-        m_CommandBuffer.clear();  // Clear after execution
     }
 
 }

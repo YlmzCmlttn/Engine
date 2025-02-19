@@ -15,7 +15,9 @@ namespace Engine {
 		OpenGLShader(const std::string& name, const std::string& shaderSource);
 		
 		virtual void bind() override;
+		virtual void unbind() override;
 		virtual void reload() override;
+
 		virtual void uploadUniformBuffer(const UniformBufferBase& uniformBuffer) override;
 
 		virtual void setFloat(const std::string& name, const float& value) override;

@@ -32,10 +32,12 @@ private:
     float m_MoveSpeed = 5.0f;
     
     float m_MouseSensitivity = 0.1f;
+    float m_ZoomSpeed = 0.1f;
+    
     glm::vec2 m_InitialMousePosition;
 
     glm::mat4 m_ViewMatrix;
-    glm::vec3 m_Position;
+    glm::vec3 m_Position = glm::vec3(0.0f,0.0f,3.0f);
     glm::vec3 m_Forward;
     glm::vec3 m_Up;
     glm::vec3 m_Right;

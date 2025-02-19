@@ -6,11 +6,11 @@
 EditorSceneCamera::EditorSceneCamera(/* args */)
 {
     setProjectionType(ProjectionType::PERSPECTIVE);
-    setPerspectiveVerticalFOV(glm::radians(45.0f));
     setPerspectiveNearClip(0.1f);
     setPerspectiveFarClip(1000.0f);
-    calculateViewMatrix();
+    setPerspectiveVerticalFOV(glm::radians(m_Zoom));
     calculateForwardVector();
+    calculateViewMatrix();
 }
 
 EditorSceneCamera::~EditorSceneCamera()
@@ -46,7 +46,7 @@ void EditorSceneCamera::calculateForwardVector(){
 }
 
 void EditorSceneCamera::onMouseMovement(){
-    if(Input::isMouseButtonPressed(Mouse::ButtonMiddle)){
+    if(Input::isMouseButtonPressed(Mouse::ButtonRight)){
         glm::vec2 currentMousePosition{Input::getMouseX(),Input::getMouseY()};
         glm::vec2 delta = currentMousePosition - m_InitialMousePosition;
         m_InitialMousePosition = currentMousePosition;
@@ -54,6 +54,8 @@ void EditorSceneCamera::onMouseMovement(){
         m_Pitch += delta.y * m_MouseSensitivity;
         m_Pitch = glm::clamp(m_Pitch, -89.0f, 89.0f);
         calculateForwardVector();
+    }else{
+        m_InitialMousePosition = {Input::getMouseX(),Input::getMouseY()};
     }
 }
 
@@ -84,8 +86,10 @@ void EditorSceneCamera::onKeyboardInput(Timestep ts){
 
 bool EditorSceneCamera::onMouseScrollEvent(MouseScrolledEvent mouseScrolledEvent)
 {
-    m_Zoom -= mouseScrolledEvent.getYOffset() * 0.1f;
+    m_Zoom -= mouseScrolledEvent.getYOffset() * m_ZoomSpeed;
     m_Zoom = std::max(m_Zoom, 0.0f);
     m_Zoom = std::min(m_Zoom, 45.0f);
+
+    setPerspectiveVerticalFOV(glm::radians(m_Zoom));
     return true;
 }

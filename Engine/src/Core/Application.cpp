@@ -99,6 +99,7 @@ namespace Engine {
 
 		// m_Minimized = false;
     //Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
+    std::cout<<"Window resized to: "<<e.getWidth()<<", "<<e.getHeight()<<std::endl;
         int width = e.getWidth();
         int height = e.getHeight();
         //FrameBufferPool::getInstance().resizeAllFrameBuffers(width, height);

@@ -2,7 +2,8 @@
 #include "Scene/Systems.h"
 #include "Renderer/Renderer.h"
 #include "Renderer/RendererAPI.h"
-
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/string_cast.hpp>
 #include <imgui.h>
 
 static void DockSpaceBegin(){
@@ -72,30 +73,34 @@ void EditorLayer::onAttach() {
 
     //Triangle
     float vertices_[] = {
-        -0.5f, -0.5f, -0.5f,
-        0.5f, -0.5f, -0.5f,
-        0.5f,  0.5f, -0.5f,
-        -0.5f,  0.5f, -0.5f,
-        -0.5f, -0.5f,  0.5f,
-        0.5f, -0.5f,  0.5f,
-        0.5f,  0.5f,  0.5f,
-        -0.5f,  0.5f,  0.5f
-    };
+    // Front face
+    -0.5f, -0.5f,  0.5f,  
+     0.5f, -0.5f,  0.5f,  
+     0.5f,  0.5f,  0.5f,  
+    -0.5f,  0.5f,  0.5f,  
 
-    unsigned int indices_[] = {
-        0, 1, 2,
-        2, 3, 0,
-        4, 5, 6,
-        6, 7, 4,
-        0, 3, 7,
-        7, 4, 0,
-        1, 5, 6,
-        6, 2, 1,
-        0, 1, 5,
-        5, 4, 0,
-        3, 2, 6,
-        6, 7, 3
-    };
+    // Back face
+    -0.5f, -0.5f, -0.5f,  
+     0.5f, -0.5f, -0.5f,  
+     0.5f,  0.5f, -0.5f,  
+    -0.5f,  0.5f, -0.5f,  
+};
+unsigned int indices_[] = {
+    // Front face
+    0, 1, 2,  2, 3, 0,  
+    // Back face
+    4, 5, 6,  6, 7, 4,  
+    // Left face
+    4, 0, 3,  3, 7, 4,  
+    // Right face
+    1, 5, 6,  6, 2, 1,  
+    // Top face
+    3, 2, 6,  6, 7, 3,  
+    // Bottom face
+    4, 5, 1,  1, 0, 4   
+};
+
+
     std::vector<Engine::Mesh::Vertex> vertices;
     for(uint i=0;i<24;i=i+3){
         vertices.push_back(Engine::Mesh::Vertex(glm::vec3(vertices_[i],vertices_[i+1],vertices_[i+2])));
@@ -112,8 +117,8 @@ void EditorLayer::onAttach() {
 
 
     Engine::FrameBufferSpecification spec;
-    spec.width = 1024;
-    spec.height = 768;
+    spec.width = 400;
+    spec.height = 400;
     spec.format = Engine::FrameBufferFormat::RGBA8;
     //spec.samples = 1;
     //spec.swapChainTarget = false;
@@ -126,17 +131,22 @@ void EditorLayer::onAttach() {
     m_ViewportPanel = Engine::CreateRef<ViewportPanel>(m_Framebuffer);
     //auto parentEntity = m_Scene->createEntity("Parent");
     for(uint i=0;i<2;i++){
-        auto cameraEntity = m_Scene->createEntity("Child"+std::to_string(i));
+        auto childEntity = m_Scene->createEntity("Child"+std::to_string(i));
         auto parentEntity = m_Scene->createEntity("Parent"+std::to_string(i));
-        cameraEntity.setParent(parentEntity);
+        childEntity.setParent(parentEntity);
     }
 
-    auto meshEntity = m_Scene->createEntity("Mesh");
-    auto meshComponent = meshEntity.addComponent<Engine::MeshComponent>(m_Mesh);
+    m_MeshEntity = m_Scene->createEntity("Mesh");
+    auto meshComponent = m_MeshEntity.addComponent<Engine::MeshComponent>(m_Mesh);
     meshComponent.mesh = m_Mesh;
 
     
     m_Shader = Engine::Shader::CreateFromFile("Basic", "../assets/shaders/shader.glsl");
+    m_Material = std::make_shared<Engine::Material>("Basic", m_Shader);
+    auto meshRendererComponent = m_MeshEntity.addComponent<Engine::MeshRendererComponent>(m_Material);
+    meshRendererComponent.material = m_Material;
+
+    m_ViewportPanel->setActiveScene(m_Scene);
 
 
     //parentEntities[0].setParent(parentEntities[1]);
@@ -166,14 +176,16 @@ void EditorLayer::onDetach() {
 }
 
 void EditorLayer::onUpdate([[maybe_unused]] Engine::Timestep ts) {
+    m_Scene->onUpdate(ts);
     m_Framebuffer->bind();
 
     Engine::Systems::UpdateTransforms(m_Scene);
-    //Engine::Renderer::Clear(0.1,0.1,0.1,1.0);
-    Engine::UniformBufferDeclaration<sizeof(glm::vec4), 1> ubo;
-    ubo.push("u_Color", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    Engine::Renderer::Clear(0.1,0.1,0.1,1.0);
+    Engine::UniformBufferDeclaration<sizeof(glm::mat4), 1> ubo;
+    ubo.push("u_MVP",m_Scene->getCameraViewProjectionMatrix()* m_MeshEntity.getComponent<Engine::TransformComponent>().globalTransform);
+
     m_Shader->uploadUniformBuffer(ubo);
-    m_Shader->bind();
+    m_Material->bind();
     m_Mesh->render();
 
     m_Framebuffer->unbind();

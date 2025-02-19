@@ -13,6 +13,7 @@ namespace Engine {
         Scene(const std::string& name = "Untitled");
         virtual ~Scene();        
 
+        virtual void onAttach();
         virtual void onUpdate(Timestep ts);
         virtual void onRender(Timestep ts);
         virtual void onEvent(Event& e);
@@ -29,6 +30,7 @@ namespace Engine {
         void reorderEntity(Entity entity,Entity next);
     protected:
         virtual void onRender(Timestep ts, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
+        virtual void onViewportResize(uint32_t width, uint32_t height);
     private:
         std::string m_Name;        
         entt::registry m_Registry;

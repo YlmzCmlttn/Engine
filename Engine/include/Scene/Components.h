@@ -1,6 +1,7 @@
 #pragma once
 #include "Scene/SceneCamera.h"
 #include "Renderer/Mesh.h"
+#include "Renderer/Material.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
@@ -124,6 +125,17 @@ namespace Engine {
 
         std::unique_ptr<ICloneableComponent> clone() const override {
             return std::make_unique<MeshComponent>(mesh);  // Keeps the same mesh
+        }
+    };
+
+    struct MeshRendererComponent : public ICloneableComponent {
+        MeshRendererComponent() = default;
+        MeshRendererComponent(const MeshRendererComponent&) = default;
+        MeshRendererComponent(Ref<Material> material) : material(material) {}
+        Ref<Material> material;
+
+        std::unique_ptr<ICloneableComponent> clone() const override {
+            return std::make_unique<MeshRendererComponent>(material);
         }
     };
 

@@ -64,14 +64,12 @@ namespace Engine
 
     }
     void ImGuiLayer::onDetach(){
-		std::cout << "ImGuiLayer::onDetach" << std::endl;
         ImGui_ImplOpenGL3_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
     }
 	void ImGuiLayer::onEvent(Event& e)
-	{		
-		std::cout << "ImGuiLayer::onEvent: " << e.toString() << std::endl;
+	{
 		if (m_BlockEvents)
 		{
 			ImGuiIO& io = ImGui::GetIO();

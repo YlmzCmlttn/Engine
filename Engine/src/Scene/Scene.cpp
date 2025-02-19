@@ -19,6 +19,10 @@ namespace Engine {
 
     Scene::~Scene() {}
 
+    void Scene::onAttach() {
+
+    }
+
     void Scene::onUpdate(Timestep ts) {
         
     }
@@ -32,7 +36,8 @@ namespace Engine {
         }
     }
     void Scene::onRender(Timestep ts, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
-
+        //Get Mesh Components.
+        
     }
     void Scene::onEvent(Event& e) {
 
@@ -69,4 +74,9 @@ namespace Engine {
     void Scene::destroyEntity(Entity entity, bool keepChildren) {
         Systems::DestroyEntity(entity, keepChildren);
     }    
+
+    void Scene::onViewportResize(uint32_t width, uint32_t height) {
+        m_ViewportWidth = width;
+        m_ViewportHeight = height;
+    }
 }

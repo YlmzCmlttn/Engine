@@ -41,7 +41,7 @@ namespace Engine
     {
         auto vertexBuffer = VertexBuffer::Create(m_Vertices.data(), static_cast<uint32_t>(m_Vertices.size() * sizeof(Vertex)));
         vertexBuffer->setLayout(m_BufferLayout);
-        auto indexBuffer = IndexBuffer::Create(m_Indices.data(), static_cast<uint32_t>(m_Indices.size()));
+        auto indexBuffer = IndexBuffer::Create(m_Indices.data(), static_cast<uint32_t>(m_Indices.size()) * sizeof(uint32_t));
         m_VertexArray = VertexArray::Create();
         m_VertexArray->addVertexBuffer(vertexBuffer);
         m_VertexArray->setIndexBuffer(indexBuffer);

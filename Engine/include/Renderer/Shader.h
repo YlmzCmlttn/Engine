@@ -10,6 +10,7 @@ namespace Engine
 	{
 	public:
 		virtual void bind() = 0;
+		virtual void unbind() = 0;
 		virtual void reload() = 0;
 
 		virtual void uploadUniformBuffer(const UniformBufferBase& uniformBuffer) = 0;

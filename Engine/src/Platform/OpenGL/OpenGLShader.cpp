@@ -37,6 +37,13 @@ namespace Engine {
 		});
 	}
 
+	void OpenGLShader::unbind()
+	{
+		Renderer::Submit([this]() {
+			glUseProgram(0);
+		});
+	}
+
 	GLenum OpenGLShader::shaderTypeFromString(const std::string& type)
 	{
 		if (type == "vertex")

@@ -29,8 +29,10 @@ private:
     std::shared_ptr<ViewportPanel> m_ViewportPanel;
     std::shared_ptr<EditorScene> m_Scene;
     std::shared_ptr<Engine::Mesh> m_Mesh;
+    std::shared_ptr<Engine::Material> m_Material;
     std::shared_ptr<Engine::Shader> m_Shader;
     std::shared_ptr<Engine::VertexBuffer> m_VB;
+    Engine::Entity m_MeshEntity;
     std::shared_ptr<Engine::IndexBuffer> m_IB;
     std::shared_ptr<Engine::VertexArray> m_VA;
     std::shared_ptr<Engine::FrameBuffer> m_Framebuffer;
