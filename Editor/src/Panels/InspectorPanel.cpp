@@ -130,6 +130,12 @@ static void DrawComponent(const std::string& name, Engine::Entity entity, UIFunc
 
 static void DrawEntity(Engine::Entity entity){
     using namespace Engine;
+    DrawComponent<IdComponent>("UUID", entity, [entity](auto& component)
+    {
+        uint64_t uuid = component.id;
+        ImGui::Text("UUID: %llu", uuid);
+    });
+
     DrawComponent<TagComponent>("Tag", entity, [entity](auto& component)
     {
         ImGui::Text("Tag");

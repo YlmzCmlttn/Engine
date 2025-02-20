@@ -24,7 +24,7 @@ namespace Engine {
     }
 
     void Scene::onUpdate(Timestep ts) {
-        
+        Engine::Systems::UpdateTransforms(shared_from_this());
     }
     void Scene::onRender(Timestep ts) {
         auto mainCamera = getPrimaryCameraEntity();
@@ -37,6 +37,20 @@ namespace Engine {
     }
     void Scene::onRender(Timestep ts, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
         //Get Mesh Components.
+        Engine::Renderer::Clear(0.1,0.1,0.1,1.0);
+        auto view = m_Registry.view<TransformComponent, MeshComponent, MeshRendererComponent>();
+        for (auto entity : view) {
+            auto& transformComponent = view.get<TransformComponent>(entity);
+            auto& meshComponent = view.get<MeshComponent>(entity);
+            auto& meshRendererComponent = view.get<MeshRendererComponent>(entity);
+
+            Engine::UniformBufferDeclaration<sizeof(glm::mat4), 1> ubo;
+            ubo.push("u_MVP",projectionMatrix* viewMatrix* transformComponent.globalTransform);
+
+            meshRendererComponent.material->bind();
+            meshRendererComponent.material->getShader()->uploadUniformBuffer(ubo);
+            meshComponent.mesh->render();
+        }
         
     }
     void Scene::onEvent(Event& e) {

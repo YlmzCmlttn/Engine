@@ -13,8 +13,9 @@ class EditorScene : public Scene{
         virtual void onRender(Timestep ts) override;
         virtual void onEvent(Event& e) override;
         virtual void onViewportResize(uint32_t width, uint32_t height) override;
-        virtual glm::mat4 getCameraViewProjectionMatrix();
-        virtual glm::mat4 getCameraViewMatrix();
+        inline const glm::mat4& getCameraViewMatrix(){return m_EditorSceneCamera->getViewMatrix();}
+        inline const glm::mat4& getCameraProjectionMatrix(){return m_EditorSceneCamera->getProjectionMatrix(); }
+        inline glm::mat4 getCameraViewProjectionMatrix(){return m_EditorSceneCamera->getViewProjectionMatrix();}
 
     private:
         std::shared_ptr<EditorSceneCamera> m_EditorSceneCamera;

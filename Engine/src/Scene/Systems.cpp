@@ -10,6 +10,7 @@ namespace Engine {
 		tag.tag = name.empty() ? "Entity" : name;
         auto& relationship = entity.addComponent<RelationshipComponent>();
         auto& transform = entity.addComponent<TransformComponent>();
+        auto& id = entity.addComponent<IdComponent>();
         entity.setParent(scene->getSceneEntity());
         return entity;
     }
@@ -174,6 +175,9 @@ namespace Engine {
         DuplicateComponent<TransformComponent>(src, dst);        
         DuplicateComponent<TagComponent>(src, dst);
         DuplicateComponent<CameraComponent>(src, dst);
+        DuplicateComponent<IdComponent>(src, dst);
+        DuplicateComponent<MeshComponent>(src, dst);
+        DuplicateComponent<MeshRendererComponent>(src, dst);
         for(int i = 0; i <GetChildCount(src); i++) {
             auto child = src.getChild(i);
             auto dstChild = CreateEntity(child.getScene());

@@ -2,6 +2,7 @@
 #include "Scene/SceneCamera.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Material.h"
+#include "Core/UUID.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #define GLM_ENABLE_EXPERIMENTAL
@@ -18,13 +19,19 @@ namespace Engine {
         virtual ~ICloneableComponent() = default;
     };
 
-    // struct IdComponent {
-    //     UUID id;
+    struct IdComponent : public ICloneableComponent {
+        UUID id;
 
-    //     IdComponent() = default;
-    //     IdComponent(const IdComponent&) = default;
-    //     IdComponent(UUID id) : id(id) {}
-    // };
+        IdComponent() = default;
+        IdComponent(const IdComponent&) = default;
+        IdComponent(UUID id) : id(id) {}
+
+        std::unique_ptr<ICloneableComponent> clone() const override {
+            IdComponent* clone = new IdComponent();
+            clone->id = UUID::Generate();
+            return std::unique_ptr<ICloneableComponent>(clone);
+        }
+    };
 
     struct TagComponent : public ICloneableComponent {
         std::string tag;

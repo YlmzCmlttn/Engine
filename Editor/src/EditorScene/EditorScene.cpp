@@ -25,7 +25,7 @@ void EditorScene::onUpdate(Timestep ts)
 
 void EditorScene::onRender(Timestep ts)
 {
-    Scene::onRender(ts,m_EditorSceneCamera->getViewMatrix(),m_EditorSceneCamera->getViewProjectionMatrix());    
+    Scene::onRender(ts,m_EditorSceneCamera->getViewMatrix(),m_EditorSceneCamera->getProjectionMatrix());    
 }
 
 void EditorScene::onEvent(Event& e)
@@ -37,14 +37,4 @@ void EditorScene::onEvent(Event& e)
 void EditorScene::onViewportResize(uint32_t width, uint32_t height)
 {
     m_EditorSceneCamera->setViewportSize(width, height);
-}
-
-glm::mat4 EditorScene::getCameraViewProjectionMatrix()
-{
-    return m_EditorSceneCamera->getViewProjectionMatrix();
-}
-
-glm::mat4 EditorScene::getCameraViewMatrix()
-{
-    return m_EditorSceneCamera->getViewMatrix();
 }

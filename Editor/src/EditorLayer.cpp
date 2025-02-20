@@ -178,16 +178,7 @@ void EditorLayer::onDetach() {
 void EditorLayer::onUpdate([[maybe_unused]] Engine::Timestep ts) {
     m_Scene->onUpdate(ts);
     m_Framebuffer->bind();
-
-    Engine::Systems::UpdateTransforms(m_Scene);
-    Engine::Renderer::Clear(0.1,0.1,0.1,1.0);
-    Engine::UniformBufferDeclaration<sizeof(glm::mat4), 1> ubo;
-    ubo.push("u_MVP",m_Scene->getCameraViewProjectionMatrix()* m_MeshEntity.getComponent<Engine::TransformComponent>().globalTransform);
-
-    m_Shader->uploadUniformBuffer(ubo);
-    m_Material->bind();
-    m_Mesh->render();
-
+    m_Scene->onRender(ts);
     m_Framebuffer->unbind();
 }
 
