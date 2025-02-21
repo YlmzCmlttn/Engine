@@ -4,10 +4,12 @@
 #include "Scene/Entity.h"
 #include "Scene/Scene.h"
 #include "Scene/Components.h"
+#include "EntityCommands.h"
 namespace Engine{
-    class DeleteEntityCommand : public Command{
+    class DeleteEntityCommand : public EntityCommand{
     public:
         DeleteEntityCommand(Entity entity, bool keepChildren = false);
+        virtual ~DeleteEntityCommand() = default;
         void execute() override;
         void undo() override;
     private:
@@ -19,8 +21,6 @@ namespace Engine{
         };
         RestoreRelationshipComponent m_RestoreRelationshipComponent;
         std::vector<std::function<void(Entity)>> restoreComponents;
-        Ref<Scene> m_Scene;
-        UUID m_ID;
         bool m_KeepChildren;
         std::queue<std::unique_ptr<DeleteEntityCommand>> m_DeleteQueue;
     };

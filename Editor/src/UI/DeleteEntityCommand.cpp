@@ -4,7 +4,7 @@
 #include "Scene/Systems.h"
 namespace Engine{
     DeleteEntityCommand::DeleteEntityCommand(Entity entity, bool keepChildren)
-        : m_Scene(entity.getScene()),m_ID(entity.getComponent<IdComponent>().id), m_KeepChildren(keepChildren)
+        : EntityCommand(entity), m_KeepChildren(keepChildren)
     {
         auto ID = entity.getComponent<IdComponent>();
         auto tag = entity.getComponent<TagComponent>();
@@ -47,7 +47,7 @@ namespace Engine{
         }   
     }
     void DeleteEntityCommand::execute(){
-        auto entity = m_Scene->getEntityByUUID(m_ID);
+        auto entity = getEntity();
         while(entity.getComponent<RelationshipComponent>().first !=  Entity()) {
             auto child = entity.getComponent<RelationshipComponent>().first;
             std::unique_ptr<Engine::DeleteEntityCommand> command = std::make_unique<Engine::DeleteEntityCommand>(child, true);

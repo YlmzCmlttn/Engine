@@ -2,16 +2,22 @@
 
 #include "Command.h"
 #include "Scene/Entity.h"
-
+#include "Scene/Components.h"
 namespace Engine{
     class EntityCommand : public Command{
     public:
         EntityCommand(Entity entity):
-            m_Entity(entity)
+            m_ID(entity.getComponent<IdComponent>().id),
+            m_Scene(entity.getScene())
         {
         }
+        virtual ~EntityCommand() = default;
     protected:
-        Entity m_Entity;
+        UUID m_ID;
+        Ref<Scene> m_Scene;
+        Entity getEntity(){
+            return m_Scene->getEntityByUUID(m_ID);
+        }
     };
 
     class EntityTagChangeCommand : public EntityCommand{
@@ -20,13 +26,13 @@ namespace Engine{
             EntityCommand(entity),
             m_NewTag(newTag)
         {
-            m_OldTag = m_Entity.getComponent<TagComponent>().tag;
+            m_OldTag = getEntity().getComponent<TagComponent>().tag;
         }
         void execute() override{
-            m_Entity.getComponent<TagComponent>().tag = m_NewTag;
+            Entity(getEntity()).getComponent<TagComponent>().tag = m_NewTag;
         }
         void undo() override{
-            m_Entity.getComponent<TagComponent>().tag = m_OldTag;
+            Entity(getEntity()).getComponent<TagComponent>().tag = m_OldTag;
         }
     private:
         std::string m_NewTag;
@@ -41,15 +47,15 @@ namespace Engine{
             m_Rotation(rotation),
             m_Scale(scale)
         {
-            m_OldTranslation = m_Entity.getComponent<TransformComponent>().localPosition;
-            m_OldRotation = glm::eulerAngles(m_Entity.getComponent<TransformComponent>().localRotation);
-            m_OldScale = m_Entity.getComponent<TransformComponent>().localScale;
+            m_OldTranslation = getEntity().getComponent<TransformComponent>().localPosition;
+            m_OldRotation = glm::eulerAngles(getEntity().getComponent<TransformComponent>().localRotation);
+            m_OldScale = getEntity().getComponent<TransformComponent>().localScale;
         }
         void execute() override{
-            Entity(m_Entity).setTransform(m_Translation, m_Rotation, m_Scale);
+            Entity(getEntity()).setTransform(m_Translation, m_Rotation, m_Scale);
         }
         void undo() override{
-            Entity(m_Entity).setTransform(m_OldTranslation, m_OldRotation, m_OldScale);
+            Entity(getEntity()).setTransform(m_OldTranslation, m_OldRotation, m_OldScale);
         }
     private:
         glm::vec3 m_Translation;

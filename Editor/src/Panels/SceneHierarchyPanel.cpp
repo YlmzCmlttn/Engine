@@ -4,6 +4,7 @@
 #include <imgui_internal.h>
 #include "UI/UndoManager.h"
 #include "UI/DeleteEntityCommand.h"
+#include "UI/DuplicateEntityCommand.h"
 
 SceneHierarchyPanel::SceneHierarchyPanel(const std::shared_ptr<Engine::Scene>& scene) 
     : m_Scene(scene) {
@@ -131,7 +132,8 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
         }
         if (ImGui::MenuItem("Duplicate Entity")) {
             Engine::Application::Submit([entity, this]() {
-                m_Scene->duplicateEntity(entity);
+                std::unique_ptr<Engine::Command> command = std::make_unique<Engine::DuplicateEntityCommand>(entity);
+                Engine::UndoManager::get().executeCommand(command);
             });
         }
         ImGui::EndPopup();
