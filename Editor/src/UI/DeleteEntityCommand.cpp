@@ -44,17 +44,22 @@ namespace Engine{
         for(auto& restoreComponent : restoreComponents){
             restoreComponent(newEntity);
         }
+        m_Scene->getEntityMap()[newEntity.getComponent<IdComponent>().id] = newEntity;
         if(m_RestoreRelationshipComponent.parent) {
             auto parent = m_Scene->getEntityByUUID(m_RestoreRelationshipComponent.parent.value());
             newEntity.setParent(parent);
         }
-        if(m_RestoreRelationshipComponent.prev) {
-            auto prev = m_Scene->getEntityByUUID(m_RestoreRelationshipComponent.prev.value());
-            m_Scene->reorderEntity(prev,newEntity);
-        }
         if(m_RestoreRelationshipComponent.next) {
             auto next = m_Scene->getEntityByUUID(m_RestoreRelationshipComponent.next.value());
             m_Scene->reorderEntity(newEntity, next);
+        }else{
+            Systems::ReorderEntityToLast(newEntity);
         }
+        // if(m_RestoreRelationshipComponent.prev) {
+        //     auto prev = m_Scene->getEntityByUUID(m_RestoreRelationshipComponent.prev.value());
+        //     m_Scene->reorderEntity(prev,newEntity);
+        // }
+        
+        
     }
 }

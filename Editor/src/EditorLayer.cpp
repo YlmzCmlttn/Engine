@@ -126,6 +126,7 @@ unsigned int indices_[] = {
     m_Framebuffer = Engine::FrameBuffer::Create(spec);
 
     m_Scene = Engine::CreateRef<EditorScene>();
+    m_Scene->onAttach();
     m_SceneHierarchyPanel = Engine::CreateRef<SceneHierarchyPanel>(m_Scene);
     m_InspectorPanel = Engine::CreateRef<InspectorPanel>();
     m_ViewportPanel = Engine::CreateRef<ViewportPanel>(m_Framebuffer);

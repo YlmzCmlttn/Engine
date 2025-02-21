@@ -29,6 +29,7 @@ namespace Engine {
         entt::registry& getRegistry() { return m_Registry; }
         Entity getEntityByUUID(const UUID& uuid)const;
         Entity getSceneEntity();
+        EntityMap& getEntityMap() { return m_EntityMap; }
         void reorderEntity(Entity entity,Entity next);
         Entity createEntityWithUUID(const std::string& name, const UUID& uuid);
     protected:

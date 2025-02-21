@@ -221,6 +221,49 @@ namespace Engine {
         CalculateEntityLocalTransformBasedOnParent(child);
     }
 
+    void Systems::ReorderEntityToLast(Entity entity) {
+        // Get the relationship component of the entity.
+        auto &entityRel = entity.getComponent<RelationshipComponent>();
+
+        // Retrieve the current parent.
+        Entity parent = entityRel.parent;
+        if (parent == Entity()) {
+            // If there is no parent, nothing to reorder.
+            return;
+        }
+
+        // Remove the entity from its current parent's child list.
+        RemoveFromParent(entity);
+
+        // Get the parent's relationship component.
+        auto &parentRel = parent.getComponent<RelationshipComponent>();
+
+        // If there are no children, the entity becomes the first child.
+        if (parentRel.first == Entity()) {
+            parentRel.first = entity;
+            entityRel.prev = Entity();
+            entityRel.next = Entity();
+        } else {
+            // Traverse the linked list of children to find the last one.
+            Entity sibling = parentRel.first;
+            while (true) {
+                auto &siblingRel = sibling.getComponent<RelationshipComponent>();
+                if (siblingRel.next == Entity()) {
+                    // Append the entity after the last sibling.
+                    siblingRel.next = entity;
+                    entityRel.prev = sibling;
+                    entityRel.next = Entity();
+                    break;
+                }
+                sibling = siblingRel.next;
+            }
+        }
+
+        // Set the parent for the entity and update the parent's children count.
+        entityRel.parent = parent;
+        parentRel.children++;
+    }
+
     void Systems::ReorderEntity(Entity entity,Entity next) {
         if(next == Entity()) {
             return;

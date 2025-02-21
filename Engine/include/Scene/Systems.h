@@ -33,6 +33,7 @@ namespace Engine {
         static Entity GetChild(Entity parent, uint32_t index);
         static uint32_t GetChildCount(Entity parent);
         static void ReorderEntity(Entity entity,Entity next);
+        static void ReorderEntityToLast(Entity entity);
         static void onTransformComponentConstruct(entt::registry& registry, entt::entity entity);
         static void onTransformComponentReplace(entt::registry& registry, entt::entity entity);
 

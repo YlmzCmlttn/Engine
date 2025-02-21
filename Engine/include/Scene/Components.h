@@ -28,6 +28,7 @@ namespace Engine {
 
         std::unique_ptr<ICloneableComponent> clone() const override {
             IdComponent* clone = new IdComponent();
+            std::cout << "Cloning IdComponent" << std::endl;
             clone->id = UUID::Generate();
             return std::unique_ptr<ICloneableComponent>(clone);
         }

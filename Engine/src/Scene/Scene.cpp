@@ -11,16 +11,20 @@ namespace Engine {
         m_SceneEntity = m_Registry.create();
         m_Registry.emplace<RelationshipComponent>(m_SceneEntity);
         m_Registry.emplace<TransformComponent>(m_SceneEntity);
+        m_Registry.emplace<IdComponent>(m_SceneEntity);
         m_Registry.on_construct<TransformComponent>().connect<&Systems::onTransformComponentConstruct>();
         m_Registry.on_update<TransformComponent>().connect<&Systems::onTransformComponentReplace>();
         m_Registry.on_construct<DirtyFlagComponent>().connect<&Systems::onDirtyFlagComponentConstruct>();
         m_Registry.on_update<DirtyFlagComponent>().connect<&Systems::onDirtyFlagComponentReplace>();
+        
     }
 
     Scene::~Scene() {}
 
     void Scene::onAttach() {
-
+        IdComponent& idComponent = m_Registry.get<IdComponent>(m_SceneEntity);
+        std::cout << "Scene Entity ID: " << idComponent.id << std::endl;
+        m_EntityMap[idComponent.id] = Entity(m_SceneEntity, shared_from_this());
     }
 
     void Scene::onUpdate(Timestep ts) {
