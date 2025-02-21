@@ -48,7 +48,7 @@ namespace Engine{
             m_Scale(scale)
         {
             m_OldTranslation = getEntity().getComponent<TransformComponent>().localPosition;
-            m_OldRotation = glm::eulerAngles(getEntity().getComponent<TransformComponent>().localRotation);
+            m_OldRotation = getEntity().getComponent<TransformComponent>().localRotation;
             m_OldScale = getEntity().getComponent<TransformComponent>().localScale;
         }
         void execute() override{

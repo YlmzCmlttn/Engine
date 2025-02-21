@@ -62,20 +62,20 @@ namespace Engine {
     struct TransformComponent : public ICloneableComponent {            
         TransformComponent()
             : position(glm::vec3(0.0f)),
-              rotation(glm::quat()),
+              rotation(glm::vec3(0.0f)),
               scale(glm::vec3(1.0f)),
               localPosition(glm::vec3(0.0f)),
-              localRotation(glm::quat()),
+              localRotation(glm::vec3(0.0f)),
               localScale(glm::vec3(1.0f))
         {
             globalTransform = glm::mat4(1.0f);
         }
 
         glm::vec3 position;
-        glm::quat rotation;
+        glm::vec3 rotation;
         glm::vec3 scale;
         glm::vec3 localPosition;
-        glm::quat localRotation;
+        glm::vec3 localRotation;
         glm::vec3 localScale;
 
         glm::mat4 globalTransform;
@@ -83,11 +83,11 @@ namespace Engine {
 
 
         void updateLocalTransform() {
-            localTransform = glm::translate(glm::mat4(1.0f), localPosition) * glm::toMat4(localRotation) * glm::scale(glm::mat4(1.0f), localScale);
+            localTransform = glm::translate(glm::mat4(1.0f), localPosition) * glm::toMat4(glm::quat(localRotation)) * glm::scale(glm::mat4(1.0f), localScale);
         }
 
         void updateGlobalTransform() {
-            globalTransform = glm::translate(glm::mat4(1.0f), position) * glm::toMat4(rotation) * glm::scale(glm::mat4(1.0f), scale);
+            globalTransform = glm::translate(glm::mat4(1.0f), position) * glm::toMat4(glm::quat(rotation)) * glm::scale(glm::mat4(1.0f), scale);
         }
 
         glm::mat4 getLocalTransform() const {

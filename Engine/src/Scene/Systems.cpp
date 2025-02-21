@@ -93,9 +93,10 @@ namespace Engine {
     }
 
     void Systems::CalculateEntityGlobalTransformBasedOnParent(Entity entity) {
+        auto parent = GetParentEntity(entity);
         auto parentTransform = TransformComponent();
-        if(entity.getComponent<RelationshipComponent>().parent) {
-            parentTransform = entity.getComponent<RelationshipComponent>().parent.getComponent<TransformComponent>();
+        if(parent) {
+            parentTransform = parent.getComponent<TransformComponent>();
         }
         auto& transform = entity.getComponent<TransformComponent>();
         UpdateEntityLocalTransform(entity);
@@ -111,7 +112,7 @@ namespace Engine {
         glm::vec4 Perspective(1);
         glm::decompose(globalTransform, Scale, Orientation, Translation, Skew, Perspective);
         transform.position = Translation;
-        transform.rotation = Orientation;
+        transform.rotation = glm::eulerAngles(Orientation);
         transform.scale = Scale;
     }
 
@@ -119,7 +120,7 @@ namespace Engine {
         //use patch to set the transform
         scene->getRegistry().patch<TransformComponent>(entity.getHandle(), [&](auto& transform) {
             transform.localPosition = translation;
-            transform.localRotation = glm::quat(rotation);
+            transform.localRotation = rotation;
             transform.localScale = scale;
         });
     }
@@ -143,7 +144,7 @@ namespace Engine {
         glm::vec4 Perspective(1);
         glm::decompose(localTransform, Scale, Orientation, Translation, Skew, Perspective);
         transform.localPosition = Translation;
-        transform.localRotation = Orientation;
+        transform.localRotation = glm::eulerAngles(Orientation);
         transform.localScale = Scale;
     }
 

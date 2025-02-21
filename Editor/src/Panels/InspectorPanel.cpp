@@ -158,41 +158,65 @@ static void DrawEntity(Engine::Entity entity){
         static glm::vec3 oldScale;
         if(!oldValueStored){
             oldTranslation = component.localPosition;
-            oldRotation = glm::eulerAngles(component.localRotation);
+            oldRotation = glm::degrees(component.localRotation);
             oldScale = component.localScale;
             oldValueStored = true;
         }
 
         glm::vec3 translation = component.localPosition;
-        glm::vec3 rotation = glm::eulerAngles(component.localRotation);
+        glm::vec3 rotation = glm::degrees(component.localRotation);
+        //Put positive values
+        if(rotation.x < 0){
+            rotation.x += 360.0f;
+        }
+        if(rotation.y < 0){
+            rotation.y += 360.0f;
+        }
+        if(rotation.z < 0){
+            rotation.z += 360.0f;
+        }
+        rotation.x = fmod(rotation.x, 360.0f);
+        rotation.y = fmod(rotation.y, 360.0f);
+        rotation.z = fmod(rotation.z, 360.0f);
         glm::vec3 scale = component.localScale;
         ImGui::BeginGroup();
         bool resetted = false;
-        if(DrawVec3Control("Translation", translation) || DrawVec3Control("Rotation", rotation) || DrawVec3Control("Scale", scale)){
+        if(DrawVec3Control("Translation", translation) || DrawVec3Control("Rotation", rotation) || DrawVec3Control("Scale", scale,1.0f)){
             resetted = true;
         }
         ImGui::EndGroup();
 
 
-        if(translation != component.localPosition || rotation != glm::eulerAngles(component.localRotation) || scale != component.localScale){
+        if(translation != component.localPosition || rotation != component.localRotation || scale != component.localScale){
             Application::Submit([entity, translation, rotation, scale]() {
-                Entity(entity).setTransform(translation, rotation, scale);
+                Entity(entity).setTransform(translation, glm::radians(rotation), scale);
             });
         }
         if(ImGui::IsItemDeactivatedAfterEdit() || resetted){
             oldValueStored = false;
             Application::Submit([entity, translation, rotation, scale]() {
-                Entity(entity).getComponent<TransformComponent>().localPosition = oldTranslation;
-                Entity(entity).getComponent<TransformComponent>().localRotation = glm::quat(oldRotation);
-                Entity(entity).getComponent<TransformComponent>().localScale = oldScale;
-                std::unique_ptr<Command> command = std::make_unique<EntityTransformChangeCommand>(Entity(entity), translation, rotation, scale);
+                //Entity(entity).setTransform(translation, glm::radians(rotation), scale);
+                std::unique_ptr<Command> command = std::make_unique<EntityTransformChangeCommand>(Entity(entity), translation, glm::radians(rotation), scale);
                 UndoManager::get().executeCommand(command);
             });            
         }
 
 
         glm::vec3 global_translation = component.position;
-        glm::vec3 global_rotation = glm::eulerAngles(component.rotation);
+        glm::vec3 global_rotation = glm::degrees(component.rotation);
+        //Put positive values
+        if(global_rotation.x < 0){
+            global_rotation.x += 360.0f;
+        }
+        if(global_rotation.y < 0){
+            global_rotation.y += 360.0f;
+        }
+        if(global_rotation.z < 0){
+            global_rotation.z += 360.0f;
+        }
+        global_rotation.x = fmod(global_rotation.x, 360.0f);
+        global_rotation.y = fmod(global_rotation.y, 360.0f);
+        global_rotation.z = fmod(global_rotation.z, 360.0f);
         glm::vec3 global_scale = component.scale;
         if(DrawVec3Control("Global Translation", global_translation) || DrawVec3Control("Global Rotation", global_rotation) || DrawVec3Control("Global Scale", global_scale)){
             resetted = true;
