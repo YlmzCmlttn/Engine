@@ -20,7 +20,8 @@ namespace Engine{
         RestoreRelationshipComponent m_RestoreRelationshipComponent;
         std::vector<std::function<void(Entity)>> restoreComponents;
         Ref<Scene> m_Scene;
-        Entity m_Entity;
+        UUID m_ID;
         bool m_KeepChildren;
+        std::queue<std::unique_ptr<DeleteEntityCommand>> m_DeleteQueue;
     };
 }

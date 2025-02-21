@@ -4,13 +4,12 @@
 #include "Scene/Systems.h"
 namespace Engine{
     DeleteEntityCommand::DeleteEntityCommand(Entity entity, bool keepChildren)
-        : m_Entity(entity), m_KeepChildren(keepChildren)
+        : m_Scene(entity.getScene()),m_ID(entity.getComponent<IdComponent>().id), m_KeepChildren(keepChildren)
     {
-        m_Scene = entity.getScene();
-        auto ID = m_Entity.getComponent<IdComponent>();
-        auto tag = m_Entity.getComponent<TagComponent>();
-        auto transform = m_Entity.getComponent<TransformComponent>();
-        auto relationship = m_Entity.getComponent<RelationshipComponent>();
+        auto ID = entity.getComponent<IdComponent>();
+        auto tag = entity.getComponent<TagComponent>();
+        auto transform = entity.getComponent<TransformComponent>();
+        auto relationship = entity.getComponent<RelationshipComponent>();
         if(relationship.parent != Entity()) {   
             m_RestoreRelationshipComponent.parent  = std::make_optional<UUID>(relationship.parent.getComponent<IdComponent>().id);
         }
@@ -28,14 +27,35 @@ namespace Engine{
             entity.addOrReplaceComponent<TagComponent>(tag);
             entity.addOrReplaceComponent<IdComponent>(ID);
         });
+        if(entity.hasComponent<CameraComponent>()) {
+            auto camera = entity.getComponent<CameraComponent>();
+            restoreComponents.push_back([camera](Entity entity) { 
+                entity.addOrReplaceComponent<CameraComponent>(camera);
+            });
+        }
+        if(entity.hasComponent<MeshComponent>()) {
+            auto mesh = entity.getComponent<MeshComponent>();
+            restoreComponents.push_back([mesh](Entity entity) { 
+                entity.addOrReplaceComponent<MeshComponent>(mesh);
+            });
+        }
+        if(entity.hasComponent<MeshRendererComponent>()) {
+            auto meshRenderer = entity.getComponent<MeshRendererComponent>();
+            restoreComponents.push_back([meshRenderer](Entity entity) { 
+                entity.addOrReplaceComponent<MeshRendererComponent>(meshRenderer);
+            });
+        }   
     }
     void DeleteEntityCommand::execute(){
-        while(m_Entity.getComponent<RelationshipComponent>().first !=  Entity()) {
-            auto child = m_Entity.getComponent<RelationshipComponent>().first;
-            std::unique_ptr<Engine::Command> command = std::make_unique<Engine::DeleteEntityCommand>(child, true);
-            Engine::UndoManager::get().executeCommand(command);
+        auto entity = m_Scene->getEntityByUUID(m_ID);
+        while(entity.getComponent<RelationshipComponent>().first !=  Entity()) {
+            auto child = entity.getComponent<RelationshipComponent>().first;
+            std::unique_ptr<Engine::DeleteEntityCommand> command = std::make_unique<Engine::DeleteEntityCommand>(child, true);
+            //Engine::UndoManager::get().executeCommand(command);
+            command->execute();
+            m_DeleteQueue.push(std::move(command));
         }
-        m_Scene->destroyEntity(m_Entity, true);
+        m_Scene->destroyEntity(entity, true);
     }
     void DeleteEntityCommand::undo(){
         Entity newEntity =  Entity(m_Scene->getRegistry().create(), m_Scene);
@@ -55,11 +75,10 @@ namespace Engine{
         }else{
             Systems::ReorderEntityToLast(newEntity);
         }
-        // if(m_RestoreRelationshipComponent.prev) {
-        //     auto prev = m_Scene->getEntityByUUID(m_RestoreRelationshipComponent.prev.value());
-        //     m_Scene->reorderEntity(prev,newEntity);
-        // }
-        
-        
+
+        while(!m_DeleteQueue.empty()){
+            m_DeleteQueue.front()->undo();
+            m_DeleteQueue.pop();
+        }
     }
 }
