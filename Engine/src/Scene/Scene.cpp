@@ -78,7 +78,24 @@ namespace Engine {
     }
     
     Entity Scene::createEntity(const std::string& name) {
-        return Systems::CreateEntity(shared_from_this(), name);
+        Entity entity = Systems::CreateEntity(shared_from_this(), name);
+        return entity;
+    }
+
+    Entity Scene::createEntityWithUUID(const std::string& name, const UUID& uuid){
+        ENGINE_CORE_ASSERT(m_EntityMap.find(uuid) == m_EntityMap.end(),"Entity with UUID already exists");
+        Entity entity = Systems::CreateEntityWithUUID(shared_from_this(), name, uuid);
+        return entity;
+    }
+
+    Entity Scene::getEntityByUUID(const UUID& uuid) const {
+        auto it = m_EntityMap.find(uuid);
+        if (it != m_EntityMap.end()) {
+            return it->second;
+        }else{
+            std::cout << "Entity with UUID:" << uuid << " not found" << std::endl;
+            return Entity();
+        }
     }
 
     Entity Scene::duplicateEntity(Entity entity) {

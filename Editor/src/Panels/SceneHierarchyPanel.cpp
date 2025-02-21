@@ -121,9 +121,8 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
         if (ImGui::MenuItem("Delete Entity")) {
             if (relationship.children == 0) {                
                 Engine::Application::Submit([entity, this]() {
-                    std::unique_ptr<Engine::Command> command = std::make_unique<Engine::DeleteEntityCommand>(Engine::Entity(entity).getComponent<Engine::TagComponent>().tag);
+                    std::unique_ptr<Engine::Command> command = std::make_unique<Engine::DeleteEntityCommand>(entity);
                     Engine::UndoManager::get().executeCommand(command);
-                    m_Scene->destroyEntity(entity);
                 });
             } else {
                 // Set the flag to open the delete confirmation dialog.
@@ -152,14 +151,16 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
 
         if (ImGui::Button("Yes", ImVec2(120, 0))) {
             Engine::Application::Submit([entity, this]() {
-                m_Scene->destroyEntity(entity, false);  // Delete entity and its children.
+                std::unique_ptr<Engine::Command> command = std::make_unique<Engine::DeleteEntityCommand>(entity, false);
+                Engine::UndoManager::get().executeCommand(command);
             });
             ImGui::CloseCurrentPopup();
         }
         ImGui::SameLine();
         if (ImGui::Button("No", ImVec2(120, 0))) {
             Engine::Application::Submit([entity, this]() {
-                m_Scene->destroyEntity(entity, true);
+                std::unique_ptr<Engine::Command> command = std::make_unique<Engine::DeleteEntityCommand>(entity, true);
+                Engine::UndoManager::get().executeCommand(command);
             });
             ImGui::CloseCurrentPopup();
         }

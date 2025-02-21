@@ -10,11 +10,26 @@ namespace Engine {
 		tag.tag = name.empty() ? "Entity" : name;
         auto& relationship = entity.addComponent<RelationshipComponent>();
         auto& transform = entity.addComponent<TransformComponent>();
-        auto& id = entity.addComponent<IdComponent>();
+        auto& id = entity.addComponent<IdComponent>().id;
+        while(scene->getEntityByUUID(id) != Entity()){
+            id = UUID::Generate();
+        }
+        scene->m_EntityMap[id] = entity;
         entity.setParent(scene->getSceneEntity());
         return entity;
     }
 
+    Entity Systems::CreateEntityWithUUID(Ref<Scene> scene, const std::string& name, const UUID& uuid) {
+        Entity entity =  Entity(scene->getRegistry().create(), scene);
+        auto& tag = entity.addComponent<TagComponent>();
+		tag.tag = name.empty() ? "Entity" : name;
+        auto& relationship = entity.addComponent<RelationshipComponent>();
+        auto& transform = entity.addComponent<TransformComponent>();
+        auto& id = entity.addComponent<IdComponent>();
+        id.id = uuid;
+        scene->m_EntityMap[uuid] = entity;
+        return entity;
+    }
 
     void Systems::onTransformComponentConstruct(entt::registry& registry, entt::entity entity) {
         if(!registry.any_of<DirtyFlagComponent>(entity)) {
@@ -161,6 +176,7 @@ namespace Engine {
                 child.getScene()->getRegistry().destroy(child);
             }
         }
+        entity.getScene()->m_EntityMap.erase(entity.getComponent<IdComponent>().id);
         entity.getScene()->getRegistry().destroy(entity);
     }
 
@@ -175,7 +191,6 @@ namespace Engine {
         DuplicateComponent<TransformComponent>(src, dst);        
         DuplicateComponent<TagComponent>(src, dst);
         DuplicateComponent<CameraComponent>(src, dst);
-        DuplicateComponent<IdComponent>(src, dst);
         DuplicateComponent<MeshComponent>(src, dst);
         DuplicateComponent<MeshRendererComponent>(src, dst);
         for(int i = 0; i <GetChildCount(src); i++) {
@@ -207,6 +222,12 @@ namespace Engine {
     }
 
     void Systems::ReorderEntity(Entity entity,Entity next) {
+        if(next == Entity()) {
+            return;
+        }
+        if(entity == next) {
+            return;
+        }
         auto &entityRel = entity.getComponent<RelationshipComponent>();
         auto &nextRel = next.getComponent<RelationshipComponent>();
 

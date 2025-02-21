@@ -5,7 +5,7 @@ namespace Engine
     static std::random_device rd;
     static std::mt19937 gen(rd());
     static std::uniform_int_distribution<uint64_t> distrib;
-    std::unordered_set<uint64_t> UUID::s_UUIDSet;
+    //std::unordered_set<uint64_t> UUID::s_UUIDSet;
 
     UUID::UUID()
     {
@@ -17,14 +17,14 @@ namespace Engine
         m_UUID = uuid;
     }
 
+    UUID::UUID(const UUID& other)
+    {
+        m_UUID = other.m_UUID;
+    }
+
     UUID UUID::Generate()
     {
         auto uuid = distrib(gen);
-        while (UUID::s_UUIDSet.find(uuid) != UUID::s_UUIDSet.end())
-        {
-            uuid = distrib(gen);
-        }
-        UUID::s_UUIDSet.insert(uuid);
         return UUID(uuid);
     }
     

@@ -6,6 +6,7 @@ namespace Engine {
     class Systems {
     public:
         static Entity CreateEntity(Ref<Scene> scene, const std::string& name = "");
+        static Entity CreateEntityWithUUID(Ref<Scene> scene, const std::string& name, const UUID& uuid);
         static void DestroyEntity(Entity entity, bool keepChildren);
         static Entity DuplicateEntity(Entity entity);
 

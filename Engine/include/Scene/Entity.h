@@ -1,46 +1,31 @@
 #pragma once
-
-#include "Scene/Scene.h"
 #include "Core/Assert.h"
 #include "entt/entity/registry.hpp"
 #include "glm/glm.hpp"
-namespace Engine {
+namespace Engine { class Scene; }
 
+namespace Engine {
     class Entity {
     public:
+        
         Entity() = default;
         Entity(entt::entity handle, Ref<Scene> scene);
         ~Entity()=default;
 
         template<typename T, typename... Args>
-        T& addComponent(Args&&... args){
-            if(hasComponent<T>()) {
-                std::cout << "Entity already has component returning existing component" << std::endl;
-                return getComponent<T>();
-            }
-            return m_Scene->getRegistry().emplace<T>(m_EntityHandle, std::forward<Args>(args)...);
-        }
+        T& addComponent(Args&&... args);
 
         template<typename T, typename... Args>
-        T& addOrReplaceComponent(Args&&... args){
-            return m_Scene->getRegistry().emplace_or_replace<T>(m_EntityHandle, std::forward<Args>(args)...);
-        }
+        T& addOrReplaceComponent(Args&&... args);
 
         template<typename T>
-        T& getComponent(){
-            ENGINE_ASSERT(hasComponent<T>(), "Entity does not have component");
-            return m_Scene->getRegistry().get<T>(m_EntityHandle);
-        }
+        T& getComponent();
 
         template<typename T>
-        bool hasComponent() const{
-            return m_Scene->getRegistry().any_of<T>(m_EntityHandle);
-        }
+        bool hasComponent() const;
 
         template<typename T>
-        void removeComponent(){
-            m_Scene->getRegistry().remove<T>(m_EntityHandle);
-        }
+        void removeComponent();
 
 
         inline operator bool() const { return m_EntityHandle != entt::null; }
@@ -64,3 +49,4 @@ namespace Engine {
         Ref<Scene> m_Scene;
     };
 }
+#include "Entity.inl"
