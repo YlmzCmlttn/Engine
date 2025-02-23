@@ -110,7 +110,7 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
         flags |= ImGuiTreeNodeFlags_Leaf;
     
     // Use the entity handle as a unique ID.
-    bool nodeOpen = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, tag.tag.c_str());
+    bool nodeOpen = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)entity, flags, "%s", tag.tag.c_str());
     
     // Handle selection.
     if (ImGui::IsItemClicked())
@@ -176,7 +176,7 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
     if (ImGui::BeginDragDropSource()) {
         uint32_t entityID = (uint32_t)entity;
         ImGui::SetDragDropPayload("SCENE_HIERARCHY_ENTITY", &entityID, sizeof(uint32_t));
-        ImGui::Text(tag.tag.c_str());
+        ImGui::Text("%s", tag.tag.c_str());
         ImGui::EndDragDropSource();
     }
 
@@ -206,25 +206,6 @@ void SceneHierarchyPanel::drawEntityNode(Engine::Entity entity) {
     // When an entity is dropped here, we update its ordering relative to 'entity'.
     //ImGui::Dummy(ImVec2(0.0f, 0.0f)); // A little spacing.
     ImGui::PushID("ReorderTarget");
-    // ImGui::InvisibleButton("##ReorderDropTarget", ImVec2(ImGui::GetContentRegionAvail().x, 1.0f));
-    // if (ImGui::BeginDragDropTarget()) {
-    //     if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("SCENE_HIERARCHY_ENTITY")) {
-    //         uint32_t payloadEntityID = *(const uint32_t*)payload->Data;
-    //         Engine::Entity droppedEntity{ (entt::entity)payloadEntityID, m_Scene };
-    //         // Only allow reordering if the dropped entity is not the same as the target.
-    //         if (droppedEntity != entity) {
-    //             // Submit a reorder task.
-    //             Engine::Application::Submit([this, droppedEntity, entity]() {
-    //                 Engine::Entity(entity).getComponent<Engine::TagComponent>().tag = "Reordered";
-    //                 Engine::Entity(droppedEntity).getComponent<Engine::TagComponent>().tag = "Reordered_Dropped";
-    //                 // Implement 'reorderEntity' to update the parent's child list order.
-    //                 //m_Scene->reorderEntity(droppedEntity, entity);
-    //             });
-    //         }
-    //     }
-    //     ImGui::EndDragDropTarget();
-    // }
-    // After drawing your tree node for 'entity':
     ImVec2 itemMin = ImGui::GetItemRectMin();
     ImVec2 itemMax = ImGui::GetItemRectMax();
 

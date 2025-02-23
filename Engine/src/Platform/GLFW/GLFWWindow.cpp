@@ -17,14 +17,14 @@ namespace Engine {
         ENGINE_CORE_ERROR("GLFW Error ({0}) : {1}",error,description);
     }
 
-    Window* Window::Create(const WindowProps& props)
-	{	
-		return new GLFWWindow(props);
-	}
+    Ref<Window> Window::Create(const WindowProps& props) {
+        auto window = std::make_shared<GLFWWindow>(props);
+        window->init(props);
+        return window;
+    }
 
     GLFWWindow::GLFWWindow(const WindowProps& props)
     {
-        Init(props);
     } 
 
     GLFWWindow::~GLFWWindow()
@@ -32,7 +32,7 @@ namespace Engine {
         
     }
 
-    void GLFWWindow::Init(const WindowProps& props)
+    void GLFWWindow::init(const WindowProps& props)
     {
         m_Data.title = props.title;
         m_Data.width = props.width;
@@ -52,9 +52,10 @@ namespace Engine {
         }
 
         m_Window = glfwCreateWindow((int)props.width, (int)props.height, m_Data.title.c_str(), nullptr, nullptr);
-        glfwMakeContextCurrent(m_Window);
-        int status = gladLoadGL((GLADloadfunc)glfwGetProcAddress);
-        ENGINE_CORE_ASSERT(status, "Failed to initialize Glad!");
+        
+        m_Context = Context<WindowType::GLFW>::Create(shared_from_this());
+        m_Context->init();
+        
         glfwSetWindowUserPointer(m_Window, &m_Data);
         setVSync(true);
 
@@ -128,21 +129,28 @@ namespace Engine {
 		m_ImGuiMouseCursors[ImGuiMouseCursor_Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
     }
 
-    void GLFWWindow::Shutdown()
+    void GLFWWindow::shutdown()
     {
         glfwDestroyWindow(m_Window);
         s_GLFWInitialized = false;
     }
 
-    void GLFWWindow::onUpdate()
+    void GLFWWindow::processEvents()
     {
-        
         glfwPollEvents();
-        glfwSwapBuffers(m_Window);
 
         ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
         glfwSetCursor(m_Window, m_ImGuiMouseCursors[imgui_cursor] ? m_ImGuiMouseCursors[imgui_cursor] : m_ImGuiMouseCursors[ImGuiMouseCursor_Arrow]);
 		glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    void GLFWWindow::swapBuffers(){
+        m_Context->swapBuffers();
+    }
+
+    void GLFWWindow::onUpdate()
+    {
+
     }
     
 }

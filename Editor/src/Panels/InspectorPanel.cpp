@@ -1,4 +1,3 @@
-
 #include "Panels/InspectorPanel.h"
 #include "Core/Application.h"
 #include <imgui.h>
@@ -18,7 +17,7 @@ static bool DrawVec3Control(const std::string& label, glm::vec3& values, float r
 
     ImGui::Columns(2);
     ImGui::SetColumnWidth(0, columnWidth);
-    ImGui::Text(label.c_str());
+    ImGui::Text("%s", label.c_str());
     ImGui::NextColumn();
 
     ImGui::PushMultiItemsWidths(3, ImGui::CalcItemWidth());
@@ -89,7 +88,6 @@ static void DrawComponent(const std::string& name, Engine::Entity entity, UIFunc
     if (!entity.hasComponent<T>())
         return;
     
-    T& component = entity.getComponent<T>();
     ImVec2 contentRegionAvailable = ImGui::GetContentRegionAvail();
 
     ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2{ 4, 4 });
@@ -98,7 +96,7 @@ static void DrawComponent(const std::string& name, Engine::Entity entity, UIFunc
 
     //It may change later !!
     const ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_DefaultOpen | ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_SpanAvailWidth;
-    bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, name.c_str());
+    bool open = ImGui::TreeNodeEx((void*)typeid(T).hash_code(), treeNodeFlags, "%s", name.c_str());
     ImGui::PopStyleVar();
     
 
@@ -133,7 +131,7 @@ static void DrawEntity(Engine::Entity entity){
     DrawComponent<IdComponent>("UUID", entity, [entity](auto& component)
     {
         uint64_t uuid = component.id;
-        ImGui::Text("UUID: %llu", uuid);
+        ImGui::Text("UUID: %lu", uuid);
     });
 
     DrawComponent<TagComponent>("Tag", entity, [entity](auto& component)
@@ -223,7 +221,7 @@ static void DrawEntity(Engine::Entity entity){
         }
     });
 
-    DrawComponent<CameraComponent>("Camera", entity, [](auto& component)
+    DrawComponent<CameraComponent>("Camera", entity, []([[maybe_unused]]auto& component)
     {
         ImGui::Text("Camera");
     });

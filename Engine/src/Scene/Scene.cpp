@@ -71,6 +71,8 @@ namespace Engine {
             const auto& cameraComponent = view.get<CameraComponent>(entity);
             if (cameraComponent.primary) return Entity(entity, shared_from_this());
         }
+        ENGINE_CORE_ERROR("No primary camera found");
+        return Entity();
     }
 
     // Entity Scene::findEntityByTransformComponent(const TransformComponent& transform) {

@@ -11,7 +11,7 @@ namespace Engine {
     Application::Application(const std::string& name) {
         ENGINE_CORE_ASSERT(!s_Instance,"Application already exists!");
         s_Instance = this;
-        m_Window = std::unique_ptr<Window>(Window::Create());
+        m_Window = Window::Create();
 
         m_Window->setEventCallback(BIND_EVENT_FN(onEvent));
 
@@ -68,19 +68,21 @@ namespace Engine {
             float time = m_Window->getTime();
             Timestep ts = time - m_LastFrameTime;
             m_LastFrameTime = time;
+            m_Window->processEvents();
+            if(!m_Minimized){
+                for(Ref<Layer> layer : m_LayerStack){
+                    layer->onUpdate(ts);
+                }
+                m_CommandQueue.execute();
 
-            for(Ref<Layer> layer : m_LayerStack){
-                layer->onUpdate(ts);
+                Application* app = this;
+                Renderer::Submit([app]() {
+                    app->renderImGui();
+                });
+
+                Renderer::get().waitAndRender();            
+                m_Window->swapBuffers();
             }
-            m_CommandQueue.execute();
-
-            Application* app = this;
-            Renderer::Submit([app]() {
-                app->renderImGui();
-            });
-
-            Renderer::get().waitAndRender();            
-            m_Window->onUpdate();
         }
         onShutdown();
     }
@@ -91,15 +93,12 @@ namespace Engine {
     }
     bool Application::onWindowResize(WindowResizeEvent& e)
 	{
-		// if (e.getWidth() == 0 || e.getHeight() == 0)
-		// {
-		// 	m_Minimized = true;
-		// 	return false;
-		// }
-
-		// m_Minimized = false;
-    //Renderer::OnWindowResize(e.GetWidth(), e.GetHeight());
-    std::cout<<"Window resized to: "<<e.getWidth()<<", "<<e.getHeight()<<std::endl;
+		if (e.getWidth() == 0 || e.getHeight() == 0)
+		{
+			m_Minimized = true;
+			return false;
+		}
+        m_Minimized = false;
         int width = e.getWidth();
         int height = e.getHeight();
         //FrameBufferPool::getInstance().resizeAllFrameBuffers(width, height);

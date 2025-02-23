@@ -59,7 +59,6 @@ namespace Engine{
     }
     void DeleteEntityCommand::undo(){
         Entity newEntity =  Entity(m_Scene->getRegistry().create(), m_Scene);
-        auto& relationship = newEntity.addComponent<RelationshipComponent>();
 
         for(auto& restoreComponent : restoreComponents){
             restoreComponent(newEntity);

@@ -22,6 +22,15 @@ namespace Engine
         m_UUID = other.m_UUID;
     }
 
+    UUID& UUID::operator=(const UUID& other)
+    {
+        if(this != &other)
+        {
+            m_UUID = other.m_UUID;
+        }
+        return *this;
+    }
+
     UUID UUID::Generate()
     {
         auto uuid = distrib(gen);

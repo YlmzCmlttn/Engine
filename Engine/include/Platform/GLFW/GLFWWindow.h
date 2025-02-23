@@ -2,15 +2,18 @@
 
 #include "Core/Window.h"
 #include "Events/Event.h"
+#include "Renderer/Context.h"
 #define GLFW_INCLUDE_NONE
 #include "GLFW/glfw3.h"
 namespace Engine {
-    class GLFWWindow : public Window {
+    class GLFWWindow : public Window , public std::enable_shared_from_this<GLFWWindow> {
         public:
             GLFWWindow(const WindowProps& props);
             virtual ~GLFWWindow();
 
             void onUpdate() override;
+            void processEvents()override;
+            void swapBuffers()override;
 
             inline unsigned int getWidth() const override{return m_Data.width;}
             inline unsigned int getHeight() const override{return m_Data.height;}
@@ -22,8 +25,10 @@ namespace Engine {
             inline void makeContextCurrent() override{glfwMakeContextCurrent(m_Window);}
 
             inline void* getNativeWindow() const override{return m_Window;}
+            void init(const WindowProps& props);
         private:
             GLFWwindow* m_Window;
+            Ref<Context<WindowType::GLFW>> m_Context;
 		    GLFWcursor* m_ImGuiMouseCursors[9] = { 0 };
             struct WindowData
             {
@@ -34,8 +39,7 @@ namespace Engine {
                 EventCallbackFn EventCallback;
             };
             WindowData m_Data;
-            void Init(const WindowProps& props);
-            void Shutdown();
+            void shutdown();
         
     };
 }

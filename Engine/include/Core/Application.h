@@ -43,7 +43,7 @@ namespace Engine
         }
 
     private:
-        Scope<Window> m_Window;
+        Ref<Window> m_Window;
         Ref<ImGuiLayer> m_ImGuiLayer;
         bool m_Running = true;
 		bool m_Minimized = false;

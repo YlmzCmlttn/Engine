@@ -22,6 +22,8 @@ namespace Engine
         virtual ~Window() = default;
 
         virtual void onUpdate() = 0;
+        virtual void processEvents() = 0;
+        virtual void swapBuffers() = 0;
 
         virtual unsigned int getWidth() const = 0;
         virtual unsigned int getHeight() const = 0;
@@ -34,7 +36,7 @@ namespace Engine
 
         virtual void* getNativeWindow() const = 0;
 
-        static Window* Create(const WindowProps& props = WindowProps());
+        static Ref<Window> Create(const WindowProps& props = WindowProps());
     };
 
 
