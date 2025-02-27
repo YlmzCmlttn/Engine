@@ -4,11 +4,15 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB_RECURSE ENGINE_SOURCES src/*.cpp)
+file(GLOB_RECURSE ENGINE_HEADERS include/*.h)
 
 add_library(
     Engine STATIC
     ${ENGINE_SOURCES}
+    ${ENGINE_HEADERS}
 )
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${ENGINE_SOURCES} ${ENGINE_HEADERS})
+
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/glad.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/glfw.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/spdlog.cmake)

@@ -13,10 +13,13 @@ add_subdirectory(../Engine Engine_Build)
 
 # Gather source files and include directories
 file(GLOB_RECURSE EDITOR_SOURCES src/*.cpp)
+file(GLOB_RECURSE EDITOR_HEADERS src/*.h)
+
+source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}" FILES ${EDITOR_SOURCES} ${EDITOR_HEADERS})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 # Macro to add an editor example executable with platform- and config-specific compile options
 macro(add_editor_example name)
-  add_executable(${name} ${EDITOR_SOURCES})
+  add_executable(${name} ${EDITOR_SOURCES} ${EDITOR_HEADERS})
 
   # For MSVC (Windows), apply /W4 for warnings always, and /O2 for optimization in Release builds only.
   # For non-MSVC compilers (GCC/Clang), apply -Wall and -Wextra always, and -O3 in Release builds only.
