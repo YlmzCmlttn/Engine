@@ -23,3 +23,18 @@
 [submodule "Engine/vendor/entt"]
 	path = Engine/vendor/entt
 	url = https://github.com/skypjack/entt.git
+[submodule "Engine/vendor/spirv-cross"]
+	path = Engine/vendor/spirv-cross
+	url = https://github.com/KhronosGroup/SPIRV-Cross.git
+[submodule "Engine/vendor/spirv-tools"]
+	path = Engine/vendor/spirv-tools
+	url = https://github.com/KhronosGroup/SPIRV-Tools.git
+[submodule "Engine/vendor/spirv-headers"]
+	path = Engine/vendor/spirv-headers
+	url = https://github.com/KhronosGroup/SPIRV-Headers.git
+[submodule "Engine/vendor/shaderc"]
+	path = Engine/vendor/shaderc
+	url = https://github.com/google/shaderc.git
+[submodule "Engine/vendor/glslang"]
+	path = Engine/vendor/glslang
+	url = https://github.com/KhronosGroup/glslang.git
