@@ -3,11 +3,11 @@
 #include "Core/Assert.h"
 namespace Engine
 {
-    TextureCube* TextureCube::Create(const std::string& path)
+    Ref<TextureCube> TextureCube::Create(const std::string& path)
     {
         switch (RendererAPI::Current())
         {
-            case RendererAPIType::OpenGL: return new OpenGLTextureCube(path);
+            case RendererAPIType::OpenGL: return CreateRef<OpenGLTextureCube>(path);
         }
         ENGINE_CORE_ASSERT(false, "Unknown RendererAPI!");
         return nullptr;

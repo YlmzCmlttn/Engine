@@ -2,7 +2,7 @@
 
 #include "Renderer/RendererAPI.h"
 #include "Renderer/Texture2D.h"
-
+#include "Core/Buffer.h"
 namespace Engine {
 
 	class OpenGLTexture2D : public Texture2D
@@ -25,7 +25,7 @@ namespace Engine {
 		RendererID m_RendererID;
 		TextureFormat m_Format;
 		unsigned int m_Width, m_Height;
-		unsigned char* m_ImageData; // TODO: remove this implement image storage.
+		Buffer m_ImageData; // TODO: remove this implement image storage.
 		std::string m_Path;
 	};
 }

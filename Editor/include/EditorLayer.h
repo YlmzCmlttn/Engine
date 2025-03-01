@@ -36,4 +36,5 @@ private:
     std::shared_ptr<Engine::IndexBuffer> m_IB;
     std::shared_ptr<Engine::VertexArray> m_VA;
     std::shared_ptr<Engine::FrameBuffer> m_Framebuffer;
+    std::shared_ptr<Engine::Texture2D> m_Texture;
 };

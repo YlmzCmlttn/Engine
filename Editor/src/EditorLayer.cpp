@@ -76,16 +76,40 @@ void EditorLayer::onAttach() {
     //Triangle
     float vertices_[] = {
     // Front face
-    -0.5f, -0.5f,  0.5f,  
-     0.5f, -0.5f,  0.5f,  
-     0.5f,  0.5f,  0.5f,  
-    -0.5f,  0.5f,  0.5f,  
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  
 
     // Back face
-    -0.5f, -0.5f, -0.5f,  
-     0.5f, -0.5f, -0.5f,  
-     0.5f,  0.5f, -0.5f,  
-    -0.5f,  0.5f, -0.5f,  
+    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  
+
+    // Top face
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  
+
+    // Bottom face
+    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 
+    
+    // Left face
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
+    
+    // Right face
+    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+    -0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
+    -0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+    -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
 };
 unsigned int indices_[] = {
     // Front face
@@ -93,19 +117,19 @@ unsigned int indices_[] = {
     // Back face
     4, 5, 6,  6, 7, 4,  
     // Left face
-    4, 0, 3,  3, 7, 4,  
+    8, 9, 10,  10, 11, 8,  
     // Right face
-    1, 5, 6,  6, 2, 1,  
+    12, 13, 14,  14, 15, 12,  
     // Top face
-    3, 2, 6,  6, 7, 3,  
+    16, 17, 18,  18, 19, 16,  
     // Bottom face
-    4, 5, 1,  1, 0, 4   
+    20, 21, 22,  22, 23, 20   
 };
 
 
     std::vector<Engine::Mesh::Vertex> vertices;
-    for(uint i=0;i<24;i=i+3){
-        vertices.push_back(Engine::Mesh::Vertex(glm::vec3(vertices_[i],vertices_[i+1],vertices_[i+2])));
+    for(uint i=0;i<120;i=i+5){
+        vertices.push_back(Engine::Mesh::Vertex(glm::vec3(vertices_[i],vertices_[i+1],vertices_[i+2]),glm::vec2(vertices_[i+3],vertices_[i+4])));
     }
     std::vector<uint32_t> indices;
     for(uint i=0;i<36;i++){
@@ -139,12 +163,16 @@ unsigned int indices_[] = {
         childEntity.setParent(parentEntity);
     }
 
+    m_Texture = Engine::Texture2D::Create("../assets/textures/container.jpg");
+
     m_MeshEntity = m_Scene->createEntity("Mesh");
     auto meshComponent = m_MeshEntity.addComponent<Engine::MeshComponent>(m_Mesh);
     meshComponent.mesh = m_Mesh;
 
-    
     auto meshRendererComponent = m_MeshEntity.addComponent<Engine::MeshRendererComponent>(Engine::Material::Create(m_Shader));
+    Renderer::Submit([meshRendererComponent,this]() {
+        meshRendererComponent.material->set("u_Texture",this->m_Texture);
+    });
 
     m_ViewportPanel->setActiveScene(m_Scene);
 }

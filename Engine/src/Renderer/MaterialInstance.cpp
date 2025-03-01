@@ -91,9 +91,9 @@ namespace Engine
 			}
 			
 		}
+		
 		m_UpdatedUniforms.clear();
 		m_UpdatedUniformBuffers.clear();
-
 
 		m_Material->bindTextures();
 		for (size_t i = 0; i < m_Textures.size(); i++)

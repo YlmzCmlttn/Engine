@@ -40,7 +40,7 @@ namespace Engine {
 	private:
 		void load(const std::string& shaderSource,bool forceCompile = true);
 		void compile(const std::vector<uint32_t>& vertexBinary, const std::vector<uint32_t>& fragmentBinary);
-		void reflect(std::vector<uint32_t>& data);
+		void reflect(const std::vector<uint32_t>& binary);
 
 
 		std::string readShaderFromFile(const std::string& filepath) const;
@@ -61,7 +61,6 @@ namespace Engine {
 		void createProgram();
 		GLuint createShader(GLenum type, const std::vector<uint32_t>& binary);
 		void linkShaders(std::vector<GLuint>& shaderRendererIDs);
-		void reflects(const std::vector<uint32_t>& binary);
 
 		template<typename T>
         void setUniformT(const std::string& fullname, const T& value);

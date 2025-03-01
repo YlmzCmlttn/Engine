@@ -63,8 +63,12 @@ namespace Engine
 		}
 
 		void set(const std::string& name, const Ref<Texture>& texture)
-		{
+		{			
 			auto decl = findResourceDeclaration(name);
+			if(decl == nullptr){
+				std::cout<<"Resource not found: "<<name<<std::endl;
+				return;
+			}
 			uint32_t slot = decl->getRegister();
 			if (m_Textures.size() <= slot)
 				m_Textures.resize((size_t)slot + 1);
@@ -122,6 +126,10 @@ namespace Engine
 		Ref<T> getResource(const std::string& name)
 		{
 			auto decl = findResourceDeclaration(name);
+			if(decl == nullptr){
+				std::cout<<"Resource not found: "<<name<<std::endl;
+				return nullptr;
+			}
 			uint32_t slot = decl->getRegister();
 			ENGINE_CORE_ASSERT(slot < m_Textures.size(), "Texture slot is invalid! "+ name);
 			return m_Textures[slot];

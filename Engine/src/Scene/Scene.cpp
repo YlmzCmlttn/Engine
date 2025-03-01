@@ -41,13 +41,14 @@ namespace Engine {
     }
     void Scene::onRender(Timestep ts, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
         //Get Mesh Components.
+        static int count = 99;
         Engine::Renderer::Clear(0.1,0.1,0.1,1.0);
         auto view = m_Registry.view<TransformComponent, MeshComponent, MeshRendererComponent>();
         for (auto entity : view) {
             auto& transformComponent = view.get<TransformComponent>(entity);
             auto& meshComponent = view.get<MeshComponent>(entity);
-            auto& meshRendererComponent = view.get<MeshRendererComponent>(entity);       
-
+            auto& meshRendererComponent = view.get<MeshRendererComponent>(entity);
+            
             //auto mvp = projectionMatrix* viewMatrix* transformComponent.globalTransform;
             // struct Transforms{
             //     glm::mat4 u_M;
@@ -59,7 +60,11 @@ namespace Engine {
             // transforms.u_V = viewMatrix;
             // transforms.u_P = projectionMatrix;
             // meshRendererComponent.material->set("Transforms", transforms);
-            meshRendererComponent.material->set("Transforms.u_M",transformComponent.globalTransform);
+            count++;
+            if(count == 100){
+                count = 0;
+                meshRendererComponent.material->set("Transforms.u_M",transformComponent.globalTransform);
+            }
             meshRendererComponent.material->set("Transforms.u_V",viewMatrix);
             meshRendererComponent.material->set("Transforms.u_P",projectionMatrix);
             meshRendererComponent.material->bind();

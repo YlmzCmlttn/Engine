@@ -288,7 +288,7 @@ namespace Engine {
 				printf("Shaders:\n%s\n", openGLSource.c_str());
 				printf("=========================================\n");
 				openGLBinary = compileOpenGLSource2SPIRV(openGLSource,shaderSource.first);
-				reflects(openGLBinary.value());
+				reflect(openGLBinary.value());
 				writeOpenGLBinaryToFile(openGLBinary.value(),shaderSource.first);
 			}
 			shaderRendererIDs.push_back(createShader(shaderSource.first, openGLBinary.value()));
@@ -296,7 +296,7 @@ namespace Engine {
 		linkShaders(shaderRendererIDs);
 	}
 
-	void OpenGLShader::reflects(const std::vector<uint32_t>& binary){
+	void OpenGLShader::reflect(const std::vector<uint32_t>& binary){
 		spirv_cross::CompilerGLSL glsl(binary);
 		spirv_cross::CompilerGLSL::Options opts = glsl.get_common_options();
 		opts.version = 450;
@@ -354,6 +354,32 @@ namespace Engine {
 		for(auto& resource : resources.storage_images){
 			std::cout<<"Storage image: "<<resource.name<<std::endl;
 		}
+
+		for(auto& resource : resources.sampled_images){
+			std::cout<<"Sampled image: "<<resource.name<<std::endl;
+			auto& type = glsl.get_type(resource.base_type_id);
+			auto binding = glsl.get_decoration(resource.id, spv::DecorationBinding);
+			const auto& name = resource.name;
+			uint32_t dimension = type.image.dim;
+			std::cout<<"Dimension: "<<dimension<<std::endl;
+			std::cout<<"Binding: "<<binding<<std::endl;
+			std::cout<<"Name: "<<name<<std::endl;
+			GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+			m_Resources[name] = ShaderResourceDeclaration(name, binding, 1);
+			glUniform1i(location, binding);
+		}
+		// for (const spirv_cross::Resource& resource : res.sampled_images)
+		// {
+		// 	auto& type = comp.get_type(resource.base_type_id);
+		// 	auto binding = comp.get_decoration(resource.id, spv::DecorationBinding);
+		// 	const auto& name = resource.name;
+		// 	uint32_t dimension = type.image.dim;
+
+		// 	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
+		// 	HZ_CORE_ASSERT(location != -1);
+		// 	m_Resources[name] = ShaderResourceDeclaration(name, binding, 1);
+		// 	glUniform1i(location, binding);
+		// }
 		//And others
 	}
 

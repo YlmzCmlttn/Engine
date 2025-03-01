@@ -3,7 +3,7 @@
 #include "Platform/OpenGL/OpenGLTexture.h"
 #include "Renderer/RendererAPI.h"
 #include "Renderer/Renderer.h"
-
+#include "Core/Assert.h"
 #include <glad/gl.h>
 #include <stb_image.h>
 namespace Engine {
@@ -34,7 +34,11 @@ namespace Engine {
 	OpenGLTexture2D::OpenGLTexture2D(const std::string& path,bool srgb)
 	{
 		int width, height, channels;
-		m_ImageData = stbi_load(path.c_str(), &width, &height, &channels, 0);
+		m_ImageData.data = stbi_load(path.c_str(), &width, &height, &channels, 0);
+		if(!m_ImageData.data){
+			ENGINE_CORE_ERROR("Failed to load image: {0}", path);
+			return;
+		}
 		m_Width = width;
 		m_Height = height;
 		m_Format = (channels == 4) ? TextureFormat::RGBA : TextureFormat::RGB;
@@ -47,7 +51,7 @@ namespace Engine {
 				glTextureParameteri(this->m_RendererID, GL_TEXTURE_MIN_FILTER, levels > 1 ? GL_LINEAR_MIPMAP_LINEAR : GL_LINEAR);
 				glTextureParameteri(this->m_RendererID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-				glTextureSubImage2D(this->m_RendererID, 0, 0, 0, this->m_Width, this->m_Height, GL_RGB, GL_UNSIGNED_BYTE, this->m_ImageData);
+				glTextureSubImage2D(this->m_RendererID, 0, 0, 0, this->m_Width, this->m_Height, GL_RGB, GL_UNSIGNED_BYTE, this->m_ImageData.data);
 				glGenerateTextureMipmap(this->m_RendererID);
 			}else{
 				glGenTextures(1, &this->m_RendererID);
@@ -58,12 +62,12 @@ namespace Engine {
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-				glTexImage2D(GL_TEXTURE_2D, 0, TextureFormatToOpenGL(this->m_Format), this->m_Width, this->m_Height, 0, srgb ? GL_SRGB8 : TextureFormatToOpenGL(this->m_Format), GL_UNSIGNED_BYTE, this->m_ImageData);
+				glTexImage2D(GL_TEXTURE_2D, 0, TextureFormatToOpenGL(this->m_Format), this->m_Width, this->m_Height, 0, srgb ? GL_SRGB8 : TextureFormatToOpenGL(this->m_Format), GL_UNSIGNED_BYTE, this->m_ImageData.data);
 				glGenerateMipmap(GL_TEXTURE_2D);
 
 				glBindTexture(GL_TEXTURE_2D, 0);
 			}
-			stbi_image_free(this->m_ImageData);
+			stbi_image_free(this->m_ImageData.data);
 		});
 	}
 
