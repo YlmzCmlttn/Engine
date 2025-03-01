@@ -2,6 +2,7 @@
 #include "Scene/SceneCamera.h"
 #include "Renderer/Mesh.h"
 #include "Renderer/Material.h"
+#include "Renderer/MaterialInstance.h"
 #include "Core/UUID.h"
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"

@@ -6,14 +6,13 @@ namespace Engine {
 
 	Ref<Shader> Shader::CreateFromFile(const std::string& name, const std::string& filepath)
 	{
-		std::ifstream in(filepath, std::ios::in | std::ios::binary);
-		if (!in) {
-			ENGINE_CORE_WARN("Could not read shader file {0}", filepath);
-			return nullptr;
+		switch (RendererAPI::Current())
+		{
+			case RendererAPIType::None: return nullptr;
+			case RendererAPIType::OpenGL: return CreateRef<OpenGLShader>(filepath);
 		}
-		std::stringstream buffer;
-		buffer << in.rdbuf();
-		return Create(name,buffer.str());
+		ENGINE_CORE_ASSERT(false, "Unknown RendererAPI!");
+		return nullptr;
 	}
 
 	Ref<Shader> Shader::Create(const std::string& name, const std::string& shaderSource)

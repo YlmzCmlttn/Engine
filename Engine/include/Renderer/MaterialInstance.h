@@ -1,68 +1,39 @@
 #pragma once
-
-#include "Core/Core.h"
-#include "Core/Assert.h"
-#include "Core/Buffer.h"
-#include "Renderer/Shader.h"
-#include "Renderer/Texture.h"
-#include "Renderer/Texture2D.h"
-#include "Renderer/TextureCube.h"
+#include "Renderer/Material.h"
 namespace Engine
 {
-    class MaterialInstance;
-    enum class MaterialFlag
+	class MaterialInstance
 	{
-		None       = BIT(0),
-		DepthTest  = BIT(1),
-		Blend      = BIT(2)
-	};
-
-	class Material
-	{
-		friend class MaterialInstance;
+		friend class Material;
 	public:
-		Material(const Ref<Shader>& shader);
-		virtual ~Material();
-
-		void bind();
-
-		uint32_t getFlags() const { return m_MaterialFlags; }
-		void setFlag(MaterialFlag flag) { m_MaterialFlags |= (uint32_t)flag; }
+		MaterialInstance(const Ref<Material>& material, const std::string& name = "");
+		virtual ~MaterialInstance();
 
 		template <typename T>
 		void set(const std::string& name, const T& value)
 		{
-			if(isUniformBuffer(name)){
-				const ShaderUniformBuffer* uniformBuffer = findUniformBufferDeclaration(name);
-				if(uniformBuffer == nullptr){
-					std::cout<<"Uniform buffer not found: "<<name<<std::endl;
-					return;
-				}
-				if(m_UniformStorageBuffers.find(name) == m_UniformStorageBuffers.end()){
-					std::cout<<"Uniform buffer not found: "<<uniformBuffer->name<<std::endl;
-					return;
-				}
-				auto& buffer = m_UniformStorageBuffers[name];
+			if(m_Material->isUniformBuffer(name)){
+				const ShaderUniformBuffer* uniformBuffer = m_Material->findUniformBufferDeclaration(name);
+				auto& buffer = m_UniformStorageBuffers[uniformBuffer->name];
 				buffer.write((byte*)&value, uniformBuffer->size, 0);
 				m_UpdatedUniformBuffers.insert(name);
+				m_OverriddenUniformBuffers.insert(name);
 			}else{
 				auto pos = name.find(".");
 				auto bufferName = name.substr(0, pos);
-				const ShaderUniform* decl = findUniformDeclaration(name);
-				if(m_UniformStorageBuffers.find(bufferName) == m_UniformStorageBuffers.end()){
-					std::cout<<"Uniform not found: "<<bufferName<<std::endl;
-					return;
-				}
+				const ShaderUniform* decl = m_Material->findUniformDeclaration(name);
+				ENGINE_CORE_ASSERT(decl, "Could not find uniform with name "+ name);
 				auto& buffer = m_UniformStorageBuffers[bufferName];
 				buffer.write((byte*)&value, decl->getSize(), decl->getOffset());
 				m_UpdatedUniforms.insert(name);
+				m_OverriddenUniforms.insert(name);
 			}
 			//materialInstancesValueUpdated(*decl);
 		}
 
 		void set(const std::string& name, const Ref<Texture>& texture)
 		{
-			auto decl = findResourceDeclaration(name);
+			auto decl = m_Material->findResourceDeclaration(name);
 			uint32_t slot = decl->getRegister();
 			if (m_Textures.size() <= slot)
 				m_Textures.resize((size_t)slot + 1);
@@ -82,14 +53,14 @@ namespace Engine
 		template<typename T>
 		const T& get(const std::string& name)
 		{
-			if(isUniformBuffer(name)){
-				const ShaderUniformBuffer* uniformBuffer = findUniformBufferDeclaration(name);
+			if(m_Material->isUniformBuffer(name)){
+				const ShaderUniformBuffer* uniformBuffer = m_Material->findUniformBufferDeclaration(name);
 				auto& buffer = m_UniformStorageBuffers[uniformBuffer->name];
 				return buffer.read<T>(0);
 			}else{
 				auto pos = name.find(".");
 				auto bufferName = name.substr(0, pos);
-				const ShaderUniform* decl = findUniformDeclaration(name);
+				const ShaderUniform* decl = m_Material->findUniformDeclaration(name);
 				ENGINE_CORE_ASSERT(decl, "Could not find uniform with name "+ name);
 				auto& buffer = m_UniformStorageBuffers[bufferName];
 				return buffer.read<T>(decl->getOffset());
@@ -100,18 +71,20 @@ namespace Engine
 		T& get(const std::string& name)
 		{
 
-			if(isUniformBuffer(name)){
-				const ShaderUniformBuffer* uniformBuffer = findUniformBufferDeclaration(name);
+			if(m_Material->isUniformBuffer(name)){
+				const ShaderUniformBuffer* uniformBuffer = m_Material->findUniformBufferDeclaration(name);
 				auto& buffer = m_UniformStorageBuffers[uniformBuffer->name];
 				m_UpdatedUniformBuffers.insert(name);
+				m_OverriddenUniformBuffers.insert(name);
 				return buffer.read<T>(0);
 			}else{
 				auto pos = name.find(".");
 				auto bufferName = name.substr(0, pos);
-				const ShaderUniform* decl = findUniformDeclaration(name);
+				const ShaderUniform* decl = m_Material->findUniformDeclaration(name);
 				ENGINE_CORE_ASSERT(decl, "Could not find uniform with name "+ name);
 				auto& buffer = m_UniformStorageBuffers[bufferName];
 				m_UpdatedUniforms.insert(name);
+				m_OverriddenUniforms.insert(name);
 				return buffer.read<T>(decl->getOffset());
 			}
 		}
@@ -119,37 +92,37 @@ namespace Engine
 		template<typename T>
 		Ref<T> getResource(const std::string& name)
 		{
-			auto decl = findResourceDeclaration(name);
+			auto decl = m_Material->findResourceDeclaration(name);
 			uint32_t slot = decl->getRegister();
 			ENGINE_CORE_ASSERT(slot < m_Textures.size(), "Texture slot is invalid! "+ name);
 			return m_Textures[slot];
 		}
 
-		Ref<Shader> getShader() { return m_Shader; }
+
+		void bind();
+
+		uint32_t getFlags() const { return m_Material->m_MaterialFlags; }
+		bool getFlag(MaterialFlag flag) const { return (uint32_t)flag & m_Material->m_MaterialFlags; }
+		void setFlag(MaterialFlag flag, bool value = true);
+
+		Ref<Shader> getShader() { return m_Material->m_Shader; }
+
+		const std::string& getName() const { return m_Name; }
 	public:
-		static Ref<Material> Create(const Ref<Shader>& shader);
+		static Ref<MaterialInstance> Create(const Ref<Material>& material);
 	private:
 		void allocateStorage();
 		void onShaderReloaded();
-		void bindTextures();
-
-		bool isUniformBuffer(const std::string& name);
-		const ShaderUniformBuffer* findUniformBufferDeclaration(const std::string& name);
-		const ShaderUniform* findUniformDeclaration(const std::string& name);
-		const ShaderResourceDeclaration* findResourceDeclaration(const std::string& name);
-
-		void materialInstancesValueUpdated(const ShaderUniform& decl);
+		void onMaterialValueUpdated(const ShaderUniform& decl);
 	private:
-		Ref<Shader> m_Shader;
-		std::unordered_set<MaterialInstance*> m_MaterialInstances;
+		Ref<Material> m_Material;
+		std::string m_Name;
 
 		std::unordered_map<std::string, Buffer> m_UniformStorageBuffers;
 		std::unordered_set<std::string> m_UpdatedUniforms;
 		std::unordered_set<std::string> m_UpdatedUniformBuffers;
-
+		std::unordered_set<std::string> m_OverriddenUniforms;
+		std::unordered_set<std::string> m_OverriddenUniformBuffers;
 		std::vector<Ref<Texture>> m_Textures;
-
-		uint32_t m_MaterialFlags;
 	};
 } // namespace Engine
-#include "Renderer/MaterialInstance.h"

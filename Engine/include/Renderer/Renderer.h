@@ -24,5 +24,4 @@ namespace Engine {
         static Renderer* s_Instance;
         RenderCommandQueue m_CommandQueue;
     };
-
 }

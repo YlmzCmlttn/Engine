@@ -19,7 +19,7 @@ namespace Engine {
 
     template<typename T>
     T& Entity::getComponent() {
-        ENGINE_ASSERT(hasComponent<T>(), "Entity does not have component");
+        ENGINE_CORE_ASSERT(hasComponent<T>(), "Entity does not have component");
         return m_Scene->getRegistry().get<T>(m_EntityHandle);
     }
 

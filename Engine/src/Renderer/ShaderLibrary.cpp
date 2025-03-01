@@ -27,7 +27,7 @@ namespace Engine {
         return shader;
     }
 
-    Ref<Shader> ShaderLibrary::get(const std::string& name) {
+    Ref<Shader>& ShaderLibrary::get(const std::string& name) {
         ENGINE_CORE_ASSERT(isExist(name), "Shader does not exist");
         return m_Shaders[name];
     }

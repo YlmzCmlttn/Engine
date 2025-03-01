@@ -67,6 +67,8 @@ void DockSpaceEnd(){
 EditorLayer::EditorLayer() : Layer("Editor")
 {
 
+    m_Shader = Engine::Shader::CreateFromFile("Basic", "../assets/shaders/shader.glsl");
+
 }
 
 void EditorLayer::onAttach() {
@@ -142,45 +144,19 @@ unsigned int indices_[] = {
     meshComponent.mesh = m_Mesh;
 
     
-    m_Shader = Engine::Shader::CreateFromFile("Basic", "../assets/shaders/shader.glsl");
-    m_Material = std::make_shared<Engine::Material>("Basic", m_Shader);
-    auto meshRendererComponent = m_MeshEntity.addComponent<Engine::MeshRendererComponent>(m_Material);
-    meshRendererComponent.material = m_Material;
+    auto meshRendererComponent = m_MeshEntity.addComponent<Engine::MeshRendererComponent>(Engine::Material::Create(m_Shader));
 
     m_ViewportPanel->setActiveScene(m_Scene);
-
-
-    //parentEntities[0].setParent(parentEntities[1]);
-    //auto child0Entity = parentEntities[0].getChild(0);
-    //parentEntities[1].setParent(child0Entity);
-
-    // m_Scene->destroyEntity(parentEntities[2]);
-    // m_Scene->destroyEntity(parentEntities[3]);
-    
-
-
-    //auto duplicatedEntity = m_Scene->duplicateEntity(parentEntity);
-    //auto duplicatedEntity2 = m_Scene->duplicateEntity(parentEntity);
-
-    //m_Scene->destroyEntity(duplicatedEntity2);
-    //m_ParentEntity.addComponent<Engine::TransformComponent>();
-    
-    //auto childEntity = m_Scene->createEntity("Child");
-    //m_ChildEntity.addComponent<Engine::TransformComponent>();
-    //m_ChildEntity.setParent(m_ParentEntity);
-
-    //auto child2Entity = m_Scene->createEntity("Child2");
-    //child2Entity.getComponent<Engine::TransformComponent>().setParent(parentEntity.getComponent<Engine::TransformComponent>(),false);
 }
 
 void EditorLayer::onDetach() {
 }
 
-void EditorLayer::onUpdate([[maybe_unused]] Engine::Timestep ts) {
+void EditorLayer::onUpdate([[maybe_unused]] Engine::Timestep ts) {    
     m_Scene->onUpdate(ts);
     m_Framebuffer->bind();
     m_Scene->onRender(ts);
-    m_Framebuffer->unbind();
+    m_Framebuffer->unbind();   
 }
 
 void EditorLayer::onEvent([[maybe_unused]] Engine::Event& event) {

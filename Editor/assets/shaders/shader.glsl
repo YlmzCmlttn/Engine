@@ -1,21 +1,25 @@
 #type vertex
-#version 460
+#version 450 core
 
 layout(location = 0) in vec3 a_Position;
-
-uniform mat4 u_MVP;
+layout(binding = 0, std140) uniform Transforms
+{
+    mat4 u_M;
+    mat4 u_V;
+    mat4 u_P;
+}tranforms;
 
 void main()
 {
-	gl_Position = u_MVP * vec4(a_Position, 1.0);
+	gl_Position = tranforms.u_P * tranforms.u_V * tranforms.u_M * vec4(a_Position, 1.0);
 }
 
 #type fragment
-#version 430
+#version 450 core
 
 layout(location = 0) out vec4 finalColor;
 
 void main()
 {
-	finalColor = vec4(1.0,0.0,0.0,1.0);
+	finalColor = vec4(1.0, 0.0, 0.0, 1.0);
 }

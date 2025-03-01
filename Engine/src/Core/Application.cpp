@@ -64,6 +64,7 @@ namespace Engine {
 
     void Application::run() {
         onInit();
+        Renderer::get().waitAndRender();      
         while(m_Running){
             float time = m_Window->getTime();
             Timestep ts = time - m_LastFrameTime;

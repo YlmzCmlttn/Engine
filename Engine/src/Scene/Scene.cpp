@@ -2,7 +2,7 @@
 #include "Scene/Scene.h"
 #include "Scene/Components.h"
 #include "Scene/Systems.h"
-
+#include <glm/gtc/type_ptr.hpp>
 namespace Engine {
 
     Scene::Scene(const std::string& name)
@@ -46,13 +46,26 @@ namespace Engine {
         for (auto entity : view) {
             auto& transformComponent = view.get<TransformComponent>(entity);
             auto& meshComponent = view.get<MeshComponent>(entity);
-            auto& meshRendererComponent = view.get<MeshRendererComponent>(entity);
+            auto& meshRendererComponent = view.get<MeshRendererComponent>(entity);       
 
-            Engine::UniformBufferDeclaration<sizeof(glm::mat4), 1> ubo;
-            ubo.push("u_MVP",projectionMatrix* viewMatrix* transformComponent.globalTransform);
-
+            //auto mvp = projectionMatrix* viewMatrix* transformComponent.globalTransform;
+            // struct Transforms{
+            //     glm::mat4 u_M;
+            //     glm::mat4 u_V;
+            //     glm::mat4 u_P;
+            // };
+            // Transforms transforms;
+            // transforms.u_M = transformComponent.globalTransform;
+            // transforms.u_V = viewMatrix;
+            // transforms.u_P = projectionMatrix;
+            // meshRendererComponent.material->set("Transforms", transforms);
+            meshRendererComponent.material->set("Transforms.u_M",transformComponent.globalTransform);
+            meshRendererComponent.material->set("Transforms.u_V",viewMatrix);
+            meshRendererComponent.material->set("Transforms.u_P",projectionMatrix);
             meshRendererComponent.material->bind();
-            meshRendererComponent.material->getShader()->uploadUniformBuffer(ubo);
+
+            //meshRendererComponent.material->getShader()->setUniformBuffer("Transforms", glm::value_ptr(mvp), sizeof(glm::mat4));     
+            //meshRendererComponent.material->getShader()->setUniform("color.u_Color",glm::vec4(1.0,1.0,0.0,1.0));
             meshComponent.mesh->render();
         }
         
@@ -105,7 +118,7 @@ namespace Engine {
     }
 
     Entity Scene::duplicateEntity(Entity entity) {
-        return Systems::DuplicateEntity(entity);
+        return Systems::DuplicateEntity(entity);    
     }
 
     void Scene::destroyEntity(Entity entity, bool keepChildren) {
