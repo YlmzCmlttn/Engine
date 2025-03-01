@@ -51,9 +51,23 @@ namespace Engine
 		}
 	}
 
-	void MaterialInstance::onMaterialValueUpdated(const ShaderUniform& decl)
+	void MaterialInstance::onMaterialValueUpdated(const std::string& bufferName, const ShaderUniform& decl)
 	{
+		if(m_OverriddenUniforms.find(bufferName+"."+decl.getName()) != m_OverriddenUniforms.end()) return;
+		
+		m_UpdatedUniforms.insert(bufferName+"."+decl.getName());
+		auto& buffer = m_UniformStorageBuffers[bufferName];
+		auto& materialBuffer = m_Material->m_UniformStorageBuffers[bufferName];
+		buffer.write(materialBuffer.data+decl.getOffset(), decl.getSize(), decl.getOffset());
+	}
 
+	void MaterialInstance::onMaterialValueUpdated(const ShaderUniformBuffer& decl)
+	{
+		if(m_OverriddenUniformBuffers.find(decl.name) != m_OverriddenUniformBuffers.end()) return;
+		m_UpdatedUniformBuffers.insert(decl.name);
+		auto& buffer = m_UniformStorageBuffers[decl.name];
+		auto& materialBuffer = m_Material->m_UniformStorageBuffers[decl.name];
+		buffer.write(materialBuffer.data, materialBuffer.size, 0);
 	}
 
 	void MaterialInstance::bind()

@@ -120,7 +120,12 @@ namespace Engine
 		}
 	}
 
-	void Material::materialInstancesValueUpdated(const ShaderUniform& decl)
+	void Material::materialInstancesValueUpdated(const std::string& bufferName, const ShaderUniform& decl)
+	{
+		for (auto mi : m_MaterialInstances)
+			mi->onMaterialValueUpdated(bufferName, decl);
+	}
+	void Material::materialInstancesValueUpdated(const ShaderUniformBuffer& decl)
 	{
 		for (auto mi : m_MaterialInstances)
 			mi->onMaterialValueUpdated(decl);

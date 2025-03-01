@@ -67,27 +67,27 @@ namespace Engine
 			}
 		}
 
-		template<typename T>
-		T& get(const std::string& name)
-		{
+		// template<typename T>
+		// T& get(const std::string& name)
+		// {
 
-			if(m_Material->isUniformBuffer(name)){
-				const ShaderUniformBuffer* uniformBuffer = m_Material->findUniformBufferDeclaration(name);
-				auto& buffer = m_UniformStorageBuffers[uniformBuffer->name];
-				m_UpdatedUniformBuffers.insert(name);
-				m_OverriddenUniformBuffers.insert(name);
-				return buffer.read<T>(0);
-			}else{
-				auto pos = name.find(".");
-				auto bufferName = name.substr(0, pos);
-				const ShaderUniform* decl = m_Material->findUniformDeclaration(name);
-				ENGINE_CORE_ASSERT(decl, "Could not find uniform with name "+ name);
-				auto& buffer = m_UniformStorageBuffers[bufferName];
-				m_UpdatedUniforms.insert(name);
-				m_OverriddenUniforms.insert(name);
-				return buffer.read<T>(decl->getOffset());
-			}
-		}
+		// 	if(m_Material->isUniformBuffer(name)){
+		// 		const ShaderUniformBuffer* uniformBuffer = m_Material->findUniformBufferDeclaration(name);
+		// 		auto& buffer = m_UniformStorageBuffers[uniformBuffer->name];
+		// 		m_UpdatedUniformBuffers.insert(name);
+		// 		m_OverriddenUniformBuffers.insert(name);
+		// 		return buffer.read<T>(0);
+		// 	}else{
+		// 		auto pos = name.find(".");
+		// 		auto bufferName = name.substr(0, pos);
+		// 		const ShaderUniform* decl = m_Material->findUniformDeclaration(name);
+		// 		ENGINE_CORE_ASSERT(decl, "Could not find uniform with name "+ name);
+		// 		auto& buffer = m_UniformStorageBuffers[bufferName];
+		// 		m_UpdatedUniforms.insert(name);
+		// 		m_OverriddenUniforms.insert(name);
+		// 		return buffer.read<T>(decl->getOffset());
+		// 	}
+		// }
 
 		template<typename T>
 		Ref<T> getResource(const std::string& name)
@@ -113,7 +113,8 @@ namespace Engine
 	private:
 		void allocateStorage();
 		void onShaderReloaded();
-		void onMaterialValueUpdated(const ShaderUniform& decl);
+		void onMaterialValueUpdated(const std::string& bufferName, const ShaderUniform& decl);
+		void onMaterialValueUpdated(const ShaderUniformBuffer& decl);
 	private:
 		Ref<Material> m_Material;
 		std::string m_Name;
