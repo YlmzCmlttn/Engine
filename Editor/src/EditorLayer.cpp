@@ -128,11 +128,11 @@ unsigned int indices_[] = {
 
 
     std::vector<Engine::Mesh::Vertex> vertices;
-    for(uint i=0;i<120;i=i+5){
+    for(int i=0;i<120;i=i+5){
         vertices.push_back(Engine::Mesh::Vertex(glm::vec3(vertices_[i],vertices_[i+1],vertices_[i+2]),glm::vec2(vertices_[i+3],vertices_[i+4])));
     }
     std::vector<uint32_t> indices;
-    for(uint i=0;i<36;i++){
+    for(int i=0;i<36;i++){
         indices.push_back(indices_[i]);
     }
 
@@ -157,13 +157,13 @@ unsigned int indices_[] = {
     m_InspectorPanel = Engine::CreateRef<InspectorPanel>();
     m_ViewportPanel = Engine::CreateRef<ViewportPanel>(m_Framebuffer);
     //auto parentEntity = m_Scene->createEntity("Parent");
-    for(uint i=0;i<2;i++){
+    for(int i=0;i<2;i++){
         auto childEntity = m_Scene->createEntity("Child"+std::to_string(i));
         auto parentEntity = m_Scene->createEntity("Parent"+std::to_string(i));
         childEntity.setParent(parentEntity);
     }
 
-    m_Texture = Engine::Texture2D::Create("../assets/textures/container.jpg");
+    m_Texture = Engine::Texture2D::Create("../assets/textures/test.png");
 
     m_MeshEntity = m_Scene->createEntity("Mesh");
     auto meshComponent = m_MeshEntity.addComponent<Engine::MeshComponent>(m_Mesh);
