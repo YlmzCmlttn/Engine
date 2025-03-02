@@ -283,10 +283,9 @@ namespace Engine {
 			}
 			if (recompile || !openGLBinary.has_value()) {
 				std::string openGLSource = convertSPIRV2OpenGLSource(vulkanBinary.value());
-				std::cout<<getShaderFilePrefix(shaderSource.first)<<std::endl;
-				printf("=========================================\n");
-				printf("Shaders:\n%s\n", openGLSource.c_str());
-				printf("=========================================\n");
+				// printf("=========================================\n");
+				// printf("Shaders:\n%s\n", openGLSource.c_str());
+				// printf("=========================================\n");
 				openGLBinary = compileOpenGLSource2SPIRV(openGLSource,shaderSource.first);
 				reflect(openGLBinary.value());
 				writeOpenGLBinaryToFile(openGLBinary.value(),shaderSource.first);
@@ -303,36 +302,36 @@ namespace Engine {
 		opts.es = false;
 		glsl.set_common_options(opts);
 
-		std::cout<<"========================================="<<std::endl;
-		std::cout<<glsl.compile()<<std::endl;
-		std::cout<<"========================================="<<std::endl;
+		// std::cout<<"========================================="<<std::endl;
+		// std::cout<<glsl.compile()<<std::endl;
+		// std::cout<<"========================================="<<std::endl;
 
 		auto resources = glsl.get_shader_resources();
 		for(auto& resource : resources.uniform_buffers){
 			auto& bufferType = glsl.get_type(resource.base_type_id);
 			int memberCount = bufferType.member_types.size();
 			int binding = glsl.get_decoration(resource.id, spv::DecorationBinding);
-			std::cout<<"Buffer name: "<<resource.name<<std::endl;
+			//std::cout<<"Buffer name: "<<resource.name<<std::endl;
 
 			if(m_UniformBuffers.find(binding) == m_UniformBuffers.end()){
 				ShaderUniformBuffer& buffer = m_UniformBuffers[binding];
 				buffer.name = resource.name;
 				buffer.bindingPoint = binding;
 				buffer.size = glsl.get_declared_struct_size(bufferType);
-				std::cout<<"Buffer type: "<<bufferType.basetype<<std::endl;
-				std::cout<<"Buffer size: "<<buffer.size<<std::endl;
-				std::cout<<"Buffer name: "<<buffer.name<<std::endl;
-				std::cout<<"Buffer binding point: "<<buffer.bindingPoint<<std::endl;				
+				//std::cout<<"Buffer type: "<<bufferType.basetype<<std::endl;
+				//std::cout<<"Buffer size: "<<buffer.size<<std::endl;
+				//std::cout<<"Buffer name: "<<buffer.name<<std::endl;
+				//std::cout<<"Buffer binding point: "<<buffer.bindingPoint<<std::endl;				
 
 				for(int i = 0; i < memberCount; i++){
 					auto& memberType = glsl.get_type(bufferType.member_types[i]);
-					std::cout<<"Member type: "<<memberType.basetype<<std::endl;
 					const auto& memberName = glsl.get_member_name(bufferType.self, i);
 					auto size = glsl.get_declared_struct_member_size(bufferType, i);
 					auto offset = glsl.type_struct_member_offset(bufferType, i);
-					std::cout<<"Member name: "<<memberName<<std::endl;
-					std::cout<<"Member size: "<<size<<std::endl;
-					std::cout<<"Member offset: "<<offset<<std::endl;
+					//std::cout<<"Member type: "<<memberType.basetype<<std::endl;
+					//std::cout<<"Member name: "<<memberName<<std::endl;
+					//std::cout<<"Member size: "<<size<<std::endl;
+					//std::cout<<"Member offset: "<<offset<<std::endl;
 
 					buffer.uniforms[memberName] = ShaderUniform(memberName, SPIRTypeToShaderUniformType(memberType), size, offset);
 				}
@@ -347,23 +346,23 @@ namespace Engine {
 			
 		}
 
-		for(auto& resource : resources.storage_buffers){
-			std::cout<<"Storage buffer: "<<resource.name<<std::endl;
-		}
+		// for(auto& resource : resources.storage_buffers){
+		// 	std::cout<<"Storage buffer: "<<resource.name<<std::endl;
+		// }
 
-		for(auto& resource : resources.storage_images){
-			std::cout<<"Storage image: "<<resource.name<<std::endl;
-		}
+		// for(auto& resource : resources.storage_images){
+		// 	std::cout<<"Storage image: "<<resource.name<<std::endl;
+		// }
 
 		for(auto& resource : resources.sampled_images){
-			std::cout<<"Sampled image: "<<resource.name<<std::endl;
 			auto& type = glsl.get_type(resource.base_type_id);
 			auto binding = glsl.get_decoration(resource.id, spv::DecorationBinding);
 			const auto& name = resource.name;
 			uint32_t dimension = type.image.dim;
-			std::cout<<"Dimension: "<<dimension<<std::endl;
-			std::cout<<"Binding: "<<binding<<std::endl;
-			std::cout<<"Name: "<<name<<std::endl;
+			// std::cout<<"Sampled image: "<<resource.name<<std::endl;
+			// std::cout<<"Dimension: "<<dimension<<std::endl;
+			// std::cout<<"Binding: "<<binding<<std::endl;
+			// std::cout<<"Name: "<<name<<std::endl;
 			GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 			m_Resources[name] = ShaderResourceDeclaration(name, binding, 1);
 			glUniform1i(location, binding);
