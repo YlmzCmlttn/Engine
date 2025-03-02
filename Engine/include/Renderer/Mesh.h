@@ -37,10 +37,8 @@ namespace Engine
 
     private:    
         std::vector<Vertex> m_Vertices;
-        std::vector<uint32_t> m_Indices;
-        
+        std::vector<uint32_t> m_Indices;        
         Ref<VertexArray> m_VertexArray;
-
         BufferLayout m_BufferLayout;
 
     };

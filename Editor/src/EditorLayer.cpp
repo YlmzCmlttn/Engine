@@ -6,6 +6,7 @@
 #include <glm/gtx/string_cast.hpp>
 #include <imgui.h>
 
+#include "Loader/MeshLoader.h"
 static void DockSpaceBegin(){
      static bool dockspaceOpen = true;
     static bool opt_fullscreen_persistant = true;
@@ -66,7 +67,8 @@ void DockSpaceEnd(){
 
 EditorLayer::EditorLayer() : Layer("Editor")
 {
-
+    Engine::MeshLoader::GetInstance().LoadMesh("../assets/models/backpack/backpack.obj");
+    
     m_Shader = Engine::Shader::CreateFromFile("Basic", "../assets/shaders/shader.glsl");
 
 }
@@ -173,11 +175,11 @@ unsigned int indices_[] = {
     Renderer::Submit([meshRendererComponent,this]() {
         meshRendererComponent.material->set("u_Texture",this->m_Texture);
     });
-
     m_ViewportPanel->setActiveScene(m_Scene);
 }
 
 void EditorLayer::onDetach() {
+
 }
 
 void EditorLayer::onUpdate([[maybe_unused]] Engine::Timestep ts) {    
