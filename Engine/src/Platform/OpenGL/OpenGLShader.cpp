@@ -189,7 +189,8 @@ namespace Engine {
 	std::string OpenGLShader::readShaderFromFile(const std::string& filepath) const
 	{
 		std::ifstream in(filepath, std::ios::ate | std::ios::binary);
-		ENGINE_CORE_ASSERT(in.is_open(), "Could not load shader file: " + filepath);
+		std::string msg = "Could not load shader file: " + filepath;
+		ENGINE_CORE_ASSERT(in.is_open(), msg);
 		
 		// Get file size and allocate string buffer
 		std::streamsize size = in.tellg();
@@ -518,11 +519,11 @@ namespace Engine {
 
         // Look up the uniform buffer by name.
         const ShaderUniformBuffer* uniformBuffer = FindUniformBufferByName(bufferName, m_UniformBuffers);
-        ENGINE_CORE_ASSERT(uniformBuffer, "Uniform buffer {0} not found", bufferName);
+        ENGINE_CORE_ASSERT(uniformBuffer, "Uniform buffer "+bufferName+" not found");
 
         // Find the specific uniform.
         auto it = uniformBuffer->uniforms.find(uniformName);
-        ENGINE_CORE_ASSERT(it != uniformBuffer->uniforms.end(), "Uniform {0} not found in uniform buffer {1}", uniformName, bufferName);
+        ENGINE_CORE_ASSERT(it != uniformBuffer->uniforms.end(), "Uniform "+ uniformName +" not found in uniform buffer"+ bufferName);
 		return &it->second;
 	}
 	
@@ -562,17 +563,17 @@ namespace Engine {
 
         // Look up the uniform buffer by name.
         const ShaderUniformBuffer* uniformBuffer = FindUniformBufferByName(bufferName, m_UniformBuffers);
-        ENGINE_CORE_ASSERT(uniformBuffer, "Uniform buffer {0} not found", bufferName);
+        ENGINE_CORE_ASSERT(uniformBuffer, "Uniform buffer "+ bufferName+" not found");
 
         // Find the specific uniform.
         auto it = uniformBuffer->uniforms.find(uniformName);
-        ENGINE_CORE_ASSERT(it != uniformBuffer->uniforms.end(), "Uniform {0} not found in uniform buffer {1}", uniformName, bufferName);
+        ENGINE_CORE_ASSERT(it != uniformBuffer->uniforms.end(), "Uniform "+ uniformName +" not found in uniform buffer "+ bufferName);
         const ShaderUniform& uniform = it->second;
 
         // Check that the uniform type matches the expected type.
         constexpr ShaderUniformType expectedType = ShaderUniformTraits<T>::UniformType;
         ENGINE_CORE_ASSERT(expectedType == ShaderUniformType::VoidPtr || uniform.getType() == expectedType,
-                           "Uniform {0} in buffer {1} does not match expected type", uniformName, bufferName);
+                           "Uniform "+ uniformName +" in buffer "+ bufferName +" does not match expected type");
 
         // Submit an update command to the renderer thread.
         Renderer::Submit([this, rendererID = uniformBuffer->rendererID,
