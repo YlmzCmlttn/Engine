@@ -22,9 +22,10 @@ namespace Engine {
             inline void setEventCallback(const EventCallbackFn& callback) override{m_Data.EventCallback = callback;}
             inline void setVSync(bool enabled) override{m_Data.VSync = enabled;}
             inline bool isVSync() const override{return m_Data.VSync;}
-            inline void makeContextCurrent() override{glfwMakeContextCurrent(m_Window);}
+            inline void makeContextCurrent() override { glfwMakeContextCurrent(m_Window); }
 
             inline void* getNativeWindow() const override{return m_Window;}
+            inline WindowType getWindowType()const { return WindowType::WINDOWS; }
             void init(const WindowProps& props);
         private:
             GLFWwindow* m_Window;

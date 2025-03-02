@@ -17,11 +17,11 @@ namespace Engine {
         ENGINE_CORE_ERROR("GLFW Error ({0}) : {1}",error,description);
     }
 
-    Ref<Window> Window::Create(const WindowProps& props) {
+    /*Ref<Window> Window::Create(const WindowProps& props) {
         auto window = std::make_shared<GLFWWindow>(props);
         window->init(props);
         return window;
-    }
+    }*/
 
     GLFWWindow::GLFWWindow(const WindowProps& props)
     {
@@ -142,7 +142,7 @@ namespace Engine {
     }
 
     void GLFWWindow::swapBuffers(){
-        m_Context->swapBuffers();
+        glfwSwapBuffers(m_Window);
     }
 
     void GLFWWindow::onUpdate()

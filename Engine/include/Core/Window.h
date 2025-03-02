@@ -4,6 +4,12 @@
 
 namespace Engine
 {
+
+    enum class WindowType {
+        GLFW,
+        WINDOWS
+        // Add other window types here
+    };
     struct WindowProps
     {
         std::string title;
@@ -35,6 +41,8 @@ namespace Engine
         virtual void makeContextCurrent() = 0;
 
         virtual void* getNativeWindow() const = 0;
+
+        virtual WindowType getWindowType()const = 0;
 
         static Ref<Window> Create(const WindowProps& props = WindowProps());
     };

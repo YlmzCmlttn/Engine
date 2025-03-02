@@ -33,7 +33,7 @@ macro(add_editor_example name)
   target_precompile_headers(${name} PRIVATE ../pch/pch.h)
 
   # Link required libraries
-  target_link_libraries(${name} Engine ImGui glm::glm stb glad EnTT::EnTT)
+  target_link_libraries(${name} Engine ImGui glm::glm stb glad EnTT::EnTT opengl32)
 endmacro()
 
 # Create the EditorApp executable

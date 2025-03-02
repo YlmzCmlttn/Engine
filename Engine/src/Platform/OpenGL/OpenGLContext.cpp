@@ -1,11 +1,20 @@
-// File: Engine/src/Platform/OpenGL/OpenGLContext.cpp
+﻿// File: Engine/src/Platform/OpenGL/OpenGLContext.cpp
 
 #include "Platform/OpenGL/OpenGLContext.h"
 #include "Platform/GLFW/GLFWWindow.h"
+#include "Platform/Windows/WindowsWindow.h"
 #include <glad/gl.h>
+#include <glad/wgl.h>
+#ifndef WGL_CONTEXT_MAJOR_VERSION_ARB
+#define WGL_CONTEXT_MAJOR_VERSION_ARB 0x2091
+#define WGL_CONTEXT_MINOR_VERSION_ARB 0x2092
+#define WGL_CONTEXT_PROFILE_MASK_ARB  0x9126
+#define WGL_CONTEXT_CORE_PROFILE_BIT_ARB 0x00000001
+#endif
+
 #include <GLFW/glfw3.h>
 #include "Core/Assert.h"
-
+#include <windows.h>
 namespace Engine {
 
     static bool LoadOpenGLFunctions(GLADloadfunc loadfunc) {
@@ -20,19 +29,76 @@ namespace Engine {
     }
 
     template<WindowType type>
+    OpenGLContext<type>::~OpenGLContext(){
+
+        if constexpr (type == WindowType::WINDOWS) {
+            if (m_HGLRC){
+                wglMakeCurrent(NULL, NULL);
+                wglDeleteContext(m_HGLRC);
+            }
+            auto& hdc = std::dynamic_pointer_cast<WindowsWindow>(m_Window)->getHDC();
+            if (hdc){
+                ReleaseDC(static_cast<HWND>(m_Window->getNativeWindow()), hdc);
+            }
+        }
+    }
+
+    template<WindowType type>
     void OpenGLContext<type>::init() {
         bool status = false;
         if constexpr (type == WindowType::GLFW) {
-            auto glfwWindow = std::dynamic_pointer_cast<GLFWWindow>(m_Window);
-            ENGINE_CORE_ASSERT(glfwWindow, "Window is not a GLFWWindow!");
-
-            GLFWwindow* windowHandle = static_cast<GLFWwindow*>(glfwWindow->getNativeWindow());
-            ENGINE_CORE_ASSERT(windowHandle, "GLFW window handle is null!");
-
-            glfwMakeContextCurrent(windowHandle);
-
-            status =  LoadOpenGLFunctions((GLADloadfunc)glfwGetProcAddress);
+            makeCurrent();
+            status = LoadOpenGLFunctions((GLADloadfunc)glfwGetProcAddress);
         }
+#ifdef _WIN32
+        else if constexpr (type == WindowType::WINDOWS) {
+            auto windowsWindow = std::dynamic_pointer_cast<WindowsWindow>(m_Window);
+            HDC hdc = windowsWindow->getHDC();
+
+            HGLRC tempContext = wglCreateContext(hdc);
+            if (!tempContext) {
+                ENGINE_CORE_ERROR("Failed to create temporary OpenGL context!");
+                return;
+            }
+
+            wglMakeCurrent(hdc, tempContext);
+
+            if (!gladLoadWGL(hdc, (GLADloadfunc)wglGetProcAddress)) {
+                ENGINE_CORE_ERROR("Failed to load WGL functions!");
+                return;
+            }
+            PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB =
+                (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+
+            if (!wglCreateContextAttribsARB) {
+                ENGINE_CORE_ERROR("Failed to load wglCreateContextAttribsARB!");
+                return;
+            }
+
+            int attribs[] = {
+                WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
+                WGL_CONTEXT_MINOR_VERSION_ARB, 5,
+                WGL_CONTEXT_PROFILE_MASK_ARB, WGL_CONTEXT_CORE_PROFILE_BIT_ARB,
+                0
+            };
+
+            m_HGLRC = wglCreateContextAttribsARB(hdc, 0, attribs);
+            if (!m_HGLRC) {
+                ENGINE_CORE_ERROR("Failed to create OpenGL 4.6 Core Profile context!");
+                return;
+            }
+            wglMakeCurrent(nullptr, nullptr);
+            wglDeleteContext(tempContext);
+
+            wglMakeCurrent(hdc, m_HGLRC);
+
+            status = LoadOpenGLFunctions((GLADloadfunc)wglGetProcAddress);
+            if (!status) {
+                ENGINE_CORE_ERROR("Failed to initialize GLAD!");
+            }
+        }
+#endif
+
         std::string vendor = std::string((char*)glGetString(GL_VENDOR));
         std::string renderer = std::string((char*)glGetString(GL_RENDERER));
         std::string version = std::string((char*)glGetString(GL_VERSION));
@@ -43,21 +109,25 @@ namespace Engine {
         ENGINE_CORE_INFO("  Version: {0}", version);
     }
 
+
     template<WindowType type>
     void OpenGLContext<type>::swapBuffers() {
-        if constexpr (type == WindowType::GLFW) {
-            auto glfwWindow = std::dynamic_pointer_cast<GLFWWindow>(m_Window);
-            ENGINE_CORE_ASSERT(glfwWindow, "Window is not a GLFWWindow!");
-
-            GLFWwindow* windowHandle = static_cast<GLFWwindow*>(glfwWindow->getNativeWindow());
-            ENGINE_CORE_ASSERT(windowHandle, "GLFW window handle is null!");
-
-            glfwSwapBuffers(windowHandle);
-        }
+        m_Window->swapBuffers();
     }
 
+    template<WindowType type>
+    void OpenGLContext<type>::makeCurrent() {
+        if constexpr (type == WindowType::GLFW) {
+            glfwMakeContextCurrent(static_cast<GLFWwindow*>(m_Window->getNativeWindow()));
+        }
+        else if constexpr (type == WindowType::WINDOWS) {
+            auto& hdc = std::dynamic_pointer_cast<WindowsWindow>(m_Window)->getHDC();
+            wglMakeCurrent(hdc, m_HGLRC);
+        }        
+    }
 
     // Explicit template instantiation for GLFW
     template class OpenGLContext<WindowType::GLFW>;
+    template class OpenGLContext<WindowType::WINDOWS>;
 
 }
