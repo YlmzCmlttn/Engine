@@ -39,6 +39,7 @@ namespace Engine
 
     void Mesh::uploadToGPU()
     {
+        std::cout << m_Vertices.size() << std::endl;
         auto vertexBuffer = VertexBuffer::Create(m_Vertices.data(), static_cast<uint32_t>(m_Vertices.size() * sizeof(Vertex)));
         vertexBuffer->setLayout(m_BufferLayout);
         auto indexBuffer = IndexBuffer::Create(m_Indices.data(), static_cast<uint32_t>(m_Indices.size()) * sizeof(uint32_t));
