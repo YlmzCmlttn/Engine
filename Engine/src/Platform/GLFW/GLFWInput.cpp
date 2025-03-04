@@ -4,7 +4,7 @@
 
 namespace Engine {
 
-    Input* Input::s_Instance = new GLFWInput();
+    //Input* Input::s_Instance = new GLFWInput();
 
     bool GLFWInput::isKeyPressedImpl(KeyCode keycode) {
         GLFWwindow* window = static_cast<GLFWwindow*>(Application::Get().getWindow().getNativeWindow());

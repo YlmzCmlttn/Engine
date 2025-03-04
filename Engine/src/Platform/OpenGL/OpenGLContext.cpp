@@ -43,6 +43,22 @@ namespace Engine {
         }
     }
 
+
+    void* GetAnyGLFuncAddress(const char* name)
+    {
+        void* p = (void*)wglGetProcAddress(name);
+        if (p == 0 ||
+            (p == (void*)0x1) || (p == (void*)0x2) || (p == (void*)0x3) ||
+            (p == (void*)-1))
+        {
+            HMODULE module = LoadLibraryA("opengl32.dll");
+            p = (void*)GetProcAddress(module, name);
+        }
+
+        return p;
+    }
+
+
     template<WindowType type>
     void OpenGLContext<type>::init() {
         bool status = false;
@@ -53,7 +69,7 @@ namespace Engine {
 #ifdef _WIN32
         else if constexpr (type == WindowType::WINDOWS) {
             auto windowsWindow = std::dynamic_pointer_cast<WindowsWindow>(m_Window);
-            HDC hdc = windowsWindow->getHDC();
+            HDC& hdc = windowsWindow->getHDC();
 
             HGLRC tempContext = wglCreateContext(hdc);
             if (!tempContext) {
@@ -63,17 +79,13 @@ namespace Engine {
 
             wglMakeCurrent(hdc, tempContext);
 
-            if (!gladLoadWGL(hdc, (GLADloadfunc)wglGetProcAddress)) {
+            if (!gladLoadWGL(hdc, (GLADloadfunc)GetAnyGLFuncAddress)) {
                 ENGINE_CORE_ERROR("Failed to load WGL functions!");
                 return;
             }
             PFNWGLCREATECONTEXTATTRIBSARBPROC wglCreateContextAttribsARB =
-                (PFNWGLCREATECONTEXTATTRIBSARBPROC)wglGetProcAddress("wglCreateContextAttribsARB");
+                (PFNWGLCREATECONTEXTATTRIBSARBPROC)GetAnyGLFuncAddress("wglCreateContextAttribsARB");
 
-            if (!wglCreateContextAttribsARB) {
-                ENGINE_CORE_ERROR("Failed to load wglCreateContextAttribsARB!");
-                return;
-            }
 
             int attribs[] = {
                 WGL_CONTEXT_MAJOR_VERSION_ARB, 4,
@@ -92,7 +104,7 @@ namespace Engine {
 
             wglMakeCurrent(hdc, m_HGLRC);
 
-            status = LoadOpenGLFunctions((GLADloadfunc)wglGetProcAddress);
+            status = LoadOpenGLFunctions((GLADloadfunc)GetAnyGLFuncAddress);
             if (!status) {
                 ENGINE_CORE_ERROR("Failed to initialize GLAD!");
             }

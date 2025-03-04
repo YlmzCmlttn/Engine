@@ -391,8 +391,8 @@ namespace Engine {
 
 	GLuint OpenGLShader::createShader(GLenum type, const std::vector<uint32_t>& binary){
 		auto shaderID = glCreateShader(type);
-		glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V, binary.data(), binary.size() * sizeof(uint32_t));
-		glSpecializeShader(shaderID, "main", 0, nullptr, nullptr);
+		glShaderBinary(1, &shaderID, GL_SHADER_BINARY_FORMAT_SPIR_V_ARB, binary.data(), binary.size() * sizeof(uint32_t));
+		glSpecializeShaderARB(shaderID, "main", 0, nullptr, nullptr); //Using ARB for win32 window.
 		glAttachShader(m_RendererID, shaderID);
 		return shaderID;
 	}

@@ -8,6 +8,8 @@
 
 #include <windowsx.h>
 
+#include <imgui.h>
+extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 namespace Engine {
     Ref<Window> Window::Create(const WindowProps& props) {
@@ -149,6 +151,10 @@ namespace Engine {
         if (!window->m_Data.EventCallback) {
             return DefWindowProc(hWnd, message, wParam, lParam);
         }
+
+        if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+            return true;
+
 
         switch (message)
         {

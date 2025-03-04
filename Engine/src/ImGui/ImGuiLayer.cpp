@@ -58,6 +58,7 @@ namespace Engine
         // Setup Platform/Renderer bindings for Win32 and OpenGL.
         ImGui_ImplWin32_Init(nativeWindow);
         ImGui_ImplOpenGL3_Init("#version 450");
+
     }
 
     void ImGuiLayer::onDetach() {
@@ -137,8 +138,8 @@ namespace Engine
     void ImGuiLayer::onImGuiRender()
     {
         // Example: Uncomment to show the demo window
-        // static bool show = true;
-        // ImGui::ShowDemoWindow(&show);
+        //static bool show = true;
+        //ImGui::ShowDemoWindow(&show);
     }
 
 } // namespace Engine
