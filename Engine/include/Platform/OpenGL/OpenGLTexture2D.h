@@ -25,7 +25,7 @@ namespace Engine {
 		RendererID m_RendererID;
 		TextureFormat m_Format;
 		unsigned int m_Width, m_Height;
-		Buffer m_ImageData; // TODO: remove this implement image storage.
+		Buffer m_ImageData;
 		std::string m_Path;
 	};
 }

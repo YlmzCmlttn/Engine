@@ -13,8 +13,8 @@
 #define ENGINE_EXPAND_VARGS(x) x
 
 #ifdef ENGINE_ENABLE_ASSERTS
-#define ENGINE_ASSERT_NO_MESSAGE(condition) { if(!(condition)) { ENGINE_ERROR("Assertion Failed"); __debugbreak(); } }
-#define ENGINE_ASSERT_MESSAGE(condition, ...) { if(!(condition)) { ENGINE_ERROR("Assertion Failed: {0}", __VA_ARGS__); __debugbreak(); } }
+#define ENGINE_ASSERT_NO_MESSAGE(condition) { if(!(condition)) { ENGINE_ERROR("Assertion Failed"); ENGINE_DEBUG_BREAK(); } }
+#define ENGINE_ASSERT_MESSAGE(condition, ...) { if(!(condition)) { ENGINE_ERROR("Assertion Failed: {0}", __VA_ARGS__); ENGINE_DEBUG_BREAK(); } }
 
 #define ENGINE_ASSERT_RESOLVE(arg1, arg2, macro, ...) macro
 #define ENGINE_GET_ASSERT_MACRO(...) ENGINE_EXPAND_VARGS(ENGINE_ASSERT_RESOLVE(__VA_ARGS__, ENGINE_ASSERT_MESSAGE, ENGINE_ASSERT_NO_MESSAGE))

@@ -68,8 +68,8 @@ void DockSpaceEnd(){
 EditorLayer::EditorLayer() : Layer("Editor")
 {
     
-    
-    m_Shader = Engine::Shader::CreateFromFile("Basic", "C:/Users/ylmzc/Desktop/Engine/Editor/assets/shaders/shader.glsl");
+    //Get path from std::filesystem
+    m_Shader = Engine::Shader::CreateFromFile("Basic", std::filesystem::current_path().string()+"/../assets/shaders/shader.glsl");
 }
 
 void EditorLayer::onAttach() {
@@ -137,10 +137,10 @@ unsigned int indices_[] = {
         indices.push_back(indices_[i]);
     }
 
-    /*m_Mesh = Engine::CreateRef<Engine::Mesh>();
-    m_Mesh->setVertices(vertices);
-    m_Mesh->setIndices(indices);
-    m_Mesh->uploadToGPU();*/
+    // m_Mesh = Engine::CreateRef<Engine::Mesh>();
+    // m_Mesh->setVertices(vertices);
+    // m_Mesh->setIndices(indices);
+    // m_Mesh->uploadToGPU();
 
 
     Engine::FrameBufferSpecification spec;
@@ -164,18 +164,19 @@ unsigned int indices_[] = {
         childEntity.setParent(parentEntity);
     }
 
-    m_Texture = Engine::Texture2D::Create("C:/Users/ylmzc/Desktop/Engine/Editor/assets/textures/test.png");
+    // m_Texture = Engine::Texture2D::Create(std::filesystem::current_path().string()+"/../assets/textures/test.png");
 
-    //m_MeshEntity = m_Scene->createEntity("Mesh");
-    //auto meshComponent = m_MeshEntity.addComponent<Engine::MeshComponent>(m_Mesh);
-    //meshComponent.mesh = m_Mesh;
+    // m_MeshEntity = m_Scene->createEntity("Mesh");
+    // auto meshComponent = m_MeshEntity.addComponent<Engine::MeshComponent>(m_Mesh);
+    // meshComponent.mesh = m_Mesh;
 
-    //auto meshRendererComponent = m_MeshEntity.addComponent<Engine::MeshRendererComponent>(Engine::Material::Create(m_Shader));
-    /*Renderer::Submit([meshRendererComponent,this]() {
-        meshRendererComponent.material->set("u_Texture",this->m_Texture);
-    });*/
+    // auto meshRendererComponent = m_MeshEntity.addComponent<Engine::MeshRendererComponent>(Engine::Material::Create(m_Shader));
+    // Renderer::Submit([meshRendererComponent,this]() {
+    //     meshRendererComponent.material->set("u_Texture",this->m_Texture);
+    // });
 
-    Engine::MeshLoader::GetInstance().LoadMeshToScene("C:/Users/ylmzc/Desktop/Engine/Editor/assets/models/backpack/Survival_BackPack_2.fbx",m_Scene);
+    //Engine::MeshLoader::GetInstance().LoadMeshToScene(std::filesystem::current_path().string()+"/../assets/models/backpack/Survival_BackPack_2.fbx",m_Scene);
+    Engine::MeshLoader::GetInstance().LoadMeshToScene(std::filesystem::current_path().string()+"/../assets/models/backpack/backpack.obj",m_Scene);
     //Engine::MeshLoader::GetInstance().LoadMeshToScene("../assets/models/m1911/m1911.fbx", m_Scene);
     //Engine::MeshLoader::GetInstance().LoadMeshToScene("../assets/models/Sphere1m.fbx", m_Scene);
     

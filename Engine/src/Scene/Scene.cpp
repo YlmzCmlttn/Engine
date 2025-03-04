@@ -69,7 +69,6 @@ namespace Engine {
             //meshRendererComponent.material->getShader()->setUniformBuffer("Transforms", glm::value_ptr(mvp), sizeof(glm::mat4));     
             //meshRendererComponent.material->getShader()->setUniform("color.u_Color",glm::vec4(1.0,1.0,0.0,1.0));
             meshComponent.mesh->render();
-            std::cout << meshComponent.mesh->name << std::endl;
         }
         
     }

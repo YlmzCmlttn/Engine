@@ -17,6 +17,7 @@ namespace Engine
         struct MeshData {
             UUID uuid;
             Ref<Mesh> mesh;
+            int materialIndex;
         };
         struct NodeData {
             std::string name;
@@ -29,6 +30,7 @@ namespace Engine
         struct Model {
             std::string filePath;
             std::shared_ptr<NodeData> rootNode;
+            std::vector<Ref<Material>> materials;
         };
     public:
         void LoadModel(const std::string& filePath);
@@ -36,7 +38,7 @@ namespace Engine
         static MeshLoader& GetInstance()
         {
             static MeshLoader instance;
-            instance.m_Shader = Shader::CreateFromFile("BasicS", "C:/Users/ylmzc/Desktop/Engine/Editor/assets/shaders/basic.glsl");
+            instance.m_Shader = Shader::CreateFromFile("BasicS", std::filesystem::current_path().string()+"/../assets/shaders/basic.glsl");
             instance.m_Material = Material::Create(instance.m_Shader);
             return instance;
         }
@@ -44,9 +46,9 @@ namespace Engine
         MeshLoader() = default;
         MeshLoader(const MeshLoader&) = delete;
         MeshLoader& operator=(const MeshLoader&) = delete;
-        Entity processNode(std::shared_ptr<NodeData> node, Entity parent);
-        void processNode(aiNode* node, const aiScene* aiScene, std::shared_ptr<NodeData> nodeData, std::unordered_map<unsigned int, std::shared_ptr<MeshData>>& meshStorage);
-        void processMesh(aiMesh* aiMesh, const aiScene* scene, std::shared_ptr<Mesh> mesh);
+        Entity processNode(std::shared_ptr<NodeData> node, Entity parent,std::vector<Ref<Material>>& materials);
+        void processNode(aiNode* node, const aiScene* aiScene, std::shared_ptr<NodeData> nodeData, std::unordered_map<unsigned int, std::shared_ptr<MeshData>>& meshStorage,std::vector<Ref<Material>>& materials,const std::string& filePath);
+        void processMesh(aiMesh* aiMesh, const aiScene* scene, std::shared_ptr<Mesh> mesh,std::vector<Ref<Material>>& materials,const std::string& filePath);
         std::unordered_map<UUID, std::shared_ptr<Mesh>> m_MeshLibrary;
         std::unordered_map<std::string, std::shared_ptr<Model>> m_Models;
         Ref<Shader> m_Shader;

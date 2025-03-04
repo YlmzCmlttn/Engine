@@ -14,6 +14,7 @@ layout(location = 0) out vec2 v_TexCoord;
 
 void main()
 {
+    v_TexCoord = a_TexCoord;
 	gl_Position = tranforms.u_P * tranforms.u_V * tranforms.u_M * vec4(a_Position, 1.0);
 }
 
@@ -27,5 +28,5 @@ layout(binding = 1) uniform sampler2D u_Texture;
 
 void main()
 {
-	finalColor = vec4(1.0,0.0,0.0,1.0);
+	finalColor = texture(u_Texture,v_TexCoord);
 }
