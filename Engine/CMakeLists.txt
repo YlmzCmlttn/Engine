@@ -28,7 +28,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/cmake/spirv-cross.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/cmake/shaderc.cmake)
 
 target_compile_definitions(Engine INTERFACE SPDLOG_COMPILED_LIB)
-target_link_libraries(Engine PRIVATE glfw glad spdlog::spdlog ImGui glm::glm assimp stb EnTT::EnTT ${SPIRV_TOOLS_LIBS} ${SPIRV_CROSS_LIBS} shaderc glslang::glslang)
+target_link_libraries(Engine PRIVATE X11 glfw glad spdlog::spdlog ImGui glm::glm assimp stb EnTT::EnTT ${SPIRV_TOOLS_LIBS} ${SPIRV_CROSS_LIBS} shaderc glslang::glslang)
 target_precompile_headers(Engine PRIVATE ../pch/pch.h)
 target_include_directories(Engine PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_SOURCE_DIR}/vendor/spdlog/include")
 

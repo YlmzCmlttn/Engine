@@ -1,5 +1,3 @@
-#include <glad/gl.h>
-
 #include "Platform/GLFW/GLFWWindow.h"
 #include "Core/Log.h"
 #include "Core/Assert.h"
@@ -17,11 +15,11 @@ namespace Engine {
         ENGINE_CORE_ERROR("GLFW Error ({0}) : {1}",error,description);
     }
 
-    Ref<Window> Window::Create(const WindowProps& props) {
-        auto window = std::make_shared<GLFWWindow>(props);
-        window->init(props);
-        return window;
-    }
+    // Ref<Window> Window::Create(const WindowProps& props) {
+    //     auto window = std::make_shared<GLFWWindow>(props);
+    //     window->init(props);
+    //     return window;
+    // }
 
     GLFWWindow::GLFWWindow(const WindowProps& props)
     {

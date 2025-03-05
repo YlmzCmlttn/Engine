@@ -7,6 +7,7 @@ namespace Engine {
 
 	enum class WindowType {
         GLFW,
+        X11
         // Add other window types here
     };
     template<WindowType type>

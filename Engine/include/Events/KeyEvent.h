@@ -43,7 +43,7 @@ namespace Engine
             ss<<"KeyReleasedEvent: "<<m_KeyCode;
             return ss.str();
         }
-        EVENT_CLASS_TYPE(KeyRelease)
+        EVENT_CLASS_TYPE(KeyReleased)
     };
 
     class KeyTypedEvent : public KeyEvent
