@@ -16,7 +16,7 @@ namespace Engine {
         virtual ~Context() = default;
         virtual void init() = 0;
         virtual void swapBuffers() = 0;
-    
+        virtual void makeCurrent() = 0;
         static Ref<Context<type>> Create(Ref<Window> window);
     };
 }

@@ -56,11 +56,11 @@ namespace Engine {
             None
         };
 
-        XVisualInfo* visualInfo = glXChooseVisual(m_Display, screen, visualAttribs);
-        ENGINE_CORE_ASSERT(visualInfo, "No appropriate visual found");
+        m_VisualInfo = glXChooseVisual(m_Display, screen, visualAttribs);
+        ENGINE_CORE_ASSERT(m_VisualInfo, "No appropriate visual found");
 
         // Create a colormap and set window attributes
-        Colormap colormap = XCreateColormap(m_Display, RootWindow(m_Display, visualInfo->screen), visualInfo->visual, AllocNone);
+        Colormap colormap = XCreateColormap(m_Display, RootWindow(m_Display, m_VisualInfo->screen), m_VisualInfo->visual, AllocNone);
 
         XSetWindowAttributes swa;
         swa.colormap   = colormap;
@@ -70,13 +70,13 @@ namespace Engine {
 
         // Create the native window
         m_Window = XCreateWindow(m_Display,
-                                 RootWindow(m_Display, visualInfo->screen),
+                                 RootWindow(m_Display, m_VisualInfo->screen),
                                  0, 0,
                                  props.width, props.height,
                                  0,
-                                 visualInfo->depth,
+                                 m_VisualInfo->depth,
                                  InputOutput,
-                                 visualInfo->visual,
+                                 m_VisualInfo->visual,
                                  CWColormap | CWEventMask,
                                  &swa);
 
@@ -89,16 +89,16 @@ namespace Engine {
 
         // Show the window
         XMapWindow(m_Display, m_Window);
-
+        m_Context = Context<WindowType::X11>::Create(shared_from_this());
+        m_Context->init();
         // Create a GLX context and make it current
-        m_GLXContext = glXCreateContext(m_Display, visualInfo, nullptr, GL_TRUE);
-        glXMakeCurrent(m_Display, m_Window, m_GLXContext);
+        //auto m_GLXContext = glXCreateContext(m_Display, m_VisualInfo, nullptr, GL_TRUE);
+        //glXMakeCurrent(m_Display, m_Window, m_GLXContext);
 
-        XFree(visualInfo);
+        //XFree(m_VisualInfo); //Need for creting context.
 
         // Create our engine's rendering context for X11
-        // m_Context = Context<WindowType::X11>::Create(shared_from_this());
-        // m_Context->init();
+        
 
         // Optionally set VSync. Here we try to use glXSwapIntervalEXT if available.
         setVSync(true);
@@ -106,8 +106,6 @@ namespace Engine {
 
     void X11Window::shutdown()
     {
-        glXMakeCurrent(m_Display, None, nullptr);
-        glXDestroyContext(m_Display, m_GLXContext);
         XDestroyWindow(m_Display, m_Window);
         XCloseDisplay(m_Display);
     }
@@ -201,7 +199,8 @@ namespace Engine {
 
     void X11Window::swapBuffers()
     {
-        glXSwapBuffers(m_Display, m_Window);
+        //glXSwapBuffers(m_Display, m_Window);
+        m_Context->swapBuffers();
     }
 
     void X11Window::onUpdate()

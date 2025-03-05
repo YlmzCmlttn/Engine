@@ -24,20 +24,20 @@ namespace Engine {
         inline void setEventCallback(const EventCallbackFn& callback) override { m_Data.EventCallback = callback; }
         inline void setVSync(bool enabled) override { m_Data.VSync = enabled; }
         inline bool isVSync() const override { return m_Data.VSync; }
-        inline void makeContextCurrent() override { glXMakeCurrent(m_Display, m_Window, m_GLXContext); }
+        inline void makeContextCurrent() override { m_Context->makeCurrent(); }
 
         inline void* getNativeWindow() const override { return (void*)m_Window; }
+        inline Display* getDisplay() const { return m_Display; }
+        inline XVisualInfo* getVisualInfo() const { return m_VisualInfo; }
         void init(const WindowProps& props);
 
     private:
         void shutdown();
-
-        // Native X11 members
+        
         Display* m_Display = nullptr;
         ::Window m_Window = 0;
-        GLXContext m_GLXContext = 0;
+        XVisualInfo* m_VisualInfo = nullptr;
 
-        // Our engine's rendering context wrapper for X11 (assumed similar to GLFW's)
         Ref<Context<WindowType::X11>> m_Context;
 
         struct WindowData {

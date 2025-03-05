@@ -13,4 +13,5 @@ namespace Engine {
         return nullptr;
     }
     template class Context<WindowType::GLFW>;
+    template class Context<WindowType::X11>;
 }
