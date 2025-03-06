@@ -7,28 +7,28 @@ Engine is my game engine built to learn and implement the in-depth workings of g
 
 ## Current Features
 
-- **Model Loading:**
-- **Shader Compilation:**
-- **Materials and Material Instancing:**
-- **Undo/Redo Manager:**
-- **Windowing Support:**
-- **OpenGL Support:**
-- **Entity Component System (ECS):**
-- **Scene Hierarchy:**
-- **Custom Event Handler:**
-- **Rendering Command Queue:**
+- **Model Loading**
+- **Shader Compilation**
+- **Materials and Material Instancing**
+- **Undo/Redo Manager**
+- **Windowing Support**
+- **OpenGL Support**
+- **Entity Component System (ECS)**
+- **Scene Hierarchy**
+- **Custom Event Handler**
+- **Rendering Command Queue**
 
 ## Future Plans
 
-- **Rendering Pass:**
-- **Rendering Pipeline:**
-- **Improved Asset Loading:**
-- **Scripting Support:**
-- **PBR (Physically Based Rendering):**
-- **Asset Management:**
-- **Shadows:**
-- **Automatic Batch Rendering:**
-- **Automatic Instancing:** 
+- **Rendering Pass**
+- **Rendering Pipeline**
+- **Improved Asset Loading**
+- **Scripting Support**
+- **PBR (Physically Based Rendering)**
+- **Asset Management**
+- **Shadows**
+- **Automatic Batch Rendering**
+- **Automatic Instancing** 
 
 ## Vendors
 
