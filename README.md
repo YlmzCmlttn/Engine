@@ -11,7 +11,7 @@ Engine is my game engine built to learn and implement the in-depth workings of g
 - **Shader Compilation**
 - **Materials and Material Instancing**
 - **Undo/Redo Manager**
-- **Windowing Support**
+- **Windowing Support (GLFWWindow, X11Window(branch), Win32 (branch))**
 - **OpenGL Support**
 - **Entity Component System (ECS)**
 - **Scene Hierarchy**
@@ -24,7 +24,7 @@ Engine is my game engine built to learn and implement the in-depth workings of g
 - **Rendering Pipeline**
 - **Improved Asset Loading**
 - **Scripting Support**
-- **PBR (Physically Based Rendering)**
+- **PBR (Physically Based Rendering) (pbr branch)**
 - **Asset Management**
 - **Shadows**
 - **Automatic Batch Rendering**
