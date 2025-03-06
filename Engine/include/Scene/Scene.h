@@ -33,7 +33,7 @@ namespace Engine {
         void reorderEntity(Entity entity,Entity next);
         Entity createEntityWithUUID(const std::string& name, const UUID& uuid);
     protected:
-        virtual void onRender(Timestep ts, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix);
+        virtual void onRender(Timestep ts, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix,const glm::vec3& cameraPosition);
         virtual void onViewportResize(uint32_t width, uint32_t height);
     private:
         std::string m_Name;        

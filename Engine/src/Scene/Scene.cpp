@@ -36,10 +36,10 @@ namespace Engine {
             auto& cameraComponent = mainCamera.getComponent<CameraComponent>();
             auto& transformComponent = mainCamera.getComponent<TransformComponent>();
             auto& sceneCamera = cameraComponent.camera;
-            onRender(ts,glm::inverse(transformComponent.globalTransform),sceneCamera.getProjectionMatrix());
+            onRender(ts,glm::inverse(transformComponent.globalTransform),sceneCamera.getProjectionMatrix(),transformComponent.globalTransform[3]);
         }
     }
-    void Scene::onRender(Timestep ts, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix) {
+    void Scene::onRender(Timestep ts, const glm::mat4& viewMatrix, const glm::mat4& projectionMatrix,const glm::vec3& cameraPosition) {
         //Get Mesh Components.
         Engine::Renderer::Clear(0.1,0.1,0.1,1.0);
         auto view = m_Registry.view<TransformComponent, MeshComponent, MeshRendererComponent>();
@@ -64,6 +64,26 @@ namespace Engine {
             meshRendererComponent.material->set("Transforms.u_M", transformComponent.globalTransform);
             meshRendererComponent.material->set("Transforms.u_V",viewMatrix);
             meshRendererComponent.material->set("Transforms.u_P",projectionMatrix);
+            meshRendererComponent.material->set("Camera.u_CameraPosition",cameraPosition);
+            //meshRendererComponent.material->set("Transforms.u_NormalMatrix",glm::transpose(glm::inverse(transformComponent.globalTransform)));
+
+            // meshRendererComponent.material->set("Light.u_LightPosition[0]",glm::vec3(0.0,0.0,0.0));
+            // meshRendererComponent.material->set("Light.u_LightColor[0]",glm::vec3(1.0,1.0,1.0));
+            // meshRendererComponent.material->set("Light.u_LightPosition[1]",glm::vec3(0.0,0.0,0.0));
+            // meshRendererComponent.material->set("Light.u_LightColor[1]",glm::vec3(1.0,1.0,1.0));
+            // meshRendererComponent.material->set("Light.u_LightPosition[2]",glm::vec3(0.0,0.0,0.0));
+            // meshRendererComponent.material->set("Light.u_LightColor[2]",glm::vec3(1.0,1.0,1.0));
+            // meshRendererComponent.material->set("Light.u_LightPosition[3]",glm::vec3(0.0,0.0,0.0));
+            // meshRendererComponent.material->set("Light.u_LightColor[3]",glm::vec3(1.0,1.0,1.0));
+
+            // meshRendererComponent.material->set("Camera.u_CameraPosition",cameraPosition);
+
+            // meshRendererComponent.material->set("Material.u_Albedo",meshComponent.mesh->getMaterial()->getAlbedo());
+            // meshRendererComponent.material->set("Material.u_Metallic",meshComponent.mesh->getMaterial()->getMetallic());
+            // meshRendererComponent.material->set("Material.u_Roughness",meshComponent.mesh->getMaterial()->getRoughness());
+            // meshRendererComponent.material->set("Material.u_AmbientOcclusion",meshComponent.mesh->getMaterial()->getAmbientOcclusion());
+
+
             meshRendererComponent.material->bind();
 
             //meshRendererComponent.material->getShader()->setUniformBuffer("Transforms", glm::value_ptr(mvp), sizeof(glm::mat4));     

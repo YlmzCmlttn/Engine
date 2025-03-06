@@ -284,9 +284,9 @@ namespace Engine {
 			}
 			if (recompile || !openGLBinary.has_value()) {
 				std::string openGLSource = convertSPIRV2OpenGLSource(vulkanBinary.value());
-				// printf("=========================================\n");
-				// printf("Shaders:\n%s\n", openGLSource.c_str());
-				// printf("=========================================\n");
+				printf("=========================================\n");
+				printf("Shaders:\n%s\n", openGLSource.c_str());
+				printf("=========================================\n");
 				openGLBinary = compileOpenGLSource2SPIRV(openGLSource,shaderSource.first);
 				reflect(openGLBinary.value());
 				writeOpenGLBinaryToFile(openGLBinary.value(),shaderSource.first);
@@ -303,9 +303,9 @@ namespace Engine {
 		opts.es = false;
 		glsl.set_common_options(opts);
 
-		// std::cout<<"========================================="<<std::endl;
-		// std::cout<<glsl.compile()<<std::endl;
-		// std::cout<<"========================================="<<std::endl;
+		std::cout<<"========================================="<<std::endl;
+		std::cout<<glsl.compile()<<std::endl;
+		std::cout<<"========================================="<<std::endl;
 
 		auto resources = glsl.get_shader_resources();
 		for(auto& resource : resources.uniform_buffers){
@@ -319,7 +319,7 @@ namespace Engine {
 				buffer.name = resource.name;
 				buffer.bindingPoint = binding;
 				buffer.size = glsl.get_declared_struct_size(bufferType);
-				//std::cout<<"Buffer type: "<<bufferType.basetype<<std::endl;
+				std::cout<<"Buffer type: "<<bufferType.basetype<<std::endl;
 				//std::cout<<"Buffer size: "<<buffer.size<<std::endl;
 				//std::cout<<"Buffer name: "<<buffer.name<<std::endl;
 				//std::cout<<"Buffer binding point: "<<buffer.bindingPoint<<std::endl;				
@@ -329,12 +329,31 @@ namespace Engine {
 					const auto& memberName = glsl.get_member_name(bufferType.self, i);
 					auto size = glsl.get_declared_struct_member_size(bufferType, i);
 					auto offset = glsl.type_struct_member_offset(bufferType, i);
-					//std::cout<<"Member type: "<<memberType.basetype<<std::endl;
+					std::cout<<"Member type: "<<memberType.basetype<<std::endl;
+
+					int arraySize = 1;
+					if (!memberType.array.empty()) {
+						arraySize = memberType.array[0];  // Get the array size
+					}
+					std::cout<<"Array size: "<<arraySize<<std::endl;
+
+					auto elementType = memberType;
+					// std::cout<<"Element type: "<<elementType.basetype<<std::endl;
+					// if (!memberType.array.empty()) {
+					// 	elementType = glsl.get_type(memberType.parent_type);
+					// }
+					// std::cout<<"Element type: "<<elementType.basetype<<std::endl;
 					//std::cout<<"Member name: "<<memberName<<std::endl;
 					//std::cout<<"Member size: "<<size<<std::endl;
 					//std::cout<<"Member offset: "<<offset<<std::endl;
+					if(arraySize > 1){
+						for(int i = 0; i < arraySize; i++){
+							buffer.uniforms[memberName+"["+std::to_string(i)+"]"] = ShaderUniform(memberName+"["+std::to_string(i)+"]", SPIRTypeToShaderUniformType(elementType), size/arraySize, offset + i*(size/arraySize));
+						}
+					}else{
+						buffer.uniforms[memberName] = ShaderUniform(memberName, SPIRTypeToShaderUniformType(memberType), size, offset);
+					}
 
-					buffer.uniforms[memberName] = ShaderUniform(memberName, SPIRTypeToShaderUniformType(memberType), size, offset);
 				}
 
 				glCreateBuffers(1, &buffer.rendererID);

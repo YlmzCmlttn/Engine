@@ -25,7 +25,7 @@ void EditorScene::onUpdate(Timestep ts)
 
 void EditorScene::onRender(Timestep ts)
 {
-    Scene::onRender(ts,m_EditorSceneCamera->getViewMatrix(),m_EditorSceneCamera->getProjectionMatrix());    
+    Scene::onRender(ts,m_EditorSceneCamera->getViewMatrix(),m_EditorSceneCamera->getProjectionMatrix(),m_EditorSceneCamera->getPosition());    
 }
 
 void EditorScene::onEvent(Event& e)

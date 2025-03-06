@@ -11,18 +11,18 @@ namespace Engine
     public:
         struct Vertex {
             glm::vec3 position;
-            //glm::vec3 normal;     // Optional: default to glm::vec3(0.0f)
+            glm::vec3 normal;     // Optional: default to glm::vec3(0.0f)
             glm::vec2 uv;         // Optional: default to glm::vec2(0.0f)
             //glm::vec3 tangent;    // Optional: default to glm::vec3(0.0f)
             //glm::vec3 bitangent;  // Optional: default to glm::vec3(0.0f)
             Vertex() = default;
             Vertex(const glm::vec3& pos,
-                //const glm::vec3& norm = glm::vec3(0.0f),
+                const glm::vec3& norm = glm::vec3(0.0f),
                 const glm::vec2& tex = glm::vec2(0.0f)
                 //const glm::vec3& tang = glm::vec3(0.0f),
                 //const glm::vec3& bitang = glm::vec3(0.0f))
                 //: position(pos), normal(norm), uv(tex), tangent(tang), bitangent(bitang)
-                ): position(pos), uv(tex)
+                ): position(pos), normal(norm), uv(tex)
             {}
         };
 

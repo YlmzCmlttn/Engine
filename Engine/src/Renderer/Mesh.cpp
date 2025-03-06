@@ -19,7 +19,7 @@ namespace Engine
     {
         m_BufferLayout = BufferLayout({
             { ShaderDataType::Float3, "a_Position" },
-            //{ ShaderDataType::Float3, "a_Normal" },
+            { ShaderDataType::Float3, "a_Normal" },
             { ShaderDataType::Float2, "a_TexCoord" },
             //{ ShaderDataType::Float3, "a_Tangent" },
             //{ ShaderDataType::Float3, "a_Bitangent" }
@@ -39,7 +39,6 @@ namespace Engine
 
     void Mesh::uploadToGPU()
     {
-        std::cout << m_Vertices.size() << std::endl;
         auto vertexBuffer = VertexBuffer::Create(m_Vertices.data(), static_cast<uint32_t>(m_Vertices.size() * sizeof(Vertex)));
         vertexBuffer->setLayout(m_BufferLayout);
         auto indexBuffer = IndexBuffer::Create(m_Indices.data(), static_cast<uint32_t>(m_Indices.size()) * sizeof(uint32_t));

@@ -72,75 +72,117 @@ EditorLayer::EditorLayer() : Layer("Editor")
     m_Shader = Engine::Shader::CreateFromFile("Basic", std::filesystem::current_path().string()+"/../assets/shaders/shader.glsl");
 }
 
+void generateCube(std::vector<Engine::Mesh::Vertex>& vertices, std::vector<unsigned int>& indices, float size = 1.0f) {
+    float half = size / 2.0f;
+
+    // Cube vertices (position, normal, and UV for each face)
+    Engine::Mesh::Vertex cubeVertices[] = {
+        // Front Face
+        {glm::vec3(-half, -half,  half), glm::vec3(0,  0,  1),  glm::vec2(0, 0)},
+        {glm::vec3( half, -half,  half), glm::vec3(0,  0,  1),  glm::vec2(1, 0)},
+        {glm::vec3( half,  half,  half), glm::vec3(0,  0,  1),  glm::vec2(1, 1)},
+        {glm::vec3(-half,  half,  half), glm::vec3(0,  0,  1),  glm::vec2(0, 1)},
+
+        // Back Face
+        {glm::vec3( half, -half, -half), glm::vec3(0,  0, -1),  glm::vec2(0, 0)},
+        {glm::vec3(-half, -half, -half), glm::vec3(0,  0, -1),  glm::vec2(1, 0)},
+        {glm::vec3(-half,  half, -half), glm::vec3(0,  0, -1),  glm::vec2(1, 1)},
+        {glm::vec3( half,  half, -half), glm::vec3(0,  0, -1),  glm::vec2(0, 1)},
+
+        // Left Face
+        {glm::vec3(-half, -half, -half), glm::vec3(-1,  0,  0),  glm::vec2(0, 0)},  
+        {glm::vec3(-half, -half,  half), glm::vec3(-1,  0,  0),  glm::vec2(1, 0)},  
+        {glm::vec3(-half,  half,  half), glm::vec3(-1,  0,  0),  glm::vec2(1, 1)},  
+        {glm::vec3(-half,  half, -half), glm::vec3(-1,  0,  0),  glm::vec2(0, 1)},  
+
+        // Right Face
+        {glm::vec3( half, -half,  half),  glm::vec3(1,  0,  0),  glm::vec2(0, 0)},  
+        {glm::vec3( half, -half, -half),  glm::vec3(1,  0,  0),  glm::vec2(1, 0)},  
+        {glm::vec3( half,  half, -half),  glm::vec3(1,  0,  0),  glm::vec2(1, 1)},  
+        {glm::vec3( half,  half,  half),  glm::vec3(1,  0,  0),  glm::vec2(0, 1)},  
+
+        // Top Face
+        {glm::vec3(-half,  half,  half),  glm::vec3(0,  1,  0), glm::vec2(0, 0)},  
+        {glm::vec3( half,  half,  half),  glm::vec3(0,  1,  0), glm::vec2(1, 0)},  
+        {glm::vec3( half,  half, -half),  glm::vec3(0,  1,  0), glm::vec2(1, 1)},  
+        {glm::vec3(-half,  half, -half),  glm::vec3(0,  1,  0), glm::vec2(0, 1)},  
+
+        // Bottom Face
+        {glm::vec3(-half, -half, -half),  glm::vec3(0, -1,  0), glm::vec2(0, 0)},  
+        {glm::vec3( half, -half, -half),  glm::vec3(0, -1,  0), glm::vec2(1, 0)},  
+        {glm::vec3( half, -half,  half),  glm::vec3(0, -1,  0), glm::vec2(1, 1)},  
+        {glm::vec3(-half, -half,  half),  glm::vec3(0, -1,  0), glm::vec2(0, 1)}   
+    };
+
+    // Indices for each face (two triangles per face)
+    unsigned int cubeIndices[] = {
+        0, 1, 2,  2, 3, 0,    // Front
+        4, 5, 6,  6, 7, 4,    // Back
+        8, 9,10, 10,11, 8,    // Left
+        12,13,14, 14,15,12,   // Right
+        16,17,18, 18,19,16,   // Top
+        20,21,22, 22,23,20    // Bottom
+    };
+
+    // Store vertices and indices
+    vertices.assign(cubeVertices, cubeVertices + 24);
+    indices.assign(cubeIndices, cubeIndices + 36);
+}
+void generateSphere(std::vector<Engine::Mesh::Vertex>& vertices, std::vector<unsigned int>& indices, float radius, int stacks, int slices) {
+    for (int i = 0; i <= stacks; ++i) {
+        float phi = M_PI * float(i) / float(stacks); // Latitude angle (0 to PI)
+
+        for (int j = 0; j <= slices; ++j) {
+            float theta = 2.0f * M_PI * float(j) / float(slices); // Longitude angle (0 to 2PI)
+
+            // Compute vertex position
+            float x = radius * sin(phi) * cos(theta);
+            float y = radius * cos(phi);
+            float z = radius * sin(phi) * sin(theta);
+
+            // Normal is just the unit vector of position for a sphere
+            float nx = x / radius;
+            float ny = y / radius;
+            float nz = z / radius;
+
+            // UV mapping
+            float u = float(j) / float(slices);
+            float v = float(i) / float(stacks);
+
+            // Store vertex
+            vertices.push_back(Engine::Mesh::Vertex(glm::vec3(x, y, z), glm::vec3(nx, ny, nz), glm::vec2(u, v)));
+        }
+    }
+
+    // Generate indices for triangle strips
+    for (int i = 0; i < stacks; ++i) {
+        for (int j = 0; j < slices; ++j) {
+            int first = i * (slices + 1) + j;
+            int second = first + slices + 1;
+
+            indices.push_back(first);
+            indices.push_back(second);
+            indices.push_back(first + 1);
+
+            indices.push_back(second);
+            indices.push_back(second + 1);
+            indices.push_back(first + 1);
+        }
+    }
+}
+
+
+
 void EditorLayer::onAttach() {
 
-    //Triangle
-    float vertices_[] = {
-    // Front face
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  
-
-    // Back face
-    -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  
-
-    // Top face
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  
-
-    // Bottom face
-    -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-     0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 
-    
-    // Left face
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
-    
-    // Right face
-    -0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f,  1.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f,  0.0f, 1.0f,
-};
-unsigned int indices_[] = {
-    // Front face
-    0, 1, 2,  2, 3, 0,  
-    // Back face
-    4, 5, 6,  6, 7, 4,  
-    // Left face
-    8, 9, 10,  10, 11, 8,  
-    // Right face
-    12, 13, 14,  14, 15, 12,  
-    // Top face
-    16, 17, 18,  18, 19, 16,  
-    // Bottom face
-    20, 21, 22,  22, 23, 20   
-};
-
-
     std::vector<Engine::Mesh::Vertex> vertices;
-    for(int i=0;i<120;i=i+5){
-        vertices.push_back(Engine::Mesh::Vertex(glm::vec3(vertices_[i],vertices_[i+1],vertices_[i+2]),glm::vec2(vertices_[i+3],vertices_[i+4])));
-    }
-    std::vector<uint32_t> indices;
-    for(int i=0;i<36;i++){
-        indices.push_back(indices_[i]);
-    }
+    std::vector<unsigned int> indices;
+    generateSphere(vertices, indices, 1.0f, 64, 64);
 
-    // m_Mesh = Engine::CreateRef<Engine::Mesh>();
-    // m_Mesh->setVertices(vertices);
-    // m_Mesh->setIndices(indices);
-    // m_Mesh->uploadToGPU();
+    m_Mesh = Engine::CreateRef<Engine::Mesh>();
+    m_Mesh->setVertices(vertices);
+    m_Mesh->setIndices(indices);
+    m_Mesh->uploadToGPU();
 
 
     Engine::FrameBufferSpecification spec;
@@ -166,17 +208,49 @@ unsigned int indices_[] = {
 
     // m_Texture = Engine::Texture2D::Create(std::filesystem::current_path().string()+"/../assets/textures/test.png");
 
-    // m_MeshEntity = m_Scene->createEntity("Mesh");
-    // auto meshComponent = m_MeshEntity.addComponent<Engine::MeshComponent>(m_Mesh);
-    // meshComponent.mesh = m_Mesh;
+    m_MeshEntity = m_Scene->createEntity("Mesh");
+    auto meshComponent = m_MeshEntity.addComponent<Engine::MeshComponent>(m_Mesh);
+    meshComponent.mesh = m_Mesh;
+    
 
-    // auto meshRendererComponent = m_MeshEntity.addComponent<Engine::MeshRendererComponent>(Engine::Material::Create(m_Shader));
-    // Renderer::Submit([meshRendererComponent,this]() {
-    //     meshRendererComponent.material->set("u_Texture",this->m_Texture);
-    // });
+
+    auto meshRendererComponent = m_MeshEntity.addComponent<Engine::MeshRendererComponent>(Engine::Material::Create(m_Shader));
+    Renderer::Submit([meshRendererComponent,this]() {
+
+        glm::vec3 lightPositions[] = {
+            glm::vec3(-10.0f,  10.0f, 10.0f),
+            glm::vec3( 10.0f,  10.0f, 10.0f),
+            glm::vec3(-10.0f, -10.0f, 10.0f),
+            glm::vec3( 10.0f, -10.0f, 10.0f),
+        };
+        
+        //Set default values for the shader
+        meshRendererComponent.material->set("Material.u_Albedo",glm::vec3(1.0,1.0,1.0));
+        meshRendererComponent.material->set("Material.u_Metallic",0.0f);
+        meshRendererComponent.material->set("Material.u_Roughness",0.5f);
+        meshRendererComponent.material->set("Material.u_AmbientOcclusion",1.0f);
+
+        //Set default values for the lights
+        meshRendererComponent.material->set("Light.u_LightPosition[0]",lightPositions[0]);
+        meshRendererComponent.material->set("Light.u_LightColor[0]",glm::vec3(1.0,1.0,1.0));
+        meshRendererComponent.material->set("Light.u_LightIntensity[0]",300.0f);
+
+        meshRendererComponent.material->set("Light.u_LightPosition[1]",lightPositions[1]);
+        meshRendererComponent.material->set("Light.u_LightColor[1]",glm::vec3(1.0,1.0,1.0));
+        meshRendererComponent.material->set("Light.u_LightIntensity[1]",300.0f);
+
+        meshRendererComponent.material->set("Light.u_LightPosition[2]",lightPositions[2]);
+        meshRendererComponent.material->set("Light.u_LightColor[2]",glm::vec3(1.0,1.0,1.0));
+        meshRendererComponent.material->set("Light.u_LightIntensity[2]",300.0f);
+
+        meshRendererComponent.material->set("Light.u_LightPosition[3]",lightPositions[3]);
+        meshRendererComponent.material->set("Light.u_LightColor[3]",glm::vec3(1.0,1.0,1.0));
+        meshRendererComponent.material->set("Light.u_LightIntensity[3]",300.0f);
+        
+    });
 
     //Engine::MeshLoader::GetInstance().LoadMeshToScene(std::filesystem::current_path().string()+"/../assets/models/backpack/Survival_BackPack_2.fbx",m_Scene);
-    Engine::MeshLoader::GetInstance().LoadMeshToScene(std::filesystem::current_path().string()+"/../assets/models/backpack/backpack.obj",m_Scene);
+    //Engine::MeshLoader::GetInstance().LoadMeshToScene(std::filesystem::current_path().string()+"/../assets/models/backpack/backpack.obj",m_Scene);
     //Engine::MeshLoader::GetInstance().LoadMeshToScene("../assets/models/m1911/m1911.fbx", m_Scene);
     //Engine::MeshLoader::GetInstance().LoadMeshToScene("../assets/models/Sphere1m.fbx", m_Scene);
     
