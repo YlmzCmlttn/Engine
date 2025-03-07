@@ -7,8 +7,9 @@ namespace Engine
 	enum class TextureFormat
 	{
 		None = 0,
-		RGB = 1,
-		RGBA = 2,
+		RED = 1,
+		RGB = 2,
+		RGBA = 3,
 	};
 	class Texture
 	{

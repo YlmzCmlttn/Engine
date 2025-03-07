@@ -181,6 +181,38 @@ static void DrawEntity(Engine::Entity entity){
         material->set("Material.u_Roughness", roughness);
         material->set("Material.u_AmbientOcclusion", ambientOcclusion);
 
+        ImGui::Text("Has Albedo Map");
+        int hasAlbedoMap = material->get<int>("Material.u_HasAlbedoMap");
+        bool hasAlbedoMapBool = hasAlbedoMap == 1;
+        ImGui::Checkbox("Has Albedo Map", &hasAlbedoMapBool);
+        material->set("Material.u_HasAlbedoMap", hasAlbedoMapBool ? 1 : 0);
+
+        ImGui::Text("Has Normal Map");
+        int hasNormalMap = material->get<int>("Material.u_HasNormalMap");
+        bool hasNormalMapBool = hasNormalMap == 1;
+        ImGui::Checkbox("Has Normal Map", &hasNormalMapBool);
+        material->set("Material.u_HasNormalMap", hasNormalMapBool ? 1 : 0);
+
+        ImGui::Text("Has Roughness Map");
+        int hasRoughnessMap = material->get<int>("Material.u_HasRoughnessMap");
+        bool hasRoughnessMapBool = hasRoughnessMap == 1;
+        ImGui::Checkbox("Has Roughness Map", &hasRoughnessMapBool);
+        material->set("Material.u_HasRoughnessMap", hasRoughnessMapBool ? 1 : 0);
+
+        ImGui::Text("Has Metallic Map");
+        int hasMetallicMap = material->get<int>("Material.u_HasMetallicMap");
+        bool hasMetallicMapBool = hasMetallicMap == 1;
+        ImGui::Checkbox("Has Metallic Map", &hasMetallicMapBool);
+        material->set("Material.u_HasMetallicMap", hasMetallicMapBool ? 1 : 0);
+
+        ImGui::Text("Has Ambient Occlusion Map");
+        int hasAmbientOcclusionMap = material->get<int>("Material.u_HasAmbientOcclusionMap");
+        bool hasAmbientOcclusionMapBool = hasAmbientOcclusionMap == 1;
+        ImGui::Checkbox("Has Ambient Occlusion Map", &hasAmbientOcclusionMapBool);
+        material->set("Material.u_HasAmbientOcclusionMap", hasAmbientOcclusionMapBool ? 1 : 0);
+        
+        
+
 
         ///Lights
 

@@ -5,7 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <imgui.h>
-
+#include "Loader/TextureLoader.h"
 #include "Loader/MeshLoader.h"
 static void DockSpaceBegin(){
      static bool dockspaceOpen = true;
@@ -178,6 +178,7 @@ void EditorLayer::onAttach() {
     std::vector<Engine::Mesh::Vertex> vertices;
     std::vector<unsigned int> indices;
     generateSphere(vertices, indices, 1.0f, 64, 64);
+    //generateCube(vertices, indices, 1.0f);
 
     m_Mesh = Engine::CreateRef<Engine::Mesh>();
     m_Mesh->setVertices(vertices);
@@ -215,7 +216,13 @@ void EditorLayer::onAttach() {
 
 
     auto meshRendererComponent = m_MeshEntity.addComponent<Engine::MeshRendererComponent>(Engine::Material::Create(m_Shader));
-    Renderer::Submit([meshRendererComponent,this]() {
+    Ref<Texture2D> albedoMap = Engine::TextureLoader::GetInstance().LoadTexture("../assets/textures/pbr/rusted_iron/albedo.png");
+    Ref<Texture2D> normalMap = Engine::TextureLoader::GetInstance().LoadTexture("../assets/textures/pbr/rusted_iron/normal.png");
+    Ref<Texture2D> roughnessMap = Engine::TextureLoader::GetInstance().LoadTexture("../assets/textures/pbr/rusted_iron/roughness.png");
+    Ref<Texture2D> metallicMap = Engine::TextureLoader::GetInstance().LoadTexture("../assets/textures/pbr/rusted_iron/metallic.png");
+    Ref<Texture2D> ambientOcclusionMap = Engine::TextureLoader::GetInstance().LoadTexture("../assets/textures/pbr/rusted_iron/ao.png");
+
+    Renderer::Submit([meshRendererComponent,albedoMap,normalMap,roughnessMap,metallicMap,ambientOcclusionMap,this]() {
 
         glm::vec3 lightPositions[] = {
             glm::vec3(-10.0f,  10.0f, 10.0f),
@@ -246,6 +253,18 @@ void EditorLayer::onAttach() {
         meshRendererComponent.material->set("Light.u_LightPosition[3]",lightPositions[3]);
         meshRendererComponent.material->set("Light.u_LightColor[3]",glm::vec3(1.0,1.0,1.0));
         meshRendererComponent.material->set("Light.u_LightIntensity[3]",300.0f);
+
+        meshRendererComponent.material->set("Material.u_HasAlbedoMap",albedoMap ? 1 : 0);
+        meshRendererComponent.material->set("Material.u_HasNormalMap",normalMap ? 1 : 0);
+        meshRendererComponent.material->set("Material.u_HasRoughnessMap",roughnessMap ? 1 : 0);
+        meshRendererComponent.material->set("Material.u_HasMetallicMap",metallicMap ? 1 : 0);
+        meshRendererComponent.material->set("Material.u_HasAmbientOcclusionMap",ambientOcclusionMap ? 1 : 0);
+
+        meshRendererComponent.material->set("u_AlbedoMap",albedoMap);
+        meshRendererComponent.material->set("u_NormalMap",normalMap);
+        meshRendererComponent.material->set("u_RoughnessMap",roughnessMap);
+        meshRendererComponent.material->set("u_MetallicMap",metallicMap);
+        meshRendererComponent.material->set("u_AmbientOcclusionMap",ambientOcclusionMap);
         
     });
 

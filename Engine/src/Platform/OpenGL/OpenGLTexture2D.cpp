@@ -41,7 +41,13 @@ namespace Engine {
 		}
 		m_Width = width;
 		m_Height = height;
-		m_Format = (channels == 4) ? TextureFormat::RGBA : TextureFormat::RGB;
+		if(channels == 1){
+			m_Format = TextureFormat::RED;
+		}else if(channels == 3){
+			m_Format = TextureFormat::RGB;
+		}else if(channels == 4){
+			m_Format = TextureFormat::RGBA;
+		}
 
 		Renderer::Submit([this,srgb]() {
 			if(srgb){

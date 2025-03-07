@@ -8,6 +8,7 @@ namespace Engine {
 	{
 		switch (format)
 		{
+			case TextureFormat::RED:     return GL_RED;
 			case TextureFormat::RGB:     return GL_RGB;
 			case TextureFormat::RGBA:    return GL_RGBA;
 			// Add other cases as needed
